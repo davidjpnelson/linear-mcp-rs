@@ -79,8 +79,12 @@ pub fn format_issue_detail(issue: &Issue) -> String {
     }
 
     // Dates — extract just the date portion
-    lines.push(format!("**Created:** {}", format_date(&issue.created_at)));
-    lines.push(format!("**Updated:** {}", format_date(&issue.updated_at)));
+    if let Some(ref created) = issue.created_at {
+        lines.push(format!("**Created:** {}", format_date(created)));
+    }
+    if let Some(ref updated) = issue.updated_at {
+        lines.push(format!("**Updated:** {}", format_date(updated)));
+    }
     lines.push(format!("**URL:** {}", issue.url));
 
     // Parent

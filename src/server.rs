@@ -293,7 +293,7 @@ impl LinearMcp {
             }),
         };
         let vars = serde_json::json!({ "filter": filter });
-        let data: response::WorkflowStatesData = self
+        let data: response::ResolveStateData = self
             .client
             .execute_json(queries::RESOLVE_STATE, vars)
             .await?;

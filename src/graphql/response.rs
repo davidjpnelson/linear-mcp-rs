@@ -91,6 +91,21 @@ pub struct WorkflowStateWithTeam {
     pub team: crate::types::Team,
 }
 
+/// Response type for resolve queries (simpler than full list queries).
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolveStateData {
+    pub workflow_states: crate::types::NodeList<ResolvedState>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResolvedState {
+    pub id: String,
+    pub name: String,
+    #[serde(rename = "type")]
+    pub state_type: String,
+}
+
 // ---- Mutation response data shapes ----
 
 #[derive(Debug, Deserialize)]

@@ -49,7 +49,9 @@ impl LinearClient {
             return Err(Error::GraphQL(format!("HTTP {status}: {text}")));
         }
 
-        let gql_resp: GraphQLResponse<T> = resp.json().await?;
+        let text = resp.text().await?;
+        let gql_resp: GraphQLResponse<T> = serde_json::from_str(&text)
+            .map_err(|e| Error::GraphQL(format!("Deserialization error: {e}")))?;
 
         if let Some(errors) = gql_resp.errors {
             let msg = format_gql_errors(&errors);
@@ -86,7 +88,9 @@ impl LinearClient {
             return Err(Error::GraphQL(format!("HTTP {status}: {text}")));
         }
 
-        let gql_resp: GraphQLResponse<T> = resp.json().await?;
+        let text = resp.text().await?;
+        let gql_resp: GraphQLResponse<T> = serde_json::from_str(&text)
+            .map_err(|e| Error::GraphQL(format!("Deserialization error: {e}")))?;
 
         if let Some(errors) = gql_resp.errors {
             let msg = format_gql_errors(&errors);
