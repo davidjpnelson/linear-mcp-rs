@@ -4,19 +4,17 @@ Rust MCP server for Linear. Single ~4MB binary, no runtime dependencies.
 
 ## Install
 
-Requires [GitHub CLI](https://cli.github.com) authenticated with access to this repo.
-
 ```bash
 gh release download --repo davidjpnelson/linear-mcp-rs -p install.sh -O- | bash
 ```
 
-This downloads the right binary for your OS/arch to `~/.local/bin/linear-mcp`.
+Requires [GitHub CLI](https://cli.github.com). Downloads the right binary for your OS/arch to `~/.local/bin/linear-mcp`.
 
 ## Setup
 
 ### 1. Linear API key
 
-Create a personal API key at [https://linear.app](https://linear.app) -> **Settings** -> **Security & access** -> Personal API Keys
+Create a personal API key at [https://linear.app](https://linear.app) → **Settings** → **Security & access** → Personal API Keys
 
 The server checks these in order:
 
@@ -35,13 +33,80 @@ export LINEAR_API_KEY="lin_api_your_key_here"
 security add-generic-password -s linear-api-key -a "$USER" -w "lin_api_your_key_here"
 ```
 
-### 2. Add to Claude Code
+### 2. Add to your coding agent
+
+<details>
+<summary><b>Claude Code</b></summary>
 
 ```bash
-claude mcp add linear-mcp-rs ~/.local/bin/linear-mcp
+claude mcp add linear-mcp ~/.local/bin/linear-mcp
 ```
 
 Then restart Claude Code.
+
+</details>
+
+<details>
+<summary><b>OpenAI Codex CLI</b></summary>
+
+```bash
+codex mcp add linear-mcp -- ~/.local/bin/linear-mcp
+```
+
+Or add to `~/.codex/config.toml` (use your full home path):
+
+```toml
+[mcp_servers.linear-mcp]
+command = "/Users/YOUR_USER/.local/bin/linear-mcp"
+```
+
+</details>
+
+<details>
+<summary><b>Gemini CLI</b></summary>
+
+```bash
+gemini mcp add --name linear-mcp -- ~/.local/bin/linear-mcp
+```
+
+Or add to `~/.gemini/settings.json` (use your full home path):
+
+```json
+{
+  "mcpServers": {
+    "linear-mcp": {
+      "command": "/Users/YOUR_USER/.local/bin/linear-mcp"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Open Code</b></summary>
+
+Add to `~/.config/opencode/opencode.json` (or `opencode.json` in your project root, use your full home path):
+
+```json
+{
+  "mcp": {
+    "linear-mcp": {
+      "type": "local",
+      "command": ["/Users/YOUR_USER/.local/bin/linear-mcp"]
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>Jules</b></summary>
+
+Jules has built-in Linear MCP support — no binary needed. Go to **Jules Settings → MCP**, enter your Linear API key, and start a session.
+
+</details>
 
 ## Tools
 
