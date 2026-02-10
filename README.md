@@ -16,7 +16,7 @@ This downloads the right binary for your OS/arch to `~/.local/bin/linear-mcp`.
 
 ### 1. Linear API key
 
-Create a personal API key at [https://linear.app](https://linear.app) → **Settings** → **Security & access** → Personal API Keys
+Create a personal API key at [https://linear.app/settings/api](https://linear.app/settings/api).
 
 The server checks these in order:
 
