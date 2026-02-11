@@ -590,3 +590,80 @@ pub struct CycleDetail {
 pub struct DeleteMutationResult {
     pub success: bool,
 }
+
+// ---- Phase 12: Remaining tools ----
+
+/// Batch update result.
+#[derive(Debug, Clone, Deserialize)]
+pub struct BatchUpdateResult {
+    pub success: bool,
+    pub issues: Vec<BatchUpdatedIssue>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct BatchUpdatedIssue {
+    pub id: String,
+    pub identifier: String,
+    pub title: String,
+    pub state: Option<IssueStateRef>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct IssueStateRef {
+    pub name: String,
+}
+
+/// Document search result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentSearchResult {
+    pub id: String,
+    pub title: String,
+    pub url: Option<String>,
+    pub slug_id: Option<String>,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+    pub project: Option<DocumentProjectRef>,
+    pub creator: Option<DocumentCreatorRef>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DocumentProjectRef {
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentCreatorRef {
+    pub display_name: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentSearchConnection {
+    pub nodes: Vec<DocumentSearchResult>,
+    pub total_count: Option<i64>,
+}
+
+/// Initiative mutation result.
+#[derive(Debug, Clone, Deserialize)]
+pub struct InitiativeMutationResult {
+    pub success: bool,
+    pub initiative: Option<InitiativeDetail>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct InitiativeDetail {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub status: Option<String>,
+}
+
+/// Custom view with issues.
+#[derive(Debug, Clone, Deserialize)]
+pub struct CustomViewWithIssues {
+    pub id: String,
+    pub name: String,
+    pub issues: Connection<Issue>,
+}

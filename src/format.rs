@@ -774,3 +774,34 @@ pub fn format_cycle_created(cycle: &CycleDetail) -> String {
         name, number, cycle.id, starts, ends
     )
 }
+
+// ---- Phase 12: Remaining tools ----
+
+/// Format a document search result as a one-line summary.
+pub fn format_document_search_result(doc: &DocumentSearchResult) -> String {
+    let mut parts = vec![doc.title.clone()];
+    if let Some(ref project) = doc.project {
+        parts.push(format!("({})", project.name));
+    }
+    if let Some(ref creator) = doc.creator {
+        parts.push(format!("by {}", creator.display_name));
+    }
+    if let Some(ref url) = doc.url {
+        parts.push(format!("[{}]", url));
+    }
+    parts.join(" ")
+}
+
+/// Format an initiative detail (from mutation result).
+pub fn format_initiative_detail(initiative: &InitiativeDetail) -> String {
+    let mut lines = vec![format!("**{}** [id: {}]", initiative.name, initiative.id)];
+    if let Some(ref desc) = initiative.description {
+        if !desc.is_empty() {
+            lines.push(format!("Description: {}", desc));
+        }
+    }
+    if let Some(ref status) = initiative.status {
+        lines.push(format!("Status: {}", status));
+    }
+    lines.join("\n")
+}

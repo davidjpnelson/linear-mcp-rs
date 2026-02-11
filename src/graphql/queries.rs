@@ -1015,3 +1015,114 @@ mutation UnarchiveIssue($id: String!) {
     }
 }
 "#;
+
+// ---- Phase 12: Remaining tools ----
+
+/// Batch update multiple issues.
+pub const BATCH_UPDATE_ISSUES: &str = r#"
+mutation BatchUpdateIssues($ids: [UUID!]!, $input: IssueUpdateInput!) {
+    issueBatchUpdate(ids: $ids, input: $input) {
+        success
+        issues {
+            id
+            identifier
+            title
+            state { name }
+        }
+    }
+}
+"#;
+
+/// Search documents by term.
+pub const SEARCH_DOCUMENTS: &str = r#"
+query SearchDocuments($term: String!, $first: Int, $includeComments: Boolean) {
+    searchDocuments(term: $term, first: $first, includeComments: $includeComments) {
+        nodes {
+            id
+            title
+            url
+            slugId
+            createdAt
+            updatedAt
+            project { name }
+            creator { displayName }
+        }
+        totalCount
+    }
+}
+"#;
+
+/// Create an initiative.
+pub const CREATE_INITIATIVE: &str = r#"
+mutation CreateInitiative($input: InitiativeCreateInput!) {
+    initiativeCreate(input: $input) {
+        success
+        initiative {
+            id
+            name
+            description
+            status
+        }
+    }
+}
+"#;
+
+/// Update an initiative.
+pub const UPDATE_INITIATIVE: &str = r#"
+mutation UpdateInitiative($id: String!, $input: InitiativeUpdateInput!) {
+    initiativeUpdate(id: $id, input: $input) {
+        success
+        initiative {
+            id
+            name
+            description
+            status
+        }
+    }
+}
+"#;
+
+/// Get issues from a custom view.
+pub const GET_VIEW_ISSUES: &str = r#"
+query GetViewIssues($id: String!, $first: Int) {
+    customView(id: $id) {
+        id
+        name
+        issues(first: $first) {
+            nodes {
+                id
+                identifier
+                title
+                priority
+                url
+                state { id name type color }
+                assignee { id displayName email }
+                team { id key name }
+                labels { nodes { id name } }
+            }
+            pageInfo { hasNextPage endCursor }
+        }
+    }
+}
+"#;
+
+/// List triage issues (issues in triage state for a team).
+pub const LIST_TRIAGE_ISSUES: &str = r#"
+query ListTriageIssues($first: Int!, $filter: IssueFilter) {
+    issues(first: $first, filter: $filter) {
+        nodes {
+            id
+            identifier
+            title
+            priority
+            createdAt
+            url
+            state { id name type color }
+            assignee { id displayName email }
+            team { id key name }
+            labels { nodes { id name } }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;

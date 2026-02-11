@@ -893,6 +893,120 @@ impl LinearMcp {
             Err(e) => Ok(error_result(&e)),
         }
     }
+
+    // ---- Phase 12 tools ----
+
+    #[tool(
+        name = "bulk_update_issues",
+        description = "Batch update multiple issues at once. All specified issues get the same update. Max 50 issues per call."
+    )]
+    async fn bulk_update_issues(
+        &self,
+        Parameters(params): Parameters<bulk_update_issues::BulkUpdateIssuesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_bulk_update_issues(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "search_documents",
+        description = "Full-text search across all documents in the workspace."
+    )]
+    async fn search_documents(
+        &self,
+        Parameters(params): Parameters<search_documents::SearchDocumentsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_search_documents(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_initiative",
+        description = "Create a new initiative for tracking high-level goals."
+    )]
+    async fn create_initiative(
+        &self,
+        Parameters(params): Parameters<create_initiative::CreateInitiativeParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_initiative(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_initiative",
+        description = "Update an existing initiative's name, description, status, owner, or target date."
+    )]
+    async fn update_initiative(
+        &self,
+        Parameters(params): Parameters<update_initiative::UpdateInitiativeParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_initiative(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "get_view_issues",
+        description = "Get issues matching a custom view's saved filters."
+    )]
+    async fn get_view_issues(
+        &self,
+        Parameters(params): Parameters<get_view_issues::GetViewIssuesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_get_view_issues(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "list_triage_issues",
+        description = "List issues in the triage state for a team. Triage must be enabled for the team."
+    )]
+    async fn list_triage_issues(
+        &self,
+        Parameters(params): Parameters<list_triage_issues::ListTriageIssuesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_triage_issues(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "triage_issue",
+        description = "Move an issue out of triage by changing its state. Optionally set assignee and priority."
+    )]
+    async fn triage_issue(
+        &self,
+        Parameters(params): Parameters<triage_issue::TriageIssueParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_triage_issue(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_issue_from_template",
+        description = "Create a new issue using a template. Use list_templates to find template IDs. Any provided fields override template defaults."
+    )]
+    async fn create_issue_from_template(
+        &self,
+        Parameters(params): Parameters<create_issue_from_template::CreateIssueFromTemplateParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_issue_from_template(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
 }
 
 // ---- ServerHandler ----
@@ -2027,6 +2141,69 @@ impl LinearMcp {
         Ok(ids)
     }
 
+    /// Resolve a single label name to its UUID.
+    async fn resolve_label_id(&self, label_name: &str) -> Result<String, Error> {
+        let ids = self.resolve_label_ids(label_name).await?;
+        ids.into_iter()
+            .next()
+            .ok_or_else(|| Error::NotFound(format!("Label '{}' not found", label_name)))
+    }
+
+    /// Resolve an issue UUID to its team key (e.g. "ENG").
+    async fn resolve_team_key_from_issue(&self, issue_uuid: &str) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": issue_uuid });
+        let data: serde_json::Value = self
+            .client
+            .execute_json(
+                r#"query($id: String!) { issue(id: $id) { team { id key } } }"#,
+                vars,
+            )
+            .await?;
+        data.get("issue")
+            .and_then(|i| i.get("team"))
+            .and_then(|t| t.get("key"))
+            .and_then(|k| k.as_str())
+            .map(|s| s.to_string())
+            .ok_or_else(|| Error::NotFound(format!("Could not resolve team key for issue {}", issue_uuid)))
+    }
+
+    /// Batch-resolve issue UUIDs to their team keys in a single query.
+    async fn resolve_team_keys_from_issues(&self, uuids: &[String]) -> Result<Vec<String>, Error> {
+        let vars = serde_json::json!({
+            "first": uuids.len(),
+            "filter": { "id": { "in": uuids } },
+        });
+        let data: serde_json::Value = self
+            .client
+            .execute_json(
+                r#"query($first: Int!, $filter: IssueFilter) { issues(first: $first, filter: $filter) { nodes { id team { key } } } }"#,
+                vars,
+            )
+            .await?;
+        let nodes = data.get("issues")
+            .and_then(|i| i.get("nodes"))
+            .and_then(|n| n.as_array())
+            .ok_or_else(|| Error::NotFound("Failed to batch-resolve issue teams".into()))?;
+
+        // Build a map from issue UUID to team key
+        let mut map = std::collections::HashMap::new();
+        for node in nodes {
+            if let (Some(id), Some(key)) = (
+                node.get("id").and_then(|v| v.as_str()),
+                node.get("team").and_then(|t| t.get("key")).and_then(|k| k.as_str()),
+            ) {
+                map.insert(id.to_string(), key.to_string());
+            }
+        }
+
+        // Return keys in the same order as input UUIDs
+        uuids.iter().map(|uuid| {
+            map.get(uuid).cloned().ok_or_else(|| {
+                Error::NotFound(format!("Could not resolve team key for issue {}", uuid))
+            })
+        }).collect()
+    }
+
     /// Resolve a project name to a project UUID.
     /// Prefers exact case-insensitive match; returns ambiguity error if multiple partial matches.
     async fn resolve_project_id(&self, project_name: &str) -> Result<String, Error> {
@@ -3074,6 +3251,386 @@ impl LinearMcp {
             Ok(format!("Issue '{}' unarchived.", params.id))
         } else {
             Err(Error::GraphQL("Issue unarchive failed".into()))
+        }
+    }
+
+    // ---- Phase 12 handlers ----
+
+    async fn handle_bulk_update_issues(
+        &self,
+        params: bulk_update_issues::BulkUpdateIssuesParams,
+    ) -> Result<String, Error> {
+        let id_strs: Vec<&str> = params.ids.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+        if id_strs.is_empty() {
+            return Err(Error::InvalidInput("No issue IDs provided.".into()));
+        }
+        if id_strs.len() > 50 {
+            return Err(Error::InvalidInput("Maximum 50 issues per batch update.".into()));
+        }
+
+        // Resolve all IDs to UUIDs
+        let mut uuids = Vec::new();
+        for id_str in &id_strs {
+            uuids.push(self.resolve_issue_id(id_str).await?);
+        }
+
+        let mut input = serde_json::Map::new();
+
+        if params.state.is_some() && params.team.is_some() {
+            return Err(Error::InvalidInput(
+                "Cannot set both 'state' and 'team' in the same batch update. Change team first, then update state in a separate call.".into()
+            ));
+        }
+
+        if let Some(ref state) = params.state {
+            // States are team-scoped — resolve team keys in a single batch query.
+            let team_keys = self.resolve_team_keys_from_issues(&uuids).await?;
+            let first_key = &team_keys[0];
+            if team_keys.iter().any(|k| k != first_key) {
+                return Err(Error::InvalidInput(
+                    "Cannot batch-update state across multiple teams. All issues must belong to the same team.".into()
+                ));
+            }
+            let state_id = self.resolve_state_id(state, first_key).await?;
+            input.insert("stateId".into(), serde_json::Value::String(state_id));
+        }
+        if let Some(ref assignee) = params.assignee {
+            if assignee.eq_ignore_ascii_case("none") {
+                input.insert("assigneeId".into(), serde_json::Value::Null);
+            } else {
+                let user_id = self.resolve_user_id(assignee).await?;
+                input.insert("assigneeId".into(), serde_json::Value::String(user_id));
+            }
+        }
+        if let Some(ref priority) = params.priority {
+            let p = match priority.to_lowercase().as_str() {
+                "urgent" => 1,
+                "high" => 2,
+                "normal" | "medium" => 3,
+                "low" => 4,
+                "none" => 0,
+                _ => return Err(Error::InvalidInput(format!("Unknown priority: {}", priority))),
+            };
+            input.insert("priority".into(), serde_json::json!(p));
+        }
+        if let Some(ref project) = params.project {
+            let project_id = self.resolve_project_id_or_uuid(project).await?;
+            input.insert("projectId".into(), serde_json::Value::String(project_id));
+        }
+        if let Some(ref cycle) = params.cycle {
+            input.insert("cycleId".into(), serde_json::Value::String(cycle.clone()));
+        }
+        if let Some(ref team) = params.team {
+            let team_id = self.resolve_team_id(team).await?;
+            input.insert("teamId".into(), serde_json::Value::String(team_id));
+        }
+        if let Some(ref add_labels) = params.add_labels {
+            let label_names: Vec<&str> = add_labels.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            let mut label_ids = Vec::new();
+            for name in label_names {
+                label_ids.push(self.resolve_label_id(name).await?);
+            }
+            input.insert("addedLabelIds".into(), serde_json::json!(label_ids));
+        }
+        if let Some(ref remove_labels) = params.remove_labels {
+            let label_names: Vec<&str> = remove_labels.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            let mut label_ids = Vec::new();
+            for name in label_names {
+                label_ids.push(self.resolve_label_id(name).await?);
+            }
+            input.insert("removedLabelIds".into(), serde_json::json!(label_ids));
+        }
+
+        if input.is_empty() {
+            return Err(Error::InvalidInput("No update fields provided.".into()));
+        }
+
+        let vars = serde_json::json!({
+            "ids": uuids,
+            "input": serde_json::Value::Object(input),
+        });
+        let data: response::BatchUpdateIssuesData = self
+            .client
+            .execute_json(queries::BATCH_UPDATE_ISSUES, vars)
+            .await?;
+
+        if !data.issue_batch_update.success {
+            return Err(Error::GraphQL("Batch update failed".into()));
+        }
+
+        let issues = &data.issue_batch_update.issues;
+        let lines: Vec<String> = issues
+            .iter()
+            .map(|i| {
+                let state = i.state.as_ref().map(|s| s.name.as_str()).unwrap_or("?");
+                format!("{} {} [{}]", i.identifier, i.title, state)
+            })
+            .collect();
+        Ok(format!("Updated {} issues:\n\n{}", issues.len(), lines.join("\n")))
+    }
+
+    async fn handle_search_documents(
+        &self,
+        params: search_documents::SearchDocumentsParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(20).max(1).min(100);
+        let include_comments = params.include_comments.unwrap_or(false);
+        let vars = serde_json::json!({
+            "term": params.term,
+            "first": limit,
+            "includeComments": include_comments,
+        });
+        let data: response::SearchDocumentsData = self
+            .client
+            .execute_json(queries::SEARCH_DOCUMENTS, vars)
+            .await?;
+
+        let docs = &data.search_documents.nodes;
+        if docs.is_empty() {
+            return Ok(format!("No documents found for \"{}\".", params.term));
+        }
+
+        let total = data.search_documents.total_count.unwrap_or(docs.len() as i64);
+        let lines: Vec<String> = docs.iter().map(format::format_document_search_result).collect();
+        Ok(format!(
+            "Document search for \"{}\" ({} results):\n\n{}",
+            params.term, total, lines.join("\n")
+        ))
+    }
+
+    async fn handle_create_initiative(
+        &self,
+        params: create_initiative::CreateInitiativeParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({ "name": params.name });
+
+        if let Some(ref desc) = params.description {
+            input["description"] = serde_json::Value::String(desc.clone());
+        }
+        if let Some(ref status) = params.status {
+            input["status"] = serde_json::Value::String(status.clone());
+        }
+        if let Some(ref owner) = params.owner {
+            let owner_id = self.resolve_user_id(owner).await?;
+            input["ownerId"] = serde_json::Value::String(owner_id);
+        }
+        if let Some(ref target_date) = params.target_date {
+            input["targetDate"] = serde_json::Value::String(target_date.clone());
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateInitiativeData = self
+            .client
+            .execute_json(queries::CREATE_INITIATIVE, vars)
+            .await?;
+
+        match data.initiative_create.initiative {
+            Some(initiative) => Ok(format!(
+                "Initiative created:\n\n{}",
+                format::format_initiative_detail(&initiative)
+            )),
+            None => Err(Error::GraphQL("Initiative creation failed".into())),
+        }
+    }
+
+    async fn handle_update_initiative(
+        &self,
+        params: update_initiative::UpdateInitiativeParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+        if let Some(ref status) = params.status {
+            input.insert("status".into(), serde_json::Value::String(status.clone()));
+            has_fields = true;
+        }
+        if let Some(ref owner) = params.owner {
+            if owner.eq_ignore_ascii_case("none") {
+                input.insert("ownerId".into(), serde_json::Value::Null);
+            } else {
+                let owner_id = self.resolve_user_id(owner).await?;
+                input.insert("ownerId".into(), serde_json::Value::String(owner_id));
+            }
+            has_fields = true;
+        }
+        if let Some(ref target_date) = params.target_date {
+            input.insert("targetDate".into(), serde_json::Value::String(target_date.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No update fields provided.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateInitiativeData = self
+            .client
+            .execute_json(queries::UPDATE_INITIATIVE, vars)
+            .await?;
+
+        match data.initiative_update.initiative {
+            Some(initiative) => Ok(format!(
+                "Initiative updated:\n\n{}",
+                format::format_initiative_detail(&initiative)
+            )),
+            None => Err(Error::GraphQL("Initiative update failed".into())),
+        }
+    }
+
+    async fn handle_get_view_issues(
+        &self,
+        params: get_view_issues::GetViewIssuesParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(50).max(1).min(100);
+        let vars = serde_json::json!({ "id": params.id, "first": limit });
+        let data: response::ViewIssuesData = self
+            .client
+            .execute_json(queries::GET_VIEW_ISSUES, vars)
+            .await?;
+
+        let view = data.custom_view.as_ref().ok_or_else(|| {
+            Error::NotFound(format!("Custom view '{}' not found or not accessible.", params.id))
+        })?;
+        let issues = &view.issues.nodes;
+        if issues.is_empty() {
+            return Ok(format!("No issues in view \"{}\".", view.name));
+        }
+
+        let lines: Vec<String> = issues.iter().map(format::format_issue_summary).collect();
+        Ok(format!(
+            "Issues in \"{}\" ({} results):\n\n{}",
+            view.name,
+            issues.len(),
+            lines.join("\n")
+        ))
+    }
+
+    async fn handle_list_triage_issues(
+        &self,
+        params: list_triage_issues::ListTriageIssuesParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(50).max(1).min(100);
+        let team_id = self.resolve_team_id(&params.team).await?;
+        let filter = serde_json::json!({
+            "state": { "type": { "eq": "triage" } },
+            "team": { "id": { "eq": team_id } },
+        });
+        let vars = serde_json::json!({ "first": limit, "filter": filter });
+        let data: response::IssuesData = self
+            .client
+            .execute_json(queries::LIST_TRIAGE_ISSUES, vars)
+            .await?;
+
+        let issues = &data.issues.nodes;
+        if issues.is_empty() {
+            return Ok(format!("No triage issues for team {}.", params.team));
+        }
+
+        let lines: Vec<String> = issues.iter().map(format::format_issue_summary).collect();
+        Ok(format!(
+            "Triage issues for {} ({}):\n\n{}",
+            params.team,
+            issues.len(),
+            lines.join("\n")
+        ))
+    }
+
+    async fn handle_triage_issue(
+        &self,
+        params: triage_issue::TriageIssueParams,
+    ) -> Result<String, Error> {
+        let issue_id = self.resolve_issue_id(&params.id).await?;
+        let team_key = self.resolve_team_key_from_issue(&issue_id).await?;
+        let state_id = self.resolve_state_id(&params.state, &team_key).await?;
+
+        let mut input = serde_json::json!({ "stateId": state_id });
+
+        if let Some(ref assignee) = params.assignee {
+            let user_id = self.resolve_user_id(assignee).await?;
+            input["assigneeId"] = serde_json::Value::String(user_id);
+        }
+        if let Some(ref priority) = params.priority {
+            let p = match priority.to_lowercase().as_str() {
+                "urgent" => 1,
+                "high" => 2,
+                "normal" | "medium" => 3,
+                "low" => 4,
+                "none" => 0,
+                _ => return Err(Error::InvalidInput(format!("Unknown priority: {}", priority))),
+            };
+            input["priority"] = serde_json::json!(p);
+        }
+
+        let vars = serde_json::json!({ "id": issue_id, "input": input });
+        let data: response::UpdateIssueData = self
+            .client
+            .execute_json(queries::UPDATE_ISSUE, vars)
+            .await?;
+
+        match data.issue_update.issue {
+            Some(issue) => {
+                let state_name = issue.state.as_ref().map(|s| s.name.as_str()).unwrap_or("?");
+                Ok(format!(
+                    "Issue {} triaged → {} [{}]",
+                    issue.identifier, state_name, issue.title
+                ))
+            }
+            None => Err(Error::GraphQL("Triage update failed".into())),
+        }
+    }
+
+    async fn handle_create_issue_from_template(
+        &self,
+        params: create_issue_from_template::CreateIssueFromTemplateParams,
+    ) -> Result<String, Error> {
+        let team_id = self.resolve_team_id(&params.team).await?;
+        let mut input = serde_json::json!({
+            "teamId": team_id,
+            "templateId": params.template_id,
+        });
+
+        if let Some(ref title) = params.title {
+            input["title"] = serde_json::Value::String(title.clone());
+        }
+        if let Some(ref desc) = params.description {
+            input["description"] = serde_json::Value::String(desc.clone());
+        }
+        if let Some(ref assignee) = params.assignee {
+            let user_id = self.resolve_user_id(assignee).await?;
+            input["assigneeId"] = serde_json::Value::String(user_id);
+        }
+        if let Some(ref priority) = params.priority {
+            let p = match priority.to_lowercase().as_str() {
+                "urgent" => 1,
+                "high" => 2,
+                "normal" | "medium" => 3,
+                "low" => 4,
+                "none" => 0,
+                _ => return Err(Error::InvalidInput(format!("Unknown priority: {}", priority))),
+            };
+            input["priority"] = serde_json::json!(p);
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateIssueData = self
+            .client
+            .execute_json(queries::CREATE_ISSUE, vars)
+            .await?;
+
+        match data.issue_create.issue {
+            Some(issue) => Ok(format!(
+                "Issue created from template:\n\n{}",
+                format::format_issue_detail(&issue)
+            )),
+            None => Err(Error::GraphQL("Issue creation from template failed".into())),
         }
     }
 }

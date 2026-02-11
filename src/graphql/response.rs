@@ -472,3 +472,35 @@ pub struct DeleteLabelData {
 pub struct UnarchiveIssueData {
     pub issue_unarchive: crate::types::DeleteMutationResult,
 }
+
+// ---- Phase 12: Remaining tools ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchUpdateIssuesData {
+    pub issue_batch_update: crate::types::BatchUpdateResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchDocumentsData {
+    pub search_documents: crate::types::DocumentSearchConnection,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateInitiativeData {
+    pub initiative_create: crate::types::InitiativeMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateInitiativeData {
+    pub initiative_update: crate::types::InitiativeMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ViewIssuesData {
+    pub custom_view: Option<crate::types::CustomViewWithIssues>,
+}
