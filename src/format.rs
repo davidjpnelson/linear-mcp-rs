@@ -545,7 +545,7 @@ pub fn format_roadmap(roadmap: &Roadmap) -> String {
 }
 
 pub fn format_initiative(initiative: &Initiative) -> String {
-    let mut parts = vec![initiative.name.clone()];
+    let mut parts = vec![format!("{} [{}]", initiative.name, initiative.id)];
     let mut meta = Vec::new();
     if let Some(ref status) = initiative.status {
         meta.push(status.clone());
@@ -601,7 +601,7 @@ pub fn format_attachment(attachment: &Attachment) -> String {
 // ---- #25: Custom Views ----
 
 pub fn format_custom_view(view: &CustomView) -> String {
-    let mut parts = vec![view.name.clone()];
+    let mut parts = vec![format!("{} [{}]", view.name, view.id)];
     if let Some(ref desc) = view.description {
         if !desc.is_empty() {
             parts.push(format!("- {}", desc));
@@ -630,7 +630,7 @@ pub fn format_favorite(favorite: &Favorite) -> String {
 // ---- #29: Templates ----
 
 pub fn format_template(template: &Template) -> String {
-    let mut parts = vec![template.name.clone()];
+    let mut parts = vec![format!("{} [{}]", template.name, template.id)];
     if let Some(ref desc) = template.description {
         if !desc.is_empty() {
             parts.push(format!("- {}", desc));
