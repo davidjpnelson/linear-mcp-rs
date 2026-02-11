@@ -475,8 +475,8 @@ pub struct IssueHistoryEntry {
     pub from_state: Option<HistoryState>,
     pub to_state: Option<HistoryState>,
     pub actor: Option<HistoryActor>,
-    pub added_labels: Option<NodeList<HistoryLabel>>,
-    pub removed_labels: Option<NodeList<HistoryLabel>>,
+    pub added_labels: Option<Vec<HistoryLabel>>,
+    pub removed_labels: Option<Vec<HistoryLabel>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

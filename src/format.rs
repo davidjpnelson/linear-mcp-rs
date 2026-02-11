@@ -661,9 +661,8 @@ pub fn format_history_entry(entry: &IssueHistoryEntry) -> String {
 
     // Label changes
     if let Some(ref added) = entry.added_labels {
-        if !added.nodes.is_empty() {
+        if !added.is_empty() {
             let labels = added
-                .nodes
                 .iter()
                 .map(|l| l.name.as_str())
                 .collect::<Vec<_>>()
@@ -672,9 +671,8 @@ pub fn format_history_entry(entry: &IssueHistoryEntry) -> String {
         }
     }
     if let Some(ref removed) = entry.removed_labels {
-        if !removed.nodes.is_empty() {
+        if !removed.is_empty() {
             let labels = removed
-                .nodes
                 .iter()
                 .map(|l| l.name.as_str())
                 .collect::<Vec<_>>()

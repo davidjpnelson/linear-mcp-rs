@@ -824,8 +824,8 @@ query GetIssueHistory($id: String!, $first: Int!) {
                 fromState { name }
                 toState { name }
                 actor { displayName }
-                addedLabels { nodes { name } }
-                removedLabels { nodes { name } }
+                addedLabels { name }
+                removedLabels { name }
             }
         }
     }
