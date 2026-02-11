@@ -40,7 +40,7 @@
 - [x] get_project - Full project detail (teams, members, lead, dates)
 - [x] create_project - With team keys, lead email, dates
 - [x] update_project - Name, description, state, lead, dates
-- [ ] archive_project - Archive project (NEW - not yet implemented)
+- [x] archive_project - Archive project
 - [x] list_project_updates - Status updates for a project
 - [x] create_project_update - Post status update with health
 - [x] list_project_milestones - Milestones for a project
@@ -50,19 +50,20 @@
 - [x] list_documents - All documents with project/creator info
 - [x] get_document - Full document with content
 - [x] create_document - With title, content, project association
-- [ ] update_document - Edit document (NEW - not yet implemented)
+- [x] update_document - Edit document title/content
 
 ## Phase 4: Planning Tools (integrated)
 - [x] list_roadmaps - All roadmaps
 - [x] list_initiatives - All initiatives
-- [ ] create_initiative - Create initiative (NEW - not yet implemented)
-- [ ] update_initiative - Update initiative (NEW - not yet implemented)
+- [x] create_initiative - Create initiative
+- [x] update_initiative - Update initiative
+- [x] delete_initiative - Delete initiative
 
 ## Phase 5: Notification & View Tools (integrated)
 - [x] list_notifications - Inbox notifications
 - [x] mark_notification_read - Mark as read
 - [x] list_views - Custom saved views
-- [ ] get_view_issues - Execute a custom view's filter (NEW - not yet implemented)
+- [x] get_view_issues - Execute a custom view's filter
 
 ## Phase 6: Attachment & Reaction Tools (integrated)
 - [x] list_attachments - Attachments on an issue
@@ -74,12 +75,12 @@
 - [x] list_favorites - User's favorites
 - [x] add_favorite - Favorite issue or project
 - [x] remove_favorite - Remove favorite
-- [ ] list_triage_issues - Issues in triage state for a team (NEW - not yet implemented)
-- [ ] triage_issue - Move issue out of triage (NEW - not yet implemented)
+- [x] list_triage_issues - Issues in triage state for a team
+- [x] triage_issue - Move issue out of triage
 
 ## Phase 8: Templates & History (integrated)
 - [x] list_templates - Available templates
-- [ ] create_issue_from_template - Create issue using template data (NEW - not yet implemented)
+- [x] create_issue_from_template - Create issue using template data
 - [x] get_issue_history - Audit trail of changes
 
 ## Phase 9: Webhook & Admin Tools (integrated)
@@ -94,17 +95,18 @@
 - [x] update_team - Update team settings
 
 ## Phase 11: Additional Tools
-- [ ] bulk_update_issues - Batch update multiple issues (needs API research)
+- [x] bulk_update_issues - Batch update multiple issues
 - [x] create_cycle - Create new cycle for a team
 - [x] update_label - Update label name/color
 - [x] archive_label - Archive/delete label
 - [x] unarchive_issue - Restore archived issue
 - [x] archive_project - Archive a project
 - [x] update_document - Edit document title/content
-- [ ] search_documents - Full-text search across documents (needs API research)
+- [x] search_documents - Full-text search across documents
 
 ## Final
-- [ ] Remove all dead code warnings
-- [ ] cargo check passes clean
-- [ ] Update README with full tool list
-- [ ] Build release binary
+- [x] Remove all dead code warnings
+- [x] cargo check passes clean
+- [x] Update README with full tool list
+- [x] Build release binary
+- [x] v0.2.0 released with all 68 tools
