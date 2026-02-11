@@ -5,6 +5,10 @@ use serde::Deserialize;
 pub struct ListProjectsParams {
     /// Filter by project status
     pub status: Option<ProjectStatus>,
+    /// Filter by team key (e.g. 'ENG'). Shows projects associated with this team.
+    pub team: Option<String>,
+    /// Filter by lead email or display name
+    pub lead: Option<String>,
     /// Max results (default 50)
     pub limit: Option<u32>,
 }

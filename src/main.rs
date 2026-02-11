@@ -6,7 +6,6 @@ mod format;
 mod graphql;
 mod server;
 mod tools;
-#[allow(dead_code)]
 mod types;
 
 use rmcp::ServiceExt;

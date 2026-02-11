@@ -2,13 +2,12 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, JsonSchema)]
-pub struct AddCommentParams {
+pub struct AddAttachmentParams {
     /// Issue identifier (e.g. 'ENG-123') or UUID
     #[serde(rename = "issueId")]
     pub issue_id: String,
-    /// Comment body (markdown)
-    pub body: String,
-    /// Parent comment UUID for threaded replies
-    #[serde(rename = "parentId")]
-    pub parent_id: Option<String>,
+    /// Attachment title
+    pub title: String,
+    /// Attachment URL
+    pub url: String,
 }

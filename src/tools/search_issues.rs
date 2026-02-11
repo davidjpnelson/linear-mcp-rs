@@ -13,4 +13,6 @@ pub struct SearchIssuesParams {
     pub assignee: Option<String>,
     /// Max results (default 25)
     pub limit: Option<u32>,
+    /// Pagination cursor from a previous response
+    pub cursor: Option<String>,
 }

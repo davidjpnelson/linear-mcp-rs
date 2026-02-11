@@ -22,4 +22,10 @@ pub struct CreateIssueParams {
     /// Due date (ISO format, e.g. '2025-03-01')
     #[serde(rename = "dueDate")]
     pub due_date: Option<String>,
+    /// Comma-separated label names to apply (e.g. 'Bug, Frontend')
+    pub labels: Option<String>,
+    /// Project name to assign the issue to
+    pub project: Option<String>,
+    /// Parent issue identifier (e.g. 'ENG-100') to create as sub-issue
+    pub parent: Option<String>,
 }

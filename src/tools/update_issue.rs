@@ -22,4 +22,10 @@ pub struct UpdateIssueParams {
     /// New due date (ISO format, or 'none' to clear)
     #[serde(rename = "dueDate")]
     pub due_date: Option<String>,
+    /// Comma-separated label names to set (replaces existing labels)
+    pub labels: Option<String>,
+    /// Project name to assign (use 'none' to remove from project)
+    pub project: Option<String>,
+    /// Parent issue identifier (e.g. 'ENG-100'), or 'none' to remove parent
+    pub parent: Option<String>,
 }
