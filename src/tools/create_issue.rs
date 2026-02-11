@@ -18,6 +18,7 @@ pub struct CreateIssueParams {
     /// Priority level
     pub priority: Option<PriorityLevel>,
     /// Point estimate
+    #[serde(default, deserialize_with = "super::serde_helpers::f64_from_str_or_num")]
     pub estimate: Option<f64>,
     /// Due date (ISO format, e.g. '2025-03-01')
     #[serde(rename = "dueDate")]

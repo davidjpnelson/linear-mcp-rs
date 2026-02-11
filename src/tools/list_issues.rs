@@ -18,6 +18,7 @@ pub struct ListIssuesParams {
     /// Priority level
     pub priority: Option<PriorityLevel>,
     /// Filter by exact estimate value
+    #[serde(default, deserialize_with = "super::serde_helpers::f64_from_str_or_num")]
     pub estimate: Option<f64>,
     /// Filter to issues that are blocked by another issue
     #[serde(rename = "hasBlockedByRelation")]
@@ -29,6 +30,7 @@ pub struct ListIssuesParams {
     #[serde(rename = "orderBy")]
     pub order_by: Option<OrderBy>,
     /// Max results (default 25)
+    #[serde(default, deserialize_with = "super::serde_helpers::u32_from_str_or_num")]
     pub limit: Option<u32>,
     /// Pagination cursor from a previous response
     pub cursor: Option<String>,

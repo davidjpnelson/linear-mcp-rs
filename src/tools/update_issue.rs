@@ -18,6 +18,7 @@ pub struct UpdateIssueParams {
     /// New priority level
     pub priority: Option<PriorityLevel>,
     /// New point estimate
+    #[serde(default, deserialize_with = "super::serde_helpers::f64_from_str_or_num")]
     pub estimate: Option<f64>,
     /// New due date (ISO format, or 'none' to clear)
     #[serde(rename = "dueDate")]

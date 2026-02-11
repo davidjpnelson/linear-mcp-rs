@@ -1,3 +1,5 @@
+pub mod serde_helpers;
+
 pub mod add_attachment;
 pub mod add_comment;
 pub mod add_favorite;
