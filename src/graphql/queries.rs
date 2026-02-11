@@ -1082,6 +1082,15 @@ mutation UpdateInitiative($id: String!, $input: InitiativeUpdateInput!) {
 }
 "#;
 
+/// Delete an initiative.
+pub const DELETE_INITIATIVE: &str = r#"
+mutation DeleteInitiative($id: String!) {
+    initiativeDelete(id: $id) {
+        success
+    }
+}
+"#;
+
 /// Get issues from a custom view.
 pub const GET_VIEW_ISSUES: &str = r#"
 query GetViewIssues($id: String!, $first: Int) {

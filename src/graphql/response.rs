@@ -501,6 +501,12 @@ pub struct UpdateInitiativeData {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct DeleteInitiativeData {
+    pub initiative_delete: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ViewIssuesData {
     pub custom_view: Option<crate::types::CustomViewWithIssues>,
 }

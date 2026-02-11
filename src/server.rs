@@ -953,6 +953,20 @@ impl LinearMcp {
     }
 
     #[tool(
+        name = "delete_initiative",
+        description = "Permanently delete an initiative."
+    )]
+    async fn delete_initiative(
+        &self,
+        Parameters(params): Parameters<delete_initiative::DeleteInitiativeParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_initiative(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
         name = "get_view_issues",
         description = "Get issues matching a custom view's saved filters."
     )]
@@ -3482,6 +3496,23 @@ impl LinearMcp {
                 format::format_initiative_detail(&initiative)
             )),
             None => Err(Error::GraphQL("Initiative update failed".into())),
+        }
+    }
+
+    async fn handle_delete_initiative(
+        &self,
+        params: delete_initiative::DeleteInitiativeParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteInitiativeData = self
+            .client
+            .execute_json(queries::DELETE_INITIATIVE, vars)
+            .await?;
+
+        if data.initiative_delete.success {
+            Ok(format!("Initiative {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Initiative deletion failed".into()))
         }
     }
 

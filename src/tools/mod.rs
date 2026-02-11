@@ -16,6 +16,7 @@ pub mod create_issue;
 pub mod create_issue_from_template;
 pub mod create_issue_relation;
 pub mod create_label;
+pub mod delete_initiative;
 pub mod create_project;
 pub mod create_project_milestone;
 pub mod create_project_update;
