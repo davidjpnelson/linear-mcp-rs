@@ -2125,23 +2125,21 @@ impl LinearMcp {
             return Ok(Vec::new());
         }
 
-        let team_filter = team_key.map(|key| filters::TeamFilter {
-            key: Some(filters::StringFilter::eq_ignore_case(key)),
-        });
-
-        // Build an OR filter to match any of the label names
+        // Build an OR filter for names, with team scoping at the top level
         let or_filters: Vec<filters::IssueLabelFilter> = names
             .iter()
             .map(|name| filters::IssueLabelFilter {
                 name: Some(filters::StringFilter::eq_ignore_case(*name)),
-                team: team_filter.clone(),
+                team: None,
                 or: None,
             })
             .collect();
 
         let filter = filters::IssueLabelFilter {
             name: None,
-            team: None,
+            team: team_key.map(|key| filters::TeamFilter {
+                key: Some(filters::StringFilter::eq_ignore_case(key)),
+            }),
             or: Some(or_filters),
         };
 
