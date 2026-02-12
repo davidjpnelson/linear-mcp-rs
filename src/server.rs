@@ -1624,7 +1624,7 @@ impl LinearMcp {
 
         // Task #6: labels, project, parent
         if let Some(ref label_names) = params.labels {
-            let label_ids = self.resolve_label_ids(label_names).await?;
+            let label_ids = self.resolve_label_ids(label_names, Some(&params.team)).await?;
             input["labelIds"] = serde_json::json!(label_ids);
         }
         if let Some(ref project_name) = params.project {
@@ -1712,29 +1712,34 @@ impl LinearMcp {
             has_fields = true;
         }
 
-        // Status: need to resolve state ID — requires knowing the team
-        if let Some(ref status) = params.status {
-            // Fetch the issue to get its team key
+        // Fetch the issue's team key when status or labels need resolving
+        let team_key = if params.status.is_some() || params.labels.is_some() {
             let issue_vars = serde_json::json!({ "id": uuid });
             let issue_data: response::IssueData = self
                 .client
                 .execute_json(queries::GET_ISSUE, issue_vars)
                 .await?;
-            let team_key = issue_data
-                .issue
-                .team
-                .as_ref()
-                .map(|t| t.key.clone())
-                .ok_or_else(|| Error::InvalidInput("Issue has no team".into()))?;
+            Some(
+                issue_data
+                    .issue
+                    .team
+                    .as_ref()
+                    .map(|t| t.key.clone())
+                    .ok_or_else(|| Error::InvalidInput("Issue has no team".into()))?,
+            )
+        } else {
+            None
+        };
 
-            let state_id = self.resolve_state_id(status, &team_key).await?;
+        if let Some(ref status) = params.status {
+            let key = team_key.as_ref().unwrap();
+            let state_id = self.resolve_state_id(status, key).await?;
             input.insert("stateId".into(), serde_json::Value::String(state_id));
             has_fields = true;
         }
 
-        // Task #6: labels, project, parent on update
         if let Some(ref label_names) = params.labels {
-            let label_ids = self.resolve_label_ids(label_names).await?;
+            let label_ids = self.resolve_label_ids(label_names, team_key.as_deref()).await?;
             input.insert("labelIds".into(), serde_json::json!(label_ids));
             has_fields = true;
         }
@@ -2112,18 +2117,24 @@ impl LinearMcp {
     // ---- resolve helpers for Task #6 ----
 
     /// Resolve comma-separated label names to a list of label UUIDs.
-    async fn resolve_label_ids(&self, label_names: &str) -> Result<Vec<String>, Error> {
+    /// When `team_key` is provided, labels are scoped to that team (avoids
+    /// ambiguity when workspace and team labels share the same name).
+    async fn resolve_label_ids(&self, label_names: &str, team_key: Option<&str>) -> Result<Vec<String>, Error> {
         let names: Vec<&str> = label_names.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
         if names.is_empty() {
             return Ok(Vec::new());
         }
+
+        let team_filter = team_key.map(|key| filters::TeamFilter {
+            key: Some(filters::StringFilter::eq_ignore_case(key)),
+        });
 
         // Build an OR filter to match any of the label names
         let or_filters: Vec<filters::IssueLabelFilter> = names
             .iter()
             .map(|name| filters::IssueLabelFilter {
                 name: Some(filters::StringFilter::eq_ignore_case(*name)),
-                team: None,
+                team: team_filter.clone(),
                 or: None,
             })
             .collect();
@@ -2156,8 +2167,8 @@ impl LinearMcp {
     }
 
     /// Resolve a single label name to its UUID.
-    async fn resolve_label_id(&self, label_name: &str) -> Result<String, Error> {
-        let ids = self.resolve_label_ids(label_name).await?;
+    async fn resolve_label_id(&self, label_name: &str, team_key: Option<&str>) -> Result<String, Error> {
+        let ids = self.resolve_label_ids(label_name, team_key).await?;
         ids.into_iter()
             .next()
             .ok_or_else(|| Error::NotFound(format!("Label '{}' not found", label_name)))
@@ -3338,11 +3349,24 @@ impl LinearMcp {
             let team_id = self.resolve_team_id(team).await?;
             input.insert("teamId".into(), serde_json::Value::String(team_id));
         }
+        // Resolve team key for label scoping when adding/removing labels
+        let bulk_team_key = if params.add_labels.is_some() || params.remove_labels.is_some() {
+            let team_keys = self.resolve_team_keys_from_issues(&uuids).await?;
+            let first_key = &team_keys[0];
+            if team_keys.iter().any(|k| k != first_key) {
+                return Err(Error::InvalidInput(
+                    "Cannot batch-update labels across multiple teams. All issues must belong to the same team.".into()
+                ));
+            }
+            Some(first_key.clone())
+        } else {
+            None
+        };
         if let Some(ref add_labels) = params.add_labels {
             let label_names: Vec<&str> = add_labels.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
             let mut label_ids = Vec::new();
             for name in label_names {
-                label_ids.push(self.resolve_label_id(name).await?);
+                label_ids.push(self.resolve_label_id(name, bulk_team_key.as_deref()).await?);
             }
             input.insert("addedLabelIds".into(), serde_json::json!(label_ids));
         }
@@ -3350,7 +3374,7 @@ impl LinearMcp {
             let label_names: Vec<&str> = remove_labels.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
             let mut label_ids = Vec::new();
             for name in label_names {
-                label_ids.push(self.resolve_label_id(name).await?);
+                label_ids.push(self.resolve_label_id(name, bulk_team_key.as_deref()).await?);
             }
             input.insert("removedLabelIds".into(), serde_json::json!(label_ids));
         }

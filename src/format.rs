@@ -653,7 +653,7 @@ pub fn format_history_entry(entry: &IssueHistoryEntry) -> String {
     }
 
     // State transition
-    if let (Some(ref from), Some(ref to)) = (&entry.from_state, &entry.to_state) {
+    if let (Some(from), Some(to)) = (&entry.from_state, &entry.to_state) {
         parts.push(format!("{} -> {}", from.name, to.name));
     } else if let Some(ref to) = entry.to_state {
         parts.push(format!("-> {}", to.name));
