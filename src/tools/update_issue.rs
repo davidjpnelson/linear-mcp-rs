@@ -29,4 +29,12 @@ pub struct UpdateIssueParams {
     pub project: Option<String>,
     /// Parent issue identifier (e.g. 'ENG-100'), or 'none' to remove parent
     pub parent: Option<String>,
+    /// Project milestone name (resolved against the issue's project)
+    #[serde(rename = "projectMilestone")]
+    pub project_milestone: Option<String>,
+    /// Cycle UUID to assign the issue to
+    #[serde(rename = "cycleId")]
+    pub cycle_id: Option<String>,
+    /// Comma-separated subscriber emails to add
+    pub subscribers: Option<String>,
 }

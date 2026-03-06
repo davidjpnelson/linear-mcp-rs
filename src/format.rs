@@ -122,6 +122,40 @@ pub fn format_issue_detail(issue: &Issue) -> String {
     if let Some(ref canceled) = issue.canceled_at {
         lines.push(format!("**Canceled:** {}", format_date(canceled)));
     }
+    if let Some(ref auto_closed) = issue.auto_closed_at {
+        lines.push(format!("**Auto Closed:** {}", format_date(auto_closed)));
+    }
+    if let Some(ref auto_archived) = issue.auto_archived_at {
+        lines.push(format!("**Auto Archived:** {}", format_date(auto_archived)));
+    }
+    if let Some(ref sla_type) = issue.sla_type {
+        lines.push(format!("**SLA Type:** {}", sla_type));
+    }
+    if let Some(ref sla_breaches) = issue.sla_breaches_at {
+        lines.push(format!("**SLA Breaches At:** {}", format_date(sla_breaches)));
+    }
+    if let Some(ref sla_started) = issue.sla_started_at {
+        lines.push(format!("**SLA Started At:** {}", format_date(sla_started)));
+    }
+    if let Some(count) = issue.customer_ticket_count {
+        if count > 0 {
+            lines.push(format!("**Customer Tickets:** {}", count));
+        }
+    }
+    if let Some(ref prev) = issue.previous_identifiers {
+        if !prev.is_empty() {
+            lines.push(format!("**Previous IDs:** {}", prev.join(", ")));
+        }
+    }
+    if let Some(true) = issue.trashed {
+        lines.push("**Trashed:** yes".to_string());
+    }
+    if let Some(ref snoozed) = issue.snoozed_until_at {
+        lines.push(format!("**Snoozed Until:** {}", format_date(snoozed)));
+    }
+    if let Some(ref milestone) = issue.project_milestone {
+        lines.push(format!("**Milestone:** {}", milestone.name));
+    }
     lines.push(format!("**URL:** {}", issue.url));
 
     // Parent
@@ -205,21 +239,61 @@ pub fn format_issue_detail(issue: &Issue) -> String {
 
 pub fn format_comment(comment: &Comment) -> String {
     let date = format_date(&comment.created_at);
-    format!("**{}:** {}", date, comment.body)
+    let resolved = if comment.resolved_at.is_some() {
+        " [resolved]"
+    } else {
+        ""
+    };
+    let user = comment
+        .user
+        .as_ref()
+        .map(|u| format!(" ({})", u.display_name))
+        .unwrap_or_default();
+    format!("**{}{}{}:** {}", date, user, resolved, comment.body)
 }
 
 pub fn format_team(team: &crate::types::Team, member_count: Option<usize>) -> String {
-    match member_count {
-        Some(count) => format!("{} | {} ({} members)", team.key, team.name, count),
-        None => format!("{} | {}", team.key, team.name),
+    let mut parts = vec![format!("{} | {}", team.key, team.name)];
+    let mut meta = Vec::new();
+    if let Some(count) = member_count {
+        meta.push(format!("{} members", count));
     }
+    if let Some(ref tz) = team.timezone {
+        meta.push(format!("tz: {}", tz));
+    }
+    if let Some(true) = team.triage_enabled {
+        meta.push("triage: on".to_string());
+    }
+    if let Some(ref state) = team.default_issue_state {
+        meta.push(format!("default: {}", state.name));
+    }
+    if !meta.is_empty() {
+        parts.push(format!("({})", meta.join(", ")));
+    }
+    if let Some(ref desc) = team.description {
+        if !desc.is_empty() {
+            let truncated = if desc.chars().count() > 80 {
+                let t: String = desc.chars().take(80).collect();
+                format!("{}...", t)
+            } else {
+                desc.clone()
+            };
+            parts.push(format!("- {}", truncated));
+        }
+    }
+    parts.join(" ")
 }
 
 pub fn format_project(project: &Project) -> String {
     let progress = project.progress.unwrap_or(0.0);
     let pct = (progress * 100.0).round() as i32;
     let state = project.state.as_deref().unwrap_or("unknown");
-    let mut parts = vec![format!("{} [{}] - {}% complete", project.name, state, pct)];
+    let health = project
+        .health
+        .as_ref()
+        .map(|h| format!(" [{}]", h))
+        .unwrap_or_default();
+    let mut parts = vec![format!("{} [{}] - {}% complete{}", project.name, state, pct, health)];
 
     if let Some(ref lead) = project.lead {
         let lead_str = if let Some(ref email) = lead.email {
@@ -350,12 +424,51 @@ pub fn format_cycle_detail(cycle: &Cycle) -> String {
     let progress = cycle.progress.unwrap_or(0.0);
     let pct = (progress * 100.0).round() as i32;
     lines.push(format!("**Progress:** {}%", pct));
+    if let Some(ref desc) = cycle.description {
+        if !desc.is_empty() {
+            lines.push(format!("**Description:** {}", desc));
+        }
+    }
+    if let Some(ref issues) = cycle.issues {
+        if !issues.nodes.is_empty() {
+            lines.push(String::new());
+            lines.push("## Issues".to_string());
+            for issue in &issues.nodes {
+                let state = issue
+                    .state
+                    .as_ref()
+                    .map(|s| format!(" ({})", s.name))
+                    .unwrap_or_default();
+                lines.push(format!("- [{}] {}{}", issue.identifier, issue.title, state));
+            }
+        }
+    }
+    if let Some(ref uncompleted) = cycle.uncompleted_issues_upon_close {
+        if !uncompleted.nodes.is_empty() {
+            lines.push(String::new());
+            lines.push("## Uncompleted Issues (upon close)".to_string());
+            for issue in &uncompleted.nodes {
+                lines.push(format!("- [{}] {}", issue.identifier, issue.title));
+            }
+        }
+    }
     lines.join("\n")
 }
 
 /// Format a label as a one-line summary.
 pub fn format_label(label: &Label) -> String {
-    format!("{} [id: {}]", label.name, label.id)
+    let mut parts = vec![label.name.clone()];
+    if let Some(ref color) = label.color {
+        parts.push(format!("({})", color));
+    }
+    if let Some(ref parent) = label.parent {
+        parts.push(format!("parent: {}", parent.name));
+    }
+    if let Some(ref team) = label.team {
+        parts.push(format!("team: {}", team.key));
+    }
+    parts.push(format!("[id: {}]", label.id));
+    parts.join(" ")
 }
 
 /// Format an issue relation as a one-line summary.
@@ -445,6 +558,12 @@ pub fn format_project_detail(project: &ProjectDetail) -> String {
     lines.push(String::new());
     lines.push(format!("**State:** {}", project.state.as_deref().unwrap_or("unknown")));
     lines.push(format!("**Progress:** {}%", pct));
+    if let Some(ref health) = project.health {
+        lines.push(format!("**Health:** {}", health));
+    }
+    if let Some(ref url) = project.url {
+        lines.push(format!("**URL:** {}", url));
+    }
 
     if let Some(ref desc) = project.description {
         if !desc.is_empty() {
@@ -550,12 +669,30 @@ pub fn format_initiative(initiative: &Initiative) -> String {
     if let Some(ref status) = initiative.status {
         meta.push(status.clone());
     }
+    if let Some(ref owner) = initiative.owner {
+        meta.push(format!("owner: {}", owner.display_name));
+    }
     if !meta.is_empty() {
         parts.push(format!("({})", meta.join(", ")));
     }
+    if let Some(ref target) = initiative.target_date {
+        parts.push(format!("target: {}", target));
+    }
+    if let Some(ref projects) = initiative.projects {
+        if !projects.nodes.is_empty() {
+            let names: Vec<&str> = projects.nodes.iter().map(|p| p.name.as_str()).collect();
+            parts.push(format!("projects: {}", names.join(", ")));
+        }
+    }
     if let Some(ref desc) = initiative.description {
         if !desc.is_empty() {
-            parts.push(format!("- {}", desc));
+            let truncated = if desc.chars().count() > 100 {
+                let t: String = desc.chars().take(100).collect();
+                format!("{}...", t)
+            } else {
+                desc.clone()
+            };
+            parts.push(format!("- {}", truncated));
         }
     }
     parts.join(" ")
@@ -793,13 +930,341 @@ pub fn format_document_search_result(doc: &DocumentSearchResult) -> String {
 /// Format an initiative detail (from mutation result).
 pub fn format_initiative_detail(initiative: &InitiativeDetail) -> String {
     let mut lines = vec![format!("**{}** [id: {}]", initiative.name, initiative.id)];
+    if let Some(ref status) = initiative.status {
+        lines.push(format!("Status: {}", status));
+    }
+    if let Some(ref owner) = initiative.owner {
+        let owner_str = if let Some(ref email) = owner.email {
+            format!("{} <{}>", owner.display_name, email)
+        } else {
+            owner.display_name.clone()
+        };
+        lines.push(format!("Owner: {}", owner_str));
+    }
+    if let Some(ref target) = initiative.target_date {
+        lines.push(format!("Target: {}", target));
+    }
+    if let Some(ref started) = initiative.started_at {
+        lines.push(format!("Started: {}", format_date(started)));
+    }
+    if let Some(ref completed) = initiative.completed_at {
+        lines.push(format!("Completed: {}", format_date(completed)));
+    }
+    if let Some(ref url) = initiative.url {
+        lines.push(format!("URL: {}", url));
+    }
+    if let Some(ref projects) = initiative.projects {
+        if !projects.nodes.is_empty() {
+            let names: Vec<&str> = projects.nodes.iter().map(|p| p.name.as_str()).collect();
+            lines.push(format!("Projects: {}", names.join(", ")));
+        }
+    }
     if let Some(ref desc) = initiative.description {
         if !desc.is_empty() {
             lines.push(format!("Description: {}", desc));
         }
     }
-    if let Some(ref status) = initiative.status {
-        lines.push(format!("Status: {}", status));
+    lines.join("\n")
+}
+
+// ---- New entity formatters ----
+
+/// Format a comment with full detail for list_comments.
+pub fn format_comment_detail(comment: &Comment) -> String {
+    let date = format_date(&comment.created_at);
+    let user = comment
+        .user
+        .as_ref()
+        .map(|u| u.display_name.as_str())
+        .unwrap_or("unknown");
+    let resolved = if comment.resolved_at.is_some() {
+        " [resolved]"
+    } else {
+        ""
+    };
+    let thread = comment
+        .parent
+        .as_ref()
+        .map(|p| format!(" (reply to {})", p.id))
+        .unwrap_or_default();
+    let url = comment
+        .url
+        .as_ref()
+        .map(|u| format!("\n  {}", u))
+        .unwrap_or_default();
+    format!(
+        "**{} ({}){}{}:**\n{}{}\n[id: {}]",
+        date, user, resolved, thread, comment.body, url, comment.id
+    )
+}
+
+/// Format an agent session as a one-line summary.
+pub fn format_agent_session_summary(session: &AgentSession) -> String {
+    let status = session.status.as_deref().unwrap_or("unknown");
+    let issue = session
+        .issue
+        .as_ref()
+        .map(|i| format!(" on [{}] {}", i.identifier, i.title))
+        .unwrap_or_default();
+    let date = session
+        .created_at
+        .as_deref()
+        .map(|d| format!(" ({})", format_date(d)))
+        .unwrap_or_default();
+    format!("[{}]{}{} [id: {}]", status, issue, date, session.id)
+}
+
+/// Format an agent session with full detail.
+pub fn format_agent_session_detail(session: &AgentSession) -> String {
+    let mut lines = Vec::new();
+    lines.push(format!(
+        "# Agent Session {}",
+        session.status.as_deref().unwrap_or("unknown")
+    ));
+    lines.push(String::new());
+    lines.push(format!("**ID:** {}", session.id));
+    if let Some(ref status) = session.status {
+        lines.push(format!("**Status:** {}", status));
+    }
+    if let Some(ref issue) = session.issue {
+        lines.push(format!("**Issue:** [{}] {}", issue.identifier, issue.title));
+    }
+    if let Some(ref comment) = session.comment {
+        lines.push(format!("**Comment:** {}", comment.id));
+    }
+    if let Some(ref created) = session.created_at {
+        lines.push(format!("**Created:** {}", format_date(created)));
+    }
+    if let Some(ref started) = session.started_at {
+        lines.push(format!("**Started:** {}", format_date(started)));
+    }
+    if let Some(ref ended) = session.ended_at {
+        lines.push(format!("**Ended:** {}", format_date(ended)));
+    }
+    if let Some(ref url) = session.url {
+        lines.push(format!("**URL:** {}", url));
+    }
+    if let Some(ref summary) = session.summary {
+        lines.push(format!("**Summary:** {}", summary));
+    }
+    if let Some(ref activities) = session.activities {
+        if !activities.nodes.is_empty() {
+            lines.push(String::new());
+            lines.push(format!("## Activities ({})", activities.nodes.len()));
+            for activity in &activities.nodes {
+                let date = activity
+                    .created_at
+                    .as_deref()
+                    .map(|d| format_date(d))
+                    .unwrap_or("?");
+                let ephemeral = if activity.ephemeral.unwrap_or(false) {
+                    " [ephemeral]"
+                } else {
+                    ""
+                };
+                lines.push(format!("- {} {}{}", date, activity.id, ephemeral));
+            }
+        }
     }
     lines.join("\n")
+}
+
+/// Format a customer as a one-line summary.
+pub fn format_customer_summary(customer: &Customer) -> String {
+    let mut parts = vec![customer.name.clone()];
+    if let Some(ref status) = customer.status {
+        if let Some(ref name) = status.display_name {
+            parts.push(format!("[{}]", name));
+        }
+    }
+    if let Some(ref domains) = customer.domains {
+        if !domains.is_empty() {
+            parts.push(format!("({})", domains.join(", ")));
+        }
+    }
+    if let Some(rev) = customer.revenue {
+        if rev > 0.0 {
+            parts.push(format!("rev: ${}", rev));
+        }
+    }
+    if let Some(ref owner) = customer.owner {
+        parts.push(format!("owner: {}", owner.display_name));
+    }
+    parts.push(format!("[id: {}]", customer.id));
+    parts.join(" ")
+}
+
+/// Format a customer with full detail.
+pub fn format_customer_detail(customer: &Customer) -> String {
+    let mut lines = vec![format!("# {}", customer.name)];
+    lines.push(String::new());
+    lines.push(format!("**ID:** {}", customer.id));
+    if let Some(ref status) = customer.status {
+        if let Some(ref name) = status.display_name {
+            lines.push(format!("**Status:** {}", name));
+        }
+    }
+    if let Some(ref tier) = customer.tier {
+        if let Some(ref name) = tier.name {
+            lines.push(format!("**Tier:** {}", name));
+        }
+    }
+    if let Some(ref domains) = customer.domains {
+        if !domains.is_empty() {
+            lines.push(format!("**Domains:** {}", domains.join(", ")));
+        }
+    }
+    if let Some(ref owner) = customer.owner {
+        lines.push(format!("**Owner:** {}", owner.display_name));
+    }
+    if let Some(rev) = customer.revenue {
+        lines.push(format!("**Revenue:** ${}", rev));
+    }
+    if let Some(size) = customer.size {
+        lines.push(format!("**Size:** {}", size));
+    }
+    if let Some(ref needs) = customer.needs {
+        if !needs.is_empty() {
+            lines.push(String::new());
+            lines.push("## Needs".to_string());
+            for need in needs {
+                lines.push(format_customer_need(need));
+            }
+        }
+    }
+    lines.join("\n")
+}
+
+/// Format a customer need.
+pub fn format_customer_need(need: &CustomerNeed) -> String {
+    let mut parts = Vec::new();
+    if let Some(priority) = need.priority {
+        parts.push(format!("[p{}]", priority));
+    }
+    if let Some(ref body) = need.body {
+        let truncated = if body.chars().count() > 100 {
+            let t: String = body.chars().take(100).collect();
+            format!("{}...", t)
+        } else {
+            body.clone()
+        };
+        parts.push(truncated);
+    }
+    if let Some(ref issue) = need.issue {
+        parts.push(format!("-> [{}] {}", issue.identifier, issue.title));
+    }
+    if let Some(ref customer) = need.customer {
+        parts.push(format!("({})", customer.name));
+    }
+    parts.push(format!("[id: {}]", need.id));
+    parts.join(" ")
+}
+
+/// Format an initiative status update.
+pub fn format_initiative_update(update: &InitiativeStatusUpdate) -> String {
+    let mut parts = Vec::new();
+    if let Some(ref created) = update.created_at {
+        parts.push(format!("**{}**", format_date(created)));
+    }
+    if let Some(ref user) = update.user {
+        parts.push(format!("by {}", user.display_name));
+    }
+    if let Some(ref health) = update.health {
+        parts.push(format!("[{}]", health));
+    }
+    parts.push(format!("\n{}", update.body));
+    parts.join(" ")
+}
+
+/// Format an initiative-to-project link.
+pub fn format_initiative_to_project(link: &InitiativeToProject) -> String {
+    let init = link
+        .initiative
+        .as_ref()
+        .map(|i| i.name.as_str())
+        .unwrap_or("?");
+    let proj = link
+        .project
+        .as_ref()
+        .map(|p| p.name.as_str())
+        .unwrap_or("?");
+    format!("{} -> {} [id: {}]", init, proj, link.id)
+}
+
+/// Format a project relation.
+pub fn format_project_relation(relation: &ProjectRelation) -> String {
+    let proj = relation
+        .project
+        .as_ref()
+        .map(|p| p.name.as_str())
+        .unwrap_or("?");
+    let related = relation
+        .related_project
+        .as_ref()
+        .map(|p| p.name.as_str())
+        .unwrap_or("?");
+    let rel_type = relation.relation_type.as_deref().unwrap_or("related");
+    format!("{} --{}-- {} [id: {}]", proj, rel_type, related, relation.id)
+}
+
+/// Format a release as a one-line summary.
+pub fn format_release_summary(release: &Release) -> String {
+    let name = release.name.as_deref().unwrap_or("Unnamed");
+    let mut parts = vec![name.to_string()];
+    if let Some(ref version) = release.version {
+        parts.push(format!("v{}", version));
+    }
+    if let Some(ref stage) = release.stage {
+        parts.push(format!("[{}]", stage.name));
+    }
+    if let Some(ref pipeline) = release.pipeline {
+        parts.push(format!("({})", pipeline.name));
+    }
+    if let Some(ref target) = release.target_date {
+        parts.push(format!("target: {}", target));
+    }
+    parts.push(format!("[id: {}]", release.id));
+    parts.join(" ")
+}
+
+/// Format a release with full detail.
+pub fn format_release_detail(release: &Release) -> String {
+    let name = release.name.as_deref().unwrap_or("Unnamed");
+    let mut lines = vec![format!("# {}", name)];
+    lines.push(String::new());
+    lines.push(format!("**ID:** {}", release.id));
+    if let Some(ref version) = release.version {
+        lines.push(format!("**Version:** {}", version));
+    }
+    if let Some(ref stage) = release.stage {
+        lines.push(format!("**Stage:** {}", stage.name));
+    }
+    if let Some(ref pipeline) = release.pipeline {
+        lines.push(format!("**Pipeline:** {}", pipeline.name));
+    }
+    if let Some(ref start) = release.start_date {
+        lines.push(format!("**Start:** {}", start));
+    }
+    if let Some(ref target) = release.target_date {
+        lines.push(format!("**Target:** {}", target));
+    }
+    if let Some(ref url) = release.url {
+        lines.push(format!("**URL:** {}", url));
+    }
+    lines.join("\n")
+}
+
+/// Format a project search result.
+pub fn format_project_search_result(project: &ProjectSearchResult) -> String {
+    let progress = project.progress.unwrap_or(0.0);
+    let pct = (progress * 100.0).round() as i32;
+    let state = project.state.as_deref().unwrap_or("unknown");
+    let mut parts = vec![format!("{} [{}] - {}% complete", project.name, state, pct)];
+    if let Some(ref lead) = project.lead {
+        parts.push(format!("  Lead: {}", lead.display_name));
+    }
+    if let Some(ref url) = project.url {
+        parts.push(format!("  URL: {}", url));
+    }
+    parts.join("\n")
 }

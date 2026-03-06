@@ -92,6 +92,12 @@ pub struct IssueFilter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateComparator>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<DateComparator>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub canceled_at: Option<DateComparator>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub snoozed_until_at: Option<DateComparator>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub relations: Option<RelationExistsFilter>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub and: Option<Vec<IssueFilter>>,
@@ -399,4 +405,34 @@ pub struct IssueLabelFilter {
 #[derive(Debug, Clone, Serialize)]
 pub struct ProjectNameResolveFilter {
     pub name: StringFilter,
+}
+
+pub fn completed_at_filter(before: Option<&str>, after: Option<&str>) -> IssueFilter {
+    IssueFilter {
+        completed_at: Some(DateComparator {
+            lt: before.map(|s| s.to_string()),
+            gt: after.map(|s| s.to_string()),
+        }),
+        ..Default::default()
+    }
+}
+
+pub fn canceled_at_filter(before: Option<&str>, after: Option<&str>) -> IssueFilter {
+    IssueFilter {
+        canceled_at: Some(DateComparator {
+            lt: before.map(|s| s.to_string()),
+            gt: after.map(|s| s.to_string()),
+        }),
+        ..Default::default()
+    }
+}
+
+pub fn snoozed_until_at_filter(after: &str) -> IssueFilter {
+    IssueFilter {
+        snoozed_until_at: Some(DateComparator {
+            lt: None,
+            gt: Some(after.to_string()),
+        }),
+        ..Default::default()
+    }
 }

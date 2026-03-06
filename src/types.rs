@@ -18,6 +18,16 @@ pub struct Issue {
     pub completed_at: Option<String>,
     pub canceled_at: Option<String>,
     pub url: String,
+    pub sla_breaches_at: Option<String>,
+    pub sla_started_at: Option<String>,
+    pub sla_type: Option<String>,
+    pub customer_ticket_count: Option<i32>,
+    pub previous_identifiers: Option<Vec<String>>,
+    pub auto_closed_at: Option<String>,
+    pub auto_archived_at: Option<String>,
+    pub trashed: Option<bool>,
+    pub snoozed_until_at: Option<String>,
+    pub project_milestone: Option<ProjectMilestoneRef>,
     pub state: Option<WorkflowState>,
     pub assignee: Option<User>,
     pub creator: Option<UserRef>,
@@ -30,6 +40,14 @@ pub struct Issue {
     pub relations: Option<NodeList<IssueRelation>>,
     pub subscribers: Option<NodeList<UserRef>>,
     pub comments: Option<NodeList<Comment>>,
+}
+
+/// Lightweight project milestone reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectMilestoneRef {
+    pub id: String,
+    pub name: String,
 }
 
 /// Lightweight issue reference for parent/children links.
@@ -81,6 +99,18 @@ pub struct Team {
     pub id: String,
     pub key: String,
     pub name: String,
+    pub description: Option<String>,
+    pub timezone: Option<String>,
+    pub triage_enabled: Option<bool>,
+    pub default_issue_state: Option<TeamDefaultState>,
+}
+
+/// Default issue state reference for teams.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamDefaultState {
+    pub id: String,
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -100,6 +130,7 @@ pub struct Project {
     pub name: String,
     pub state: Option<String>,
     pub progress: Option<f64>,
+    pub health: Option<String>,
     pub description: Option<String>,
     pub url: Option<String>,
     pub start_date: Option<String>,
@@ -114,6 +145,17 @@ pub struct Project {
 pub struct Label {
     pub id: String,
     pub name: String,
+    pub color: Option<String>,
+    pub parent: Option<LabelRef>,
+    pub team: Option<Team>,
+}
+
+/// Lightweight label reference for parent links.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LabelRef {
+    pub id: String,
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -122,7 +164,17 @@ pub struct Comment {
     pub id: String,
     pub body: String,
     pub created_at: String,
+    pub url: Option<String>,
+    pub resolved_at: Option<String>,
     pub user: Option<CommentUser>,
+    pub parent: Option<CommentParentRef>,
+}
+
+/// Lightweight comment parent reference for threading.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentParentRef {
+    pub id: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -166,10 +218,23 @@ pub struct Cycle {
     pub id: String,
     pub number: i32,
     pub name: Option<String>,
+    pub description: Option<String>,
     pub starts_at: Option<String>,
     pub ends_at: Option<String>,
     pub completed_at: Option<String>,
     pub progress: Option<f64>,
+    pub issues: Option<NodeList<CycleIssueRef>>,
+    pub uncompleted_issues_upon_close: Option<NodeList<CycleIssueRef>>,
+}
+
+/// Lightweight issue reference for cycle issue lists.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CycleIssueRef {
+    pub id: String,
+    pub identifier: String,
+    pub title: String,
+    pub state: Option<IssueStateRef>,
 }
 
 /// Issue relation entity.
@@ -265,6 +330,8 @@ pub struct ProjectDetail {
     pub description: Option<String>,
     pub state: Option<String>,
     pub progress: Option<f64>,
+    pub health: Option<String>,
+    pub url: Option<String>,
     pub target_date: Option<String>,
     pub start_date: Option<String>,
     pub created_at: Option<String>,
@@ -365,6 +432,21 @@ pub struct Initiative {
     pub name: String,
     pub description: Option<String>,
     pub status: Option<String>,
+    pub target_date: Option<String>,
+    pub completed_at: Option<String>,
+    pub started_at: Option<String>,
+    pub url: Option<String>,
+    pub slug_id: Option<String>,
+    pub owner: Option<UserRef>,
+    pub projects: Option<NodeList<InitiativeProjectRef>>,
+}
+
+/// Lightweight project reference for initiatives.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeProjectRef {
+    pub id: String,
+    pub name: String,
 }
 
 // ---- #22: Notifications ----
@@ -653,11 +735,19 @@ pub struct InitiativeMutationResult {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InitiativeDetail {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
     pub status: Option<String>,
+    pub target_date: Option<String>,
+    pub completed_at: Option<String>,
+    pub started_at: Option<String>,
+    pub url: Option<String>,
+    pub slug_id: Option<String>,
+    pub owner: Option<UserRef>,
+    pub projects: Option<NodeList<InitiativeProjectRef>>,
 }
 
 /// Custom view with issues.
@@ -666,4 +756,283 @@ pub struct CustomViewWithIssues {
     pub id: String,
     pub name: String,
     pub issues: Connection<Issue>,
+}
+
+/// Custom view mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomViewMutationResult {
+    pub success: bool,
+    pub custom_view: Option<CustomView>,
+}
+
+/// Roadmap mutation result.
+#[derive(Debug, Clone, Deserialize)]
+pub struct RoadmapMutationResult {
+    pub success: bool,
+    pub roadmap: Option<Roadmap>,
+}
+
+// ---- Agent Sessions & Activities ----
+
+/// Agent session entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentSession {
+    pub id: String,
+    pub status: Option<String>,
+    pub created_at: Option<String>,
+    pub started_at: Option<String>,
+    pub ended_at: Option<String>,
+    pub url: Option<String>,
+    pub plan: Option<serde_json::Value>,
+    pub summary: Option<String>,
+    pub issue: Option<IssueRef>,
+    pub comment: Option<AgentSessionComment>,
+    pub activities: Option<NodeList<AgentActivityRef>>,
+}
+
+/// Comment reference for agent sessions.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentSessionComment {
+    pub id: String,
+    pub body: Option<String>,
+}
+
+/// Lightweight agent activity reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentActivityRef {
+    pub id: String,
+    pub created_at: Option<String>,
+    pub ephemeral: Option<bool>,
+}
+
+/// Agent session mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentSessionMutationResult {
+    pub success: bool,
+    pub agent_session: Option<AgentSession>,
+}
+
+/// Agent activity mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentActivityMutationResult {
+    pub success: bool,
+    pub agent_activity: Option<AgentActivityRef>,
+}
+
+// ---- Customer Management ----
+
+/// Customer entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Customer {
+    pub id: String,
+    pub name: String,
+    pub domains: Option<Vec<String>>,
+    pub external_ids: Option<Vec<String>>,
+    pub revenue: Option<f64>,
+    pub size: Option<f64>,
+    pub slug_id: Option<String>,
+    pub logo_url: Option<String>,
+    pub status: Option<CustomerStatusRef>,
+    pub tier: Option<CustomerTierRef>,
+    pub owner: Option<UserRef>,
+    pub needs: Option<Vec<CustomerNeed>>,
+}
+
+/// Customer status reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerStatusRef {
+    pub display_name: Option<String>,
+    pub color: Option<String>,
+}
+
+/// Customer tier reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerTierRef {
+    pub name: Option<String>,
+}
+
+/// Customer need (feature request linked to an issue).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerNeed {
+    pub id: String,
+    pub body: Option<String>,
+    pub priority: Option<f64>,
+    pub created_at: Option<String>,
+    pub customer: Option<CustomerRef>,
+    pub issue: Option<IssueRef>,
+}
+
+/// Lightweight customer reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerRef {
+    pub id: String,
+    pub name: String,
+}
+
+/// Customer mutation result.
+#[derive(Debug, Clone, Deserialize)]
+pub struct CustomerMutationResult {
+    pub success: bool,
+    pub customer: Option<Customer>,
+}
+
+/// Customer need mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerNeedMutationResult {
+    pub success: bool,
+    pub customer_need: Option<CustomerNeed>,
+}
+
+// ---- Initiative Updates ----
+
+/// Initiative status update.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeStatusUpdate {
+    pub id: String,
+    pub body: String,
+    pub health: Option<String>,
+    pub created_at: Option<String>,
+    pub url: Option<String>,
+    pub user: Option<ProjectUpdateUser>,
+}
+
+/// Initiative update mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeUpdateMutationResult {
+    pub success: bool,
+    pub initiative_update: Option<InitiativeStatusUpdate>,
+}
+
+// ---- Initiative-to-Project Links ----
+
+/// Initiative-to-project link.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeToProject {
+    pub id: String,
+    pub initiative: Option<InitiativeNameRef>,
+    pub project: Option<ProjectNameRefType>,
+}
+
+/// Lightweight initiative name reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeNameRef {
+    pub name: String,
+}
+
+/// Lightweight project name reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectNameRefType {
+    pub name: String,
+}
+
+/// Initiative-to-project mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeToProjectMutationResult {
+    pub success: bool,
+    pub initiative_to_project: Option<InitiativeToProject>,
+}
+
+// ---- Project Relations ----
+
+/// Project relation entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectRelation {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub relation_type: Option<String>,
+    pub anchor_type: Option<String>,
+    pub related_anchor_type: Option<String>,
+    pub project: Option<ProjectNameRefType>,
+    pub related_project: Option<ProjectNameRefType>,
+}
+
+/// Project relation mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectRelationMutationResult {
+    pub success: bool,
+    pub project_relation: Option<ProjectRelation>,
+}
+
+// ---- Releases ----
+
+/// Release entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Release {
+    pub id: String,
+    pub name: Option<String>,
+    pub version: Option<String>,
+    pub url: Option<String>,
+    pub start_date: Option<String>,
+    pub target_date: Option<String>,
+    pub stage: Option<ReleaseStageRef>,
+    pub pipeline: Option<ReleasePipelineRef>,
+}
+
+/// Release stage reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseStageRef {
+    pub name: String,
+    pub color: Option<String>,
+}
+
+/// Release pipeline reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleasePipelineRef {
+    pub name: String,
+}
+
+/// Release mutation result.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ReleaseMutationResult {
+    pub success: bool,
+    pub release: Option<Release>,
+}
+
+// ---- Project Search ----
+
+/// Project search result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectSearchResult {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub state: Option<String>,
+    pub progress: Option<f64>,
+    pub url: Option<String>,
+    pub start_date: Option<String>,
+    pub target_date: Option<String>,
+    pub lead: Option<UserRef>,
+    pub teams: Option<NodeList<Team>>,
+}
+
+/// Project search connection.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectSearchConnection {
+    pub nodes: Vec<ProjectSearchResult>,
+    pub total_count: Option<i64>,
 }

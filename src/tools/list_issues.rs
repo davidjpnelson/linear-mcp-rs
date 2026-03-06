@@ -52,6 +52,21 @@ pub struct ListIssuesParams {
     /// Filter issues updated after this date (ISO format)
     #[serde(rename = "updatedAfter")]
     pub updated_after: Option<String>,
+    /// Filter issues completed before this date (ISO format)
+    #[serde(rename = "completedBefore")]
+    pub completed_before: Option<String>,
+    /// Filter issues completed after this date (ISO format)
+    #[serde(rename = "completedAfter")]
+    pub completed_after: Option<String>,
+    /// Filter issues canceled before this date (ISO format)
+    #[serde(rename = "canceledBefore")]
+    pub canceled_before: Option<String>,
+    /// Filter issues canceled after this date (ISO format)
+    #[serde(rename = "canceledAfter")]
+    pub canceled_after: Option<String>,
+    /// Filter issues snoozed until after this date (ISO format)
+    #[serde(rename = "snoozedUntilAfter")]
+    pub snoozed_until_after: Option<String>,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

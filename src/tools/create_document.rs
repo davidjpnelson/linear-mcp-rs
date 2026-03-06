@@ -9,4 +9,6 @@ pub struct CreateDocumentParams {
     pub content: Option<String>,
     /// Project name to associate the document with
     pub project: Option<String>,
+    /// Issue identifier (e.g. 'ENG-123') to associate the document with
+    pub issue: Option<String>,
 }

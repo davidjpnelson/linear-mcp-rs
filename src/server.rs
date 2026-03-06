@@ -1021,6 +1021,686 @@ impl LinearMcp {
             Err(e) => Ok(error_result(&e)),
         }
     }
+
+    // ---- Phase 2: Delete/Archive tools ----
+
+    #[tool(
+        name = "delete_document",
+        description = "Permanently delete a document."
+    )]
+    async fn delete_document(
+        &self,
+        Parameters(params): Parameters<delete_document::DeleteDocumentParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_document(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_project_milestone",
+        description = "Delete a project milestone."
+    )]
+    async fn delete_project_milestone(
+        &self,
+        Parameters(params): Parameters<delete_project_milestone::DeleteProjectMilestoneParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_project_milestone(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_project_update",
+        description = "Delete a project status update."
+    )]
+    async fn delete_project_update(
+        &self,
+        Parameters(params): Parameters<delete_project_update::DeleteProjectUpdateParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_project_update(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_attachment",
+        description = "Delete an attachment."
+    )]
+    async fn delete_attachment(
+        &self,
+        Parameters(params): Parameters<delete_attachment::DeleteAttachmentParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_attachment(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_issue",
+        description = "PERMANENTLY delete an issue. This cannot be undone. Use archive_issue for reversible removal."
+    )]
+    async fn delete_issue(
+        &self,
+        Parameters(params): Parameters<delete_issue::DeleteIssueParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_issue(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_roadmap",
+        description = "Delete a roadmap."
+    )]
+    async fn delete_roadmap(
+        &self,
+        Parameters(params): Parameters<delete_roadmap::DeleteRoadmapParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_roadmap(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_view",
+        description = "Delete a custom view."
+    )]
+    async fn delete_view(
+        &self,
+        Parameters(params): Parameters<delete_view::DeleteViewParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_view(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "archive_cycle",
+        description = "Archive a cycle."
+    )]
+    async fn archive_cycle(
+        &self,
+        Parameters(params): Parameters<archive_cycle::ArchiveCycleParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_archive_cycle(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 3: Update tools ----
+
+    #[tool(
+        name = "update_cycle",
+        description = "Update an existing cycle's name, description, or dates."
+    )]
+    async fn update_cycle(
+        &self,
+        Parameters(params): Parameters<update_cycle::UpdateCycleParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_cycle(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_project_milestone",
+        description = "Update a project milestone's name, description, or target date."
+    )]
+    async fn update_project_milestone(
+        &self,
+        Parameters(params): Parameters<update_project_milestone::UpdateProjectMilestoneParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_project_milestone(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_project_update",
+        description = "Update a project status update's body or health."
+    )]
+    async fn update_project_update(
+        &self,
+        Parameters(params): Parameters<update_project_update::UpdateProjectUpdateParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_project_update(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_webhook",
+        description = "Update an existing webhook's URL, label, enabled status, or resource types."
+    )]
+    async fn update_webhook(
+        &self,
+        Parameters(params): Parameters<update_webhook::UpdateWebhookParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_webhook(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_attachment",
+        description = "Update an attachment's title or subtitle."
+    )]
+    async fn update_attachment(
+        &self,
+        Parameters(params): Parameters<update_attachment::UpdateAttachmentParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_attachment(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_roadmap",
+        description = "Update a roadmap's name or description."
+    )]
+    async fn update_roadmap(
+        &self,
+        Parameters(params): Parameters<update_roadmap::UpdateRoadmapParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_roadmap(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_view",
+        description = "Update a custom view's name, description, color, icon, or sharing."
+    )]
+    async fn update_view(
+        &self,
+        Parameters(params): Parameters<update_view::UpdateViewParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_view(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 4: Comment tools ----
+
+    #[tool(
+        name = "list_comments",
+        description = "List comments on an issue, including reply threads and resolution status."
+    )]
+    async fn list_comments(
+        &self,
+        Parameters(params): Parameters<list_comments::ListCommentsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_comments(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "resolve_comment",
+        description = "Mark a comment thread as resolved."
+    )]
+    async fn resolve_comment(
+        &self,
+        Parameters(params): Parameters<resolve_comment::ResolveCommentParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_resolve_comment(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "unresolve_comment",
+        description = "Reopen a resolved comment thread."
+    )]
+    async fn unresolve_comment(
+        &self,
+        Parameters(params): Parameters<unresolve_comment::UnresolveCommentParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_unresolve_comment(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 5: Subscription tools ----
+
+    #[tool(
+        name = "subscribe_to_issue",
+        description = "Subscribe to an issue to receive notifications about it."
+    )]
+    async fn subscribe_to_issue(
+        &self,
+        Parameters(params): Parameters<subscribe_to_issue::SubscribeToIssueParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_subscribe_to_issue(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "unsubscribe_from_issue",
+        description = "Unsubscribe from an issue to stop receiving notifications."
+    )]
+    async fn unsubscribe_from_issue(
+        &self,
+        Parameters(params): Parameters<unsubscribe_from_issue::UnsubscribeFromIssueParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_unsubscribe_from_issue(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 6: Create tools ----
+
+    #[tool(
+        name = "create_roadmap",
+        description = "Create a new roadmap."
+    )]
+    async fn create_roadmap(
+        &self,
+        Parameters(params): Parameters<create_roadmap::CreateRoadmapParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_roadmap(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_view",
+        description = "Create a new custom view with optional team scope and sharing."
+    )]
+    async fn create_view(
+        &self,
+        Parameters(params): Parameters<create_view::CreateViewParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_view(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 7: Search tools ----
+
+    #[tool(
+        name = "search_projects",
+        description = "Search for projects by name or description."
+    )]
+    async fn search_projects(
+        &self,
+        Parameters(params): Parameters<search_projects::SearchProjectsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_search_projects(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "issue_vcs_branch_search",
+        description = "Find the Linear issue associated with a git branch name."
+    )]
+    async fn issue_vcs_branch_search(
+        &self,
+        Parameters(params): Parameters<issue_vcs_branch_search::IssueVcsBranchSearchParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_issue_vcs_branch_search(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 8: Agent Session tools ----
+
+    #[tool(
+        name = "create_agent_session",
+        description = "Create a new agent session on an issue or comment for AI-assisted work tracking."
+    )]
+    async fn create_agent_session(
+        &self,
+        Parameters(params): Parameters<create_agent_session::CreateAgentSessionParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_agent_session(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_agent_session",
+        description = "Update an agent session's plan or external link."
+    )]
+    async fn update_agent_session(
+        &self,
+        Parameters(params): Parameters<update_agent_session::UpdateAgentSessionParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_agent_session(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_agent_activity",
+        description = "Log an activity (thinking, tool call, code change, error) within an agent session."
+    )]
+    async fn create_agent_activity(
+        &self,
+        Parameters(params): Parameters<create_agent_activity::CreateAgentActivityParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_agent_activity(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "list_agent_sessions",
+        description = "List agent sessions in the workspace."
+    )]
+    async fn list_agent_sessions(
+        &self,
+        Parameters(params): Parameters<list_agent_sessions::ListAgentSessionsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_agent_sessions(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "get_agent_session",
+        description = "Get full details of an agent session including activities."
+    )]
+    async fn get_agent_session(
+        &self,
+        Parameters(params): Parameters<get_agent_session::GetAgentSessionParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_get_agent_session(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 9: Customer tools ----
+
+    #[tool(
+        name = "list_customers",
+        description = "List customers in the workspace."
+    )]
+    async fn list_customers(
+        &self,
+        Parameters(params): Parameters<list_customers::ListCustomersParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_customers(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "get_customer",
+        description = "Get full details of a customer."
+    )]
+    async fn get_customer(
+        &self,
+        Parameters(params): Parameters<get_customer::GetCustomerParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_get_customer(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_customer",
+        description = "Create a new customer with name, domains, owner, revenue, and size."
+    )]
+    async fn create_customer(
+        &self,
+        Parameters(params): Parameters<create_customer::CreateCustomerParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_customer(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_customer",
+        description = "Update a customer's name, domains, owner, revenue, or size."
+    )]
+    async fn update_customer(
+        &self,
+        Parameters(params): Parameters<update_customer::UpdateCustomerParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_customer(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_customer",
+        description = "Delete a customer."
+    )]
+    async fn delete_customer(
+        &self,
+        Parameters(params): Parameters<delete_customer::DeleteCustomerParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_customer(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "list_customer_needs",
+        description = "List customer needs in the workspace."
+    )]
+    async fn list_customer_needs(
+        &self,
+        Parameters(params): Parameters<list_customer_needs::ListCustomerNeedsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_customer_needs(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_customer_need",
+        description = "Create a customer need linking a customer to an issue."
+    )]
+    async fn create_customer_need(
+        &self,
+        Parameters(params): Parameters<create_customer_need::CreateCustomerNeedParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_customer_need(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_customer_need",
+        description = "Update a customer need."
+    )]
+    async fn update_customer_need(
+        &self,
+        Parameters(params): Parameters<update_customer_need::UpdateCustomerNeedParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_customer_need(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 10: Initiative extras ----
+
+    #[tool(
+        name = "list_initiative_updates",
+        description = "List status updates for an initiative."
+    )]
+    async fn list_initiative_updates(
+        &self,
+        Parameters(params): Parameters<list_initiative_updates::ListInitiativeUpdatesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_initiative_updates(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_initiative_update",
+        description = "Post a status update to an initiative with optional health indicator."
+    )]
+    async fn create_initiative_update(
+        &self,
+        Parameters(params): Parameters<create_initiative_update::CreateInitiativeUpdateParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_initiative_update(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "add_project_to_initiative",
+        description = "Link a project to an initiative."
+    )]
+    async fn add_project_to_initiative(
+        &self,
+        Parameters(params): Parameters<add_project_to_initiative::AddProjectToInitiativeParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_add_project_to_initiative(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "remove_project_from_initiative",
+        description = "Remove a project-to-initiative link."
+    )]
+    async fn remove_project_from_initiative(
+        &self,
+        Parameters(params): Parameters<remove_project_from_initiative::RemoveProjectFromInitiativeParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_remove_project_from_initiative(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 11: Project relations ----
+
+    #[tool(
+        name = "create_project_relation",
+        description = "Create a relation between two projects (blocks, dependsOn, related)."
+    )]
+    async fn create_project_relation(
+        &self,
+        Parameters(params): Parameters<create_project_relation::CreateProjectRelationParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_project_relation(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "delete_project_relation",
+        description = "Delete a project relation."
+    )]
+    async fn delete_project_relation(
+        &self,
+        Parameters(params): Parameters<delete_project_relation::DeleteProjectRelationParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_delete_project_relation(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "list_project_relations",
+        description = "List relations for a project."
+    )]
+    async fn list_project_relations(
+        &self,
+        Parameters(params): Parameters<list_project_relations::ListProjectRelationsParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_project_relations(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    // ---- Phase 12: Releases ----
+
+    #[tool(
+        name = "list_releases",
+        description = "List releases in the workspace (alpha feature)."
+    )]
+    async fn list_releases(
+        &self,
+        Parameters(params): Parameters<list_releases::ListReleasesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_list_releases(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "create_release",
+        description = "Create a new release in a pipeline (alpha feature)."
+    )]
+    async fn create_release(
+        &self,
+        Parameters(params): Parameters<create_release::CreateReleaseParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_create_release(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
+
+    #[tool(
+        name = "update_release",
+        description = "Update a release's name, description, version, commit SHA, or stage (alpha feature)."
+    )]
+    async fn update_release(
+        &self,
+        Parameters(params): Parameters<update_release::UpdateReleaseParams>,
+    ) -> Result<CallToolResult, McpError> {
+        match self.handle_update_release(params).await {
+            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
+            Err(e) => Ok(error_result(&e)),
+        }
+    }
 }
 
 // ---- ServerHandler ----
@@ -1210,6 +1890,21 @@ impl LinearMcp {
                 params.updated_after.as_deref(),
             ));
         }
+        if params.completed_before.is_some() || params.completed_after.is_some() {
+            issue_filters.push(filters::completed_at_filter(
+                params.completed_before.as_deref(),
+                params.completed_after.as_deref(),
+            ));
+        }
+        if params.canceled_before.is_some() || params.canceled_after.is_some() {
+            issue_filters.push(filters::canceled_at_filter(
+                params.canceled_before.as_deref(),
+                params.canceled_after.as_deref(),
+            ));
+        }
+        if let Some(ref snoozed) = params.snoozed_until_after {
+            issue_filters.push(filters::snoozed_until_at_filter(snoozed));
+        }
 
         let filter = filters::IssueFilter::combine(issue_filters);
         let limit = params.limit.unwrap_or(25).min(100);
@@ -1342,6 +2037,10 @@ impl LinearMcp {
                         id: t.id.clone(),
                         key: t.key.clone(),
                         name: t.name.clone(),
+                        description: t.description.clone(),
+                        timezone: t.timezone.clone(),
+                        triage_enabled: t.triage_enabled,
+                        default_issue_state: t.default_issue_state.clone(),
                     };
                     format::format_team(&team, count)
                 })
@@ -1635,6 +2334,26 @@ impl LinearMcp {
             let parent_id = self.resolve_issue_id(parent_identifier).await?;
             input["parentId"] = serde_json::Value::String(parent_id);
         }
+        if let Some(ref cycle_id) = params.cycle_id {
+            input["cycleId"] = serde_json::Value::String(cycle_id.clone());
+        }
+        if let Some(ref subscriber_emails) = params.subscribers {
+            let emails: Vec<&str> = subscriber_emails.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            let mut subscriber_ids = Vec::new();
+            for email in emails {
+                subscriber_ids.push(self.resolve_user_id(email).await?);
+            }
+            input["subscriberIds"] = serde_json::json!(subscriber_ids);
+        }
+        if let Some(ref milestone_name) = params.project_milestone {
+            if let Some(ref project_name) = params.project {
+                let project_id = self.resolve_project_id(project_name).await?;
+                let milestone_id = self.resolve_project_milestone_id(milestone_name, &project_id).await?;
+                input["projectMilestoneId"] = serde_json::Value::String(milestone_id);
+            } else {
+                return Err(Error::InvalidInput("projectMilestone requires a project to be specified".into()));
+            }
+        }
 
         let vars = serde_json::json!({ "input": input });
         let data: response::CreateIssueData = self
@@ -1712,15 +2431,18 @@ impl LinearMcp {
             has_fields = true;
         }
 
-        // Fetch the issue's team key when status or labels need resolving
-        let team_key = if params.status.is_some() || params.labels.is_some() {
+        // Fetch issue metadata once if any dependent fields need it
+        let needs_issue_data = params.status.is_some() || params.labels.is_some() || params.project_milestone.is_some();
+        let issue_data = if needs_issue_data {
             let issue_vars = serde_json::json!({ "id": uuid });
-            let issue_data: response::IssueData = self
-                .client
-                .execute_json(queries::GET_ISSUE, issue_vars)
-                .await?;
+            Some(self.client.execute_json::<response::IssueData>(queries::GET_ISSUE, issue_vars).await?)
+        } else {
+            None
+        };
+
+        let team_key = if params.status.is_some() || params.labels.is_some() {
             Some(
-                issue_data
+                issue_data.as_ref().unwrap()
                     .issue
                     .team
                     .as_ref()
@@ -1761,6 +2483,19 @@ impl LinearMcp {
             }
             has_fields = true;
         }
+        if let Some(ref cycle_id) = params.cycle_id {
+            input.insert("cycleId".into(), serde_json::Value::String(cycle_id.clone()));
+            has_fields = true;
+        }
+        // Subscribers are handled additively after the main update via issueSubscribe
+        if let Some(ref milestone_name) = params.project_milestone {
+            let project_id = issue_data.as_ref().unwrap().issue.project.as_ref()
+                .map(|p| p.id.clone())
+                .ok_or_else(|| Error::InvalidInput("Issue has no project — cannot resolve milestone".into()))?;
+            let milestone_id = self.resolve_project_milestone_id(milestone_name, &project_id).await?;
+            input.insert("projectMilestoneId".into(), serde_json::Value::String(milestone_id));
+            has_fields = true;
+        }
 
         if !has_fields {
             return Err(Error::InvalidInput(
@@ -1777,13 +2512,28 @@ impl LinearMcp {
             .execute_json(queries::UPDATE_ISSUE, vars)
             .await?;
 
-        match data.issue_update.issue {
+        let result = match data.issue_update.issue {
             Some(issue) => {
                 let detail = format::format_issue_detail(&issue);
                 Ok(format!("Issue updated:\n\n{}", detail))
             }
             None => Err(Error::GraphQL("Issue update returned no issue".into())),
+        };
+
+        // Add subscribers additively via issueSubscribe (after the main update)
+        if let Some(ref subscriber_emails) = params.subscribers {
+            let emails: Vec<&str> = subscriber_emails.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            for email in emails {
+                let user_id = self.resolve_user_id(email).await?;
+                let sub_vars = serde_json::json!({ "id": uuid, "userId": user_id });
+                let _: response::SubscribeToIssueData = self
+                    .client
+                    .execute_json(queries::SUBSCRIBE_TO_ISSUE, sub_vars)
+                    .await?;
+            }
         }
+
+        result
     }
 
     // ---- add_comment (with threaded reply support, Task #9) ----
@@ -2323,6 +3073,10 @@ impl LinearMcp {
         if let Some(ref project_name) = params.project {
             let project_id = self.resolve_project_id(project_name).await?;
             input["projectId"] = serde_json::Value::String(project_id);
+        }
+        if let Some(ref issue_id) = params.issue {
+            let issue_uuid = self.resolve_issue_id(issue_id).await?;
+            input["issueId"] = serde_json::Value::String(issue_uuid);
         }
 
         let vars = serde_json::json!({ "input": input });
@@ -3684,6 +4438,1265 @@ impl LinearMcp {
                 format::format_issue_detail(&issue)
             )),
             None => Err(Error::GraphQL("Issue creation from template failed".into())),
+        }
+    }
+
+    // ---- New resolvers ----
+
+    /// Resolve a project milestone name to a UUID within a given project.
+    async fn resolve_project_milestone_id(&self, name: &str, project_id: &str) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": project_id });
+        let data: response::ProjectMilestonesData = self
+            .client
+            .execute_json(queries::LIST_PROJECT_MILESTONES, vars)
+            .await?;
+
+        data.project.project_milestones.nodes.iter()
+            .find(|m| m.name.eq_ignore_ascii_case(name))
+            .map(|m| m.id.clone())
+            .ok_or_else(|| Error::NotFound(format!("Milestone '{}' not found in project", name)))
+    }
+
+    /// Resolve an initiative name or UUID to a UUID.
+    async fn resolve_initiative_id_or_uuid(&self, id_or_name: &str) -> Result<String, Error> {
+        let is_uuid = id_or_name.len() == 36
+            && id_or_name.chars().all(|c| c.is_ascii_hexdigit() || c == '-');
+        if is_uuid {
+            return Ok(id_or_name.to_string());
+        }
+
+        let vars = serde_json::json!({ "first": 100 });
+        let data: response::InitiativesData = self
+            .client
+            .execute_json(queries::LIST_INITIATIVES, vars)
+            .await?;
+
+        data.initiatives.nodes.iter()
+            .find(|i| i.name.eq_ignore_ascii_case(id_or_name))
+            .map(|i| i.id.clone())
+            .ok_or_else(|| Error::NotFound(format!("Initiative '{}' not found", id_or_name)))
+    }
+
+    // ---- Phase 2: Delete/Archive handlers ----
+
+    async fn handle_delete_document(
+        &self,
+        params: delete_document::DeleteDocumentParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteDocumentData = self
+            .client
+            .execute_json(queries::DELETE_DOCUMENT, vars)
+            .await?;
+        if data.document_delete.success {
+            Ok(format!("Document {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Document deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_project_milestone(
+        &self,
+        params: delete_project_milestone::DeleteProjectMilestoneParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteProjectMilestoneData = self
+            .client
+            .execute_json(queries::DELETE_PROJECT_MILESTONE, vars)
+            .await?;
+        if data.project_milestone_delete.success {
+            Ok(format!("Project milestone {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Project milestone deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_project_update(
+        &self,
+        params: delete_project_update::DeleteProjectUpdateParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteProjectUpdateData = self
+            .client
+            .execute_json(queries::DELETE_PROJECT_UPDATE, vars)
+            .await?;
+        if data.project_update_delete.success {
+            Ok(format!("Project update {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Project update deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_attachment(
+        &self,
+        params: delete_attachment::DeleteAttachmentParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteAttachmentData = self
+            .client
+            .execute_json(queries::DELETE_ATTACHMENT, vars)
+            .await?;
+        if data.attachment_delete.success {
+            Ok(format!("Attachment {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Attachment deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_issue(
+        &self,
+        params: delete_issue::DeleteIssueParams,
+    ) -> Result<String, Error> {
+        let uuid = self.resolve_issue_id(&params.id).await?;
+        let vars = serde_json::json!({ "id": uuid });
+        let data: response::DeleteIssueData = self
+            .client
+            .execute_json(queries::DELETE_ISSUE, vars)
+            .await?;
+        if data.issue_delete.success {
+            Ok(format!("Issue '{}' permanently deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Issue deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_roadmap(
+        &self,
+        params: delete_roadmap::DeleteRoadmapParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteRoadmapData = self
+            .client
+            .execute_json(queries::DELETE_ROADMAP, vars)
+            .await?;
+        if data.roadmap_delete.success {
+            Ok(format!("Roadmap {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Roadmap deletion failed".into()))
+        }
+    }
+
+    async fn handle_delete_view(
+        &self,
+        params: delete_view::DeleteViewParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteViewData = self
+            .client
+            .execute_json(queries::DELETE_VIEW, vars)
+            .await?;
+        if data.custom_view_delete.success {
+            Ok(format!("Custom view {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Custom view deletion failed".into()))
+        }
+    }
+
+    async fn handle_archive_cycle(
+        &self,
+        params: archive_cycle::ArchiveCycleParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::ArchiveCycleData = self
+            .client
+            .execute_json(queries::ARCHIVE_CYCLE, vars)
+            .await?;
+        if data.cycle_archive.success {
+            Ok(format!("Cycle {} archived.", params.id))
+        } else {
+            Err(Error::GraphQL("Cycle archive failed".into()))
+        }
+    }
+
+    // ---- Phase 3: Update handlers ----
+
+    async fn handle_update_cycle(
+        &self,
+        params: update_cycle::UpdateCycleParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+        if let Some(ref starts_at) = params.starts_at {
+            input.insert("startsAt".into(), serde_json::Value::String(starts_at.clone()));
+            has_fields = true;
+        }
+        if let Some(ref ends_at) = params.ends_at {
+            input.insert("endsAt".into(), serde_json::Value::String(ends_at.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateCycleData = self
+            .client
+            .execute_json(queries::UPDATE_CYCLE, vars)
+            .await?;
+
+        match data.cycle_update.cycle {
+            Some(cycle) => Ok(format!("Cycle updated:\n\n{}", format::format_cycle_created(&cycle))),
+            None => Err(Error::GraphQL("Cycle update failed".into())),
+        }
+    }
+
+    async fn handle_update_project_milestone(
+        &self,
+        params: update_project_milestone::UpdateProjectMilestoneParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+        if let Some(ref target_date) = params.target_date {
+            input.insert("targetDate".into(), serde_json::Value::String(target_date.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateProjectMilestoneData = self
+            .client
+            .execute_json(queries::UPDATE_PROJECT_MILESTONE, vars)
+            .await?;
+
+        match data.project_milestone_update.project_milestone {
+            Some(milestone) => Ok(format!("Milestone updated:\n\n{}", format::format_project_milestone(&milestone))),
+            None => Err(Error::GraphQL("Milestone update failed".into())),
+        }
+    }
+
+    async fn handle_update_project_update(
+        &self,
+        params: update_project_update::UpdateProjectUpdateParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref body) = params.body {
+            input.insert("body".into(), serde_json::Value::String(body.clone()));
+            has_fields = true;
+        }
+        if let Some(ref health) = params.health {
+            input.insert("health".into(), serde_json::Value::String(health.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateProjectUpdateData = self
+            .client
+            .execute_json(queries::UPDATE_PROJECT_UPDATE, vars)
+            .await?;
+
+        match data.project_update_update.project_update {
+            Some(update) => Ok(format!("Project update updated:\n\n{}", format::format_project_update(&update))),
+            None => Err(Error::GraphQL("Project update update failed".into())),
+        }
+    }
+
+    async fn handle_update_webhook(
+        &self,
+        params: update_webhook::UpdateWebhookParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref url) = params.url {
+            input.insert("url".into(), serde_json::Value::String(url.clone()));
+            has_fields = true;
+        }
+        if let Some(ref label) = params.label {
+            input.insert("label".into(), serde_json::Value::String(label.clone()));
+            has_fields = true;
+        }
+        if let Some(enabled) = params.enabled {
+            input.insert("enabled".into(), serde_json::Value::Bool(enabled));
+            has_fields = true;
+        }
+        if let Some(ref resource_types) = params.resource_types {
+            let types: Vec<&str> = resource_types.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            input.insert("resourceTypes".into(), serde_json::json!(types));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateWebhookData = self
+            .client
+            .execute_json(queries::UPDATE_WEBHOOK, vars)
+            .await?;
+
+        match data.webhook_update.webhook {
+            Some(webhook) => Ok(format!("Webhook updated:\n\n{}", format::format_webhook(&webhook))),
+            None => Err(Error::GraphQL("Webhook update failed".into())),
+        }
+    }
+
+    async fn handle_update_attachment(
+        &self,
+        params: update_attachment::UpdateAttachmentParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({ "title": params.title });
+
+        if let Some(ref subtitle) = params.subtitle {
+            input["subtitle"] = serde_json::Value::String(subtitle.clone());
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": input });
+        let data: response::UpdateAttachmentData = self
+            .client
+            .execute_json(queries::UPDATE_ATTACHMENT, vars)
+            .await?;
+
+        match data.attachment_update.attachment {
+            Some(attachment) => Ok(format!("Attachment updated:\n\n{}", format::format_attachment(&attachment))),
+            None => Err(Error::GraphQL("Attachment update failed".into())),
+        }
+    }
+
+    async fn handle_update_roadmap(
+        &self,
+        params: update_roadmap::UpdateRoadmapParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateRoadmapData = self
+            .client
+            .execute_json(queries::UPDATE_ROADMAP, vars)
+            .await?;
+
+        match data.roadmap_update.roadmap {
+            Some(roadmap) => Ok(format!("Roadmap updated:\n\n{}", format::format_roadmap(&roadmap))),
+            None => Err(Error::GraphQL("Roadmap update failed".into())),
+        }
+    }
+
+    async fn handle_update_view(
+        &self,
+        params: update_view::UpdateViewParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+        if let Some(ref color) = params.color {
+            input.insert("color".into(), serde_json::Value::String(color.clone()));
+            has_fields = true;
+        }
+        if let Some(ref icon) = params.icon {
+            input.insert("icon".into(), serde_json::Value::String(icon.clone()));
+            has_fields = true;
+        }
+        if let Some(shared) = params.shared {
+            input.insert("shared".into(), serde_json::Value::Bool(shared));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateViewData = self
+            .client
+            .execute_json(queries::UPDATE_VIEW, vars)
+            .await?;
+
+        match data.custom_view_update.custom_view {
+            Some(view) => Ok(format!("View updated:\n\n{}", format::format_custom_view(&view))),
+            None => Err(Error::GraphQL("View update failed".into())),
+        }
+    }
+
+    // ---- Phase 4: Comment handlers ----
+
+    async fn handle_list_comments(
+        &self,
+        params: list_comments::ListCommentsParams,
+    ) -> Result<String, Error> {
+        let uuid = self.resolve_issue_id(&params.issue).await?;
+        let limit = params.limit.unwrap_or(25).min(100);
+        let vars = serde_json::json!({ "id": uuid, "first": limit });
+        let data: response::ListCommentsData = self
+            .client
+            .execute_json(queries::LIST_COMMENTS, vars)
+            .await?;
+
+        let comments = &data.issue.comments.nodes;
+        if comments.is_empty() {
+            return Ok("No comments on this issue.".to_string());
+        }
+
+        let lines: Vec<String> = comments.iter().map(format::format_comment_detail).collect();
+        Ok(format!("Comments:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_resolve_comment(
+        &self,
+        params: resolve_comment::ResolveCommentParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::ResolveCommentData = self
+            .client
+            .execute_json(queries::RESOLVE_COMMENT, vars)
+            .await?;
+
+        match data.comment_resolve.comment {
+            Some(_) => Ok(format!("Comment {} resolved.", params.id)),
+            None => Err(Error::GraphQL("Comment resolve failed".into())),
+        }
+    }
+
+    async fn handle_unresolve_comment(
+        &self,
+        params: unresolve_comment::UnresolveCommentParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::UnresolveCommentData = self
+            .client
+            .execute_json(queries::UNRESOLVE_COMMENT, vars)
+            .await?;
+
+        match data.comment_unresolve.comment {
+            Some(_) => Ok(format!("Comment {} unresolved.", params.id)),
+            None => Err(Error::GraphQL("Comment unresolve failed".into())),
+        }
+    }
+
+    // ---- Phase 5: Subscription handlers ----
+
+    async fn handle_subscribe_to_issue(
+        &self,
+        params: subscribe_to_issue::SubscribeToIssueParams,
+    ) -> Result<String, Error> {
+        let uuid = self.resolve_issue_id(&params.issue).await?;
+        let mut vars = serde_json::json!({ "id": uuid });
+
+        if let Some(ref email) = params.user {
+            let user_id = self.resolve_user_id(email).await?;
+            vars["userId"] = serde_json::Value::String(user_id);
+        }
+
+        let data: response::SubscribeToIssueData = self
+            .client
+            .execute_json(queries::SUBSCRIBE_TO_ISSUE, vars)
+            .await?;
+
+        if data.issue_subscribe.success {
+            Ok(format!("Subscribed to issue '{}'.", params.issue))
+        } else {
+            Err(Error::GraphQL("Issue subscribe failed".into()))
+        }
+    }
+
+    async fn handle_unsubscribe_from_issue(
+        &self,
+        params: unsubscribe_from_issue::UnsubscribeFromIssueParams,
+    ) -> Result<String, Error> {
+        let uuid = self.resolve_issue_id(&params.issue).await?;
+        let mut vars = serde_json::json!({ "id": uuid });
+
+        if let Some(ref email) = params.user {
+            let user_id = self.resolve_user_id(email).await?;
+            vars["userId"] = serde_json::Value::String(user_id);
+        }
+
+        let data: response::UnsubscribeFromIssueData = self
+            .client
+            .execute_json(queries::UNSUBSCRIBE_FROM_ISSUE, vars)
+            .await?;
+
+        if data.issue_unsubscribe.success {
+            Ok(format!("Unsubscribed from issue '{}'.", params.issue))
+        } else {
+            Err(Error::GraphQL("Issue unsubscribe failed".into()))
+        }
+    }
+
+    // ---- Phase 6: Create handlers ----
+
+    async fn handle_create_roadmap(
+        &self,
+        params: create_roadmap::CreateRoadmapParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({ "name": params.name });
+
+        if let Some(ref desc) = params.description {
+            input["description"] = serde_json::Value::String(desc.clone());
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateRoadmapData = self
+            .client
+            .execute_json(queries::CREATE_ROADMAP, vars)
+            .await?;
+
+        match data.roadmap_create.roadmap {
+            Some(roadmap) => Ok(format!("Roadmap created:\n\n{}", format::format_roadmap(&roadmap))),
+            None => Err(Error::GraphQL("Roadmap creation failed".into())),
+        }
+    }
+
+    async fn handle_create_view(
+        &self,
+        params: create_view::CreateViewParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({ "name": params.name });
+
+        if let Some(ref desc) = params.description {
+            input["description"] = serde_json::Value::String(desc.clone());
+        }
+        if let Some(ref color) = params.color {
+            input["color"] = serde_json::Value::String(color.clone());
+        }
+        if let Some(ref icon) = params.icon {
+            input["icon"] = serde_json::Value::String(icon.clone());
+        }
+        if let Some(shared) = params.shared {
+            input["shared"] = serde_json::Value::Bool(shared);
+        }
+        if let Some(ref team_key) = params.team {
+            let team_id = self.resolve_team_id(team_key).await?;
+            input["teamId"] = serde_json::Value::String(team_id);
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateViewData = self
+            .client
+            .execute_json(queries::CREATE_VIEW, vars)
+            .await?;
+
+        match data.custom_view_create.custom_view {
+            Some(view) => Ok(format!("View created:\n\n{}", format::format_custom_view(&view))),
+            None => Err(Error::GraphQL("View creation failed".into())),
+        }
+    }
+
+    // ---- Phase 7: Search handlers ----
+
+    async fn handle_search_projects(
+        &self,
+        params: search_projects::SearchProjectsParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(10).min(50);
+        let vars = serde_json::json!({ "term": params.query, "first": limit });
+        let data: response::SearchProjectsData = self
+            .client
+            .execute_json(queries::SEARCH_PROJECTS, vars)
+            .await?;
+
+        let results = &data.search_projects.nodes;
+        if results.is_empty() {
+            return Ok(format!("No projects found for \"{}\".", params.query));
+        }
+
+        let lines: Vec<String> = results.iter().map(format::format_project_search_result).collect();
+        Ok(format!(
+            "Project search for \"{}\":\n\n{}",
+            params.query, lines.join("\n\n")
+        ))
+    }
+
+    async fn handle_issue_vcs_branch_search(
+        &self,
+        params: issue_vcs_branch_search::IssueVcsBranchSearchParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "branchName": params.branch_name });
+        let data: response::IssueVcsBranchSearchData = self
+            .client
+            .execute_json(queries::ISSUE_VCS_BRANCH_SEARCH, vars)
+            .await?;
+
+        match data.issue_vcs_branch_search {
+            Some(issue) => Ok(format::format_issue_detail(&issue)),
+            None => Ok(format!("No issue found for branch '{}'.", params.branch_name)),
+        }
+    }
+
+    // ---- Phase 8: Agent Session handlers ----
+
+    async fn handle_create_agent_session(
+        &self,
+        params: create_agent_session::CreateAgentSessionParams,
+    ) -> Result<String, Error> {
+        if params.issue.is_none() && params.comment.is_none() {
+            return Err(Error::InvalidInput("Provide either 'issue' or 'comment'.".into()));
+        }
+        if params.issue.is_some() && params.comment.is_some() {
+            return Err(Error::InvalidInput("Provide either 'issue' or 'comment', not both.".into()));
+        }
+
+        if let Some(ref issue_id) = params.issue {
+            let uuid = self.resolve_issue_id(issue_id).await?;
+            let mut input = serde_json::json!({ "issueId": uuid });
+            if let Some(ref link) = params.external_link {
+                input["externalLink"] = serde_json::Value::String(link.clone());
+            }
+            let vars = serde_json::json!({ "input": input });
+            let data: response::AgentSessionCreateOnIssueData = self
+                .client
+                .execute_json(queries::AGENT_SESSION_CREATE_ON_ISSUE, vars)
+                .await?;
+            match data.agent_session_create_on_issue.agent_session {
+                Some(session) => Ok(format!("Agent session created:\n\n{}", format::format_agent_session_summary(&session))),
+                None => Err(Error::GraphQL("Agent session creation failed".into())),
+            }
+        } else {
+            let comment_id = params.comment.as_ref().unwrap();
+            let mut input = serde_json::json!({ "commentId": comment_id });
+            if let Some(ref link) = params.external_link {
+                input["externalLink"] = serde_json::Value::String(link.clone());
+            }
+            let vars = serde_json::json!({ "input": input });
+            let data: response::AgentSessionCreateOnCommentData = self
+                .client
+                .execute_json(queries::AGENT_SESSION_CREATE_ON_COMMENT, vars)
+                .await?;
+            match data.agent_session_create_on_comment.agent_session {
+                Some(session) => Ok(format!("Agent session created:\n\n{}", format::format_agent_session_summary(&session))),
+                None => Err(Error::GraphQL("Agent session creation failed".into())),
+            }
+        }
+    }
+
+    async fn handle_update_agent_session(
+        &self,
+        params: update_agent_session::UpdateAgentSessionParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref plan) = params.plan {
+            let plan_value: serde_json::Value = serde_json::from_str(plan)
+                .map_err(|e| Error::InvalidInput(format!("Invalid plan JSON: {}", e)))?;
+            input.insert("plan".into(), plan_value);
+            has_fields = true;
+        }
+        if let Some(ref link) = params.external_link {
+            input.insert("externalLink".into(), serde_json::Value::String(link.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateAgentSessionData = self
+            .client
+            .execute_json(queries::UPDATE_AGENT_SESSION, vars)
+            .await?;
+
+        match data.agent_session_update.agent_session {
+            Some(session) => Ok(format!("Agent session updated:\n\n{}", format::format_agent_session_summary(&session))),
+            None => Err(Error::GraphQL("Agent session update failed".into())),
+        }
+    }
+
+    async fn handle_create_agent_activity(
+        &self,
+        params: create_agent_activity::CreateAgentActivityParams,
+    ) -> Result<String, Error> {
+        let mut content = serde_json::Map::new();
+        if let Some(ref body) = params.body {
+            content.insert("body".into(), serde_json::Value::String(body.clone()));
+        }
+        if let Some(ref action) = params.action {
+            content.insert("action".into(), serde_json::Value::String(action.clone()));
+        }
+        if let Some(ref parameter) = params.parameter {
+            content.insert("parameter".into(), serde_json::Value::String(parameter.clone()));
+        }
+        if let Some(ref result) = params.result {
+            content.insert("result".into(), serde_json::Value::String(result.clone()));
+        }
+
+        let mut input = serde_json::json!({
+            "sessionId": params.session,
+            "activityType": params.activity_type,
+            "content": serde_json::Value::Object(content),
+        });
+
+        if let Some(ephemeral) = params.ephemeral {
+            input["ephemeral"] = serde_json::Value::Bool(ephemeral);
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateAgentActivityData = self
+            .client
+            .execute_json(queries::CREATE_AGENT_ACTIVITY, vars)
+            .await?;
+
+        if data.agent_activity_create.success {
+            Ok("Agent activity logged.".to_string())
+        } else {
+            Err(Error::GraphQL("Agent activity creation failed".into()))
+        }
+    }
+
+    async fn handle_list_agent_sessions(
+        &self,
+        params: list_agent_sessions::ListAgentSessionsParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(25).min(100);
+        let vars = serde_json::json!({ "first": limit });
+        let data: response::AgentSessionsData = self
+            .client
+            .execute_json(queries::LIST_AGENT_SESSIONS, vars)
+            .await?;
+
+        let sessions = &data.agent_sessions.nodes;
+        if sessions.is_empty() {
+            return Ok("No agent sessions found.".to_string());
+        }
+
+        let lines: Vec<String> = sessions.iter().map(format::format_agent_session_summary).collect();
+        Ok(format!("Agent Sessions:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_get_agent_session(
+        &self,
+        params: get_agent_session::GetAgentSessionParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::AgentSessionData = self
+            .client
+            .execute_json(queries::GET_AGENT_SESSION, vars)
+            .await?;
+        Ok(format::format_agent_session_detail(&data.agent_session))
+    }
+
+    // ---- Phase 9: Customer handlers ----
+
+    async fn handle_list_customers(
+        &self,
+        params: list_customers::ListCustomersParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(25).min(100);
+        let vars = serde_json::json!({ "first": limit });
+        let data: response::CustomersData = self
+            .client
+            .execute_json(queries::LIST_CUSTOMERS, vars)
+            .await?;
+
+        let customers = &data.customers.nodes;
+        if customers.is_empty() {
+            return Ok("No customers found.".to_string());
+        }
+
+        let lines: Vec<String> = customers.iter().map(format::format_customer_summary).collect();
+        Ok(format!("Customers:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_get_customer(
+        &self,
+        params: get_customer::GetCustomerParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::CustomerData = self
+            .client
+            .execute_json(queries::GET_CUSTOMER, vars)
+            .await?;
+        Ok(format::format_customer_detail(&data.customer))
+    }
+
+    async fn handle_create_customer(
+        &self,
+        params: create_customer::CreateCustomerParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({ "name": params.name });
+
+        if let Some(ref domains) = params.domains {
+            let domain_list: Vec<&str> = domains.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            input["domains"] = serde_json::json!(domain_list);
+        }
+        if let Some(ref owner) = params.owner {
+            let owner_id = self.resolve_user_id(owner).await?;
+            input["ownerId"] = serde_json::Value::String(owner_id);
+        }
+        if let Some(revenue) = params.revenue {
+            input["revenue"] = serde_json::json!(revenue);
+        }
+        if let Some(size) = params.size {
+            input["size"] = serde_json::json!(size);
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateCustomerData = self
+            .client
+            .execute_json(queries::CREATE_CUSTOMER, vars)
+            .await?;
+
+        match data.customer_create.customer {
+            Some(customer) => Ok(format!("Customer created:\n\n{}", format::format_customer_detail(&customer))),
+            None => Err(Error::GraphQL("Customer creation failed".into())),
+        }
+    }
+
+    async fn handle_update_customer(
+        &self,
+        params: update_customer::UpdateCustomerParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref domains) = params.domains {
+            let domain_list: Vec<&str> = domains.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect();
+            input.insert("domains".into(), serde_json::json!(domain_list));
+            has_fields = true;
+        }
+        if let Some(ref owner) = params.owner {
+            let owner_id = self.resolve_user_id(owner).await?;
+            input.insert("ownerId".into(), serde_json::Value::String(owner_id));
+            has_fields = true;
+        }
+        if let Some(revenue) = params.revenue {
+            input.insert("revenue".into(), serde_json::json!(revenue));
+            has_fields = true;
+        }
+        if let Some(size) = params.size {
+            input.insert("size".into(), serde_json::json!(size));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateCustomerData = self
+            .client
+            .execute_json(queries::UPDATE_CUSTOMER, vars)
+            .await?;
+
+        match data.customer_update.customer {
+            Some(customer) => Ok(format!("Customer updated:\n\n{}", format::format_customer_detail(&customer))),
+            None => Err(Error::GraphQL("Customer update failed".into())),
+        }
+    }
+
+    async fn handle_delete_customer(
+        &self,
+        params: delete_customer::DeleteCustomerParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteCustomerData = self
+            .client
+            .execute_json(queries::DELETE_CUSTOMER, vars)
+            .await?;
+        if data.customer_delete.success {
+            Ok(format!("Customer {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Customer deletion failed".into()))
+        }
+    }
+
+    async fn handle_list_customer_needs(
+        &self,
+        params: list_customer_needs::ListCustomerNeedsParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(25).min(100);
+        let vars = serde_json::json!({ "first": limit });
+        let data: response::CustomerNeedsData = self
+            .client
+            .execute_json(queries::LIST_CUSTOMER_NEEDS, vars)
+            .await?;
+
+        let needs = &data.customer_needs.nodes;
+        if needs.is_empty() {
+            return Ok("No customer needs found.".to_string());
+        }
+
+        let lines: Vec<String> = needs.iter().map(format::format_customer_need).collect();
+        Ok(format!("Customer Needs:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_create_customer_need(
+        &self,
+        params: create_customer_need::CreateCustomerNeedParams,
+    ) -> Result<String, Error> {
+        let issue_uuid = self.resolve_issue_id(&params.issue).await?;
+        let mut input = serde_json::json!({
+            "issueId": issue_uuid,
+            "customerId": params.customer,
+        });
+
+        if let Some(ref body) = params.body {
+            input["body"] = serde_json::Value::String(body.clone());
+        }
+        if let Some(priority) = params.priority {
+            input["priority"] = serde_json::json!(priority);
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateCustomerNeedData = self
+            .client
+            .execute_json(queries::CREATE_CUSTOMER_NEED, vars)
+            .await?;
+
+        match data.customer_need_create.customer_need {
+            Some(need) => Ok(format!("Customer need created:\n\n{}", format::format_customer_need(&need))),
+            None => Err(Error::GraphQL("Customer need creation failed".into())),
+        }
+    }
+
+    async fn handle_update_customer_need(
+        &self,
+        params: update_customer_need::UpdateCustomerNeedParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref issue) = params.issue {
+            let issue_uuid = self.resolve_issue_id(issue).await?;
+            input.insert("issueId".into(), serde_json::Value::String(issue_uuid));
+            has_fields = true;
+        }
+        if let Some(ref customer) = params.customer {
+            input.insert("customerId".into(), serde_json::Value::String(customer.clone()));
+            has_fields = true;
+        }
+        if let Some(ref body) = params.body {
+            input.insert("body".into(), serde_json::Value::String(body.clone()));
+            has_fields = true;
+        }
+        if let Some(priority) = params.priority {
+            input.insert("priority".into(), serde_json::json!(priority));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateCustomerNeedData = self
+            .client
+            .execute_json(queries::UPDATE_CUSTOMER_NEED, vars)
+            .await?;
+
+        match data.customer_need_update.customer_need {
+            Some(need) => Ok(format!("Customer need updated:\n\n{}", format::format_customer_need(&need))),
+            None => Err(Error::GraphQL("Customer need update failed".into())),
+        }
+    }
+
+    // ---- Phase 10: Initiative extras handlers ----
+
+    async fn handle_list_initiative_updates(
+        &self,
+        params: list_initiative_updates::ListInitiativeUpdatesParams,
+    ) -> Result<String, Error> {
+        let initiative_id = self.resolve_initiative_id_or_uuid(&params.initiative).await?;
+        let limit = params.limit.unwrap_or(10).min(50);
+        let vars = serde_json::json!({ "id": initiative_id, "first": limit });
+        let data: response::InitiativeUpdatesData = self
+            .client
+            .execute_json(queries::LIST_INITIATIVE_UPDATES, vars)
+            .await?;
+
+        let updates = &data.initiative.initiative_updates.nodes;
+        if updates.is_empty() {
+            return Ok("No initiative updates found.".to_string());
+        }
+
+        let lines: Vec<String> = updates.iter().map(format::format_initiative_update).collect();
+        Ok(format!("Initiative Updates:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_create_initiative_update(
+        &self,
+        params: create_initiative_update::CreateInitiativeUpdateParams,
+    ) -> Result<String, Error> {
+        let initiative_id = self.resolve_initiative_id_or_uuid(&params.initiative).await?;
+        let mut input = serde_json::json!({
+            "initiativeId": initiative_id,
+            "body": params.body,
+        });
+
+        if let Some(ref health) = params.health {
+            input["health"] = serde_json::Value::String(health.clone());
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateInitiativeUpdateData = self
+            .client
+            .execute_json(queries::CREATE_INITIATIVE_UPDATE, vars)
+            .await?;
+
+        match data.initiative_update_create.initiative_update {
+            Some(update) => Ok(format!("Initiative update created:\n\n{}", format::format_initiative_update(&update))),
+            None => Err(Error::GraphQL("Initiative update creation failed".into())),
+        }
+    }
+
+    async fn handle_add_project_to_initiative(
+        &self,
+        params: add_project_to_initiative::AddProjectToInitiativeParams,
+    ) -> Result<String, Error> {
+        let initiative_id = self.resolve_initiative_id_or_uuid(&params.initiative).await?;
+        let project_id = self.resolve_project_id_or_uuid(&params.project).await?;
+
+        let input = serde_json::json!({
+            "initiativeId": initiative_id,
+            "projectId": project_id,
+        });
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::AddProjectToInitiativeData = self
+            .client
+            .execute_json(queries::ADD_PROJECT_TO_INITIATIVE, vars)
+            .await?;
+
+        match data.initiative_to_project_create.initiative_to_project {
+            Some(link) => Ok(format!("Project linked to initiative:\n\n{}", format::format_initiative_to_project(&link))),
+            None => Err(Error::GraphQL("Failed to link project to initiative".into())),
+        }
+    }
+
+    async fn handle_remove_project_from_initiative(
+        &self,
+        params: remove_project_from_initiative::RemoveProjectFromInitiativeParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::RemoveProjectFromInitiativeData = self
+            .client
+            .execute_json(queries::REMOVE_PROJECT_FROM_INITIATIVE, vars)
+            .await?;
+
+        if data.initiative_to_project_delete.success {
+            Ok(format!("Initiative-project link {} removed.", params.id))
+        } else {
+            Err(Error::GraphQL("Failed to remove initiative-project link".into()))
+        }
+    }
+
+    // ---- Phase 11: Project relation handlers ----
+
+    async fn handle_create_project_relation(
+        &self,
+        params: create_project_relation::CreateProjectRelationParams,
+    ) -> Result<String, Error> {
+        let project_id = self.resolve_project_id_or_uuid(&params.project).await?;
+        let related_id = self.resolve_project_id_or_uuid(&params.related_project).await?;
+
+        let normalized_type = match params.relation_type.to_lowercase().as_str() {
+            "blocks" => "blocks",
+            "dependson" | "depends_on" => "dependsOn",
+            "related" => "related",
+            _ => return Err(Error::InvalidInput(format!("Unknown relation type: {}. Use 'blocks', 'dependsOn', or 'related'.", params.relation_type))),
+        };
+
+        let input = serde_json::json!({
+            "projectId": project_id,
+            "relatedProjectId": related_id,
+            "type": normalized_type,
+            "anchorType": "projectRelation",
+            "relatedAnchorType": "projectRelation",
+        });
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateProjectRelationData = self
+            .client
+            .execute_json(queries::CREATE_PROJECT_RELATION, vars)
+            .await?;
+
+        match data.project_relation_create.project_relation {
+            Some(relation) => Ok(format!("Project relation created:\n\n{}", format::format_project_relation(&relation))),
+            None => Err(Error::GraphQL("Project relation creation failed".into())),
+        }
+    }
+
+    async fn handle_delete_project_relation(
+        &self,
+        params: delete_project_relation::DeleteProjectRelationParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "id": params.id });
+        let data: response::DeleteProjectRelationData = self
+            .client
+            .execute_json(queries::DELETE_PROJECT_RELATION, vars)
+            .await?;
+
+        if data.project_relation_delete.success {
+            Ok(format!("Project relation {} deleted.", params.id))
+        } else {
+            Err(Error::GraphQL("Project relation deletion failed".into()))
+        }
+    }
+
+    async fn handle_list_project_relations(
+        &self,
+        params: list_project_relations::ListProjectRelationsParams,
+    ) -> Result<String, Error> {
+        let project_id = self.resolve_project_id_or_uuid(&params.project).await?;
+        let vars = serde_json::json!({ "id": project_id });
+        let data: response::ProjectRelationsData = self
+            .client
+            .execute_json(queries::LIST_PROJECT_RELATIONS, vars)
+            .await?;
+
+        let relations = &data.project.relations.nodes;
+        if relations.is_empty() {
+            return Ok("No project relations found.".to_string());
+        }
+
+        let lines: Vec<String> = relations.iter().map(format::format_project_relation).collect();
+        Ok(format!("Project Relations:\n\n{}", lines.join("\n\n")))
+    }
+
+    // ---- Phase 12: Release handlers ----
+
+    async fn handle_list_releases(
+        &self,
+        params: list_releases::ListReleasesParams,
+    ) -> Result<String, Error> {
+        let limit = params.limit.unwrap_or(25).min(100);
+        let vars = serde_json::json!({ "first": limit });
+        let data: response::ReleasesData = self
+            .client
+            .execute_json(queries::LIST_RELEASES, vars)
+            .await?;
+
+        let releases = &data.releases.nodes;
+        if releases.is_empty() {
+            return Ok("No releases found.".to_string());
+        }
+
+        let lines: Vec<String> = releases.iter().map(format::format_release_summary).collect();
+        Ok(format!("Releases:\n\n{}", lines.join("\n\n")))
+    }
+
+    async fn handle_create_release(
+        &self,
+        params: create_release::CreateReleaseParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::json!({
+            "name": params.name,
+            "pipelineId": params.pipeline,
+        });
+
+        if let Some(ref desc) = params.description {
+            input["description"] = serde_json::Value::String(desc.clone());
+        }
+        if let Some(ref version) = params.version {
+            input["version"] = serde_json::Value::String(version.clone());
+        }
+        if let Some(ref sha) = params.commit_sha {
+            input["commitSha"] = serde_json::Value::String(sha.clone());
+        }
+        if let Some(ref start) = params.start_date {
+            input["startDate"] = serde_json::Value::String(start.clone());
+        }
+        if let Some(ref target) = params.target_date {
+            input["targetDate"] = serde_json::Value::String(target.clone());
+        }
+
+        let vars = serde_json::json!({ "input": input });
+        let data: response::CreateReleaseData = self
+            .client
+            .execute_json(queries::CREATE_RELEASE, vars)
+            .await?;
+
+        match data.release_create.release {
+            Some(release) => Ok(format!("Release created:\n\n{}", format::format_release_detail(&release))),
+            None => Err(Error::GraphQL("Release creation failed".into())),
+        }
+    }
+
+    async fn handle_update_release(
+        &self,
+        params: update_release::UpdateReleaseParams,
+    ) -> Result<String, Error> {
+        let mut input = serde_json::Map::new();
+        let mut has_fields = false;
+
+        if let Some(ref name) = params.name {
+            input.insert("name".into(), serde_json::Value::String(name.clone()));
+            has_fields = true;
+        }
+        if let Some(ref desc) = params.description {
+            input.insert("description".into(), serde_json::Value::String(desc.clone()));
+            has_fields = true;
+        }
+        if let Some(ref version) = params.version {
+            input.insert("version".into(), serde_json::Value::String(version.clone()));
+            has_fields = true;
+        }
+        if let Some(ref sha) = params.commit_sha {
+            input.insert("commitSha".into(), serde_json::Value::String(sha.clone()));
+            has_fields = true;
+        }
+        if let Some(ref stage) = params.stage {
+            input.insert("stageId".into(), serde_json::Value::String(stage.clone()));
+            has_fields = true;
+        }
+
+        if !has_fields {
+            return Err(Error::InvalidInput("No fields to update.".into()));
+        }
+
+        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
+        let data: response::UpdateReleaseData = self
+            .client
+            .execute_json(queries::UPDATE_RELEASE, vars)
+            .await?;
+
+        match data.release_update.release {
+            Some(release) => Ok(format!("Release updated:\n\n{}", format::format_release_detail(&release))),
+            None => Err(Error::GraphQL("Release update failed".into())),
         }
     }
 }

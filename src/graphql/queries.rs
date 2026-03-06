@@ -74,6 +74,15 @@ query GetIssue($id: String!) {
         startedAt
         completedAt
         canceledAt
+        autoClosedAt
+        autoArchivedAt
+        slaBreachesAt
+        slaStartedAt
+        slaType
+        customerTicketCount
+        previousIdentifiers
+        trashed
+        snoozedUntilAt
         url
         state { id name type color }
         assignee { id displayName email }
@@ -81,12 +90,13 @@ query GetIssue($id: String!) {
         team { id key name }
         project { id name state progress }
         cycle { id number name }
+        projectMilestone { id name }
         labels { nodes { id name } }
         parent { identifier title }
         children { nodes { identifier title } }
         relations { nodes { id type relatedIssue { identifier title } } }
         subscribers { nodes { displayName email } }
-        comments { nodes { id body createdAt user { displayName } } }
+        comments { nodes { id body createdAt url resolvedAt user { displayName } parent { id } } }
     }
 }
 "#;
@@ -121,6 +131,10 @@ query ListTeams {
             id
             key
             name
+            description
+            timezone
+            triageEnabled
+            defaultIssueState { id name }
         }
     }
 }
@@ -134,6 +148,10 @@ query ListTeamsWithMembers {
             id
             key
             name
+            description
+            timezone
+            triageEnabled
+            defaultIssueState { id name }
             members { nodes { id } }
         }
     }
@@ -149,6 +167,7 @@ query ListProjects($first: Int!, $filter: ProjectFilter) {
             name
             state
             progress
+            health
             description
             url
             startDate
@@ -243,7 +262,7 @@ mutation CreateIssue($input: IssueCreateInput!) {
             labels { nodes { id name } }
             parent { identifier title }
             children { nodes { identifier title } }
-            comments { nodes { id body createdAt user { displayName } } }
+            comments { nodes { id body createdAt url resolvedAt user { displayName } } }
         }
     }
 }
@@ -273,7 +292,7 @@ mutation UpdateIssue($id: String!, $input: IssueUpdateInput!) {
             labels { nodes { id name } }
             parent { identifier title }
             children { nodes { identifier title } }
-            comments { nodes { id body createdAt user { displayName } } }
+            comments { nodes { id body createdAt url resolvedAt user { displayName } } }
         }
     }
 }
@@ -288,6 +307,8 @@ mutation AddComment($input: CommentCreateInput!) {
             id
             body
             createdAt
+            url
+            resolvedAt
             user { displayName }
         }
     }
@@ -303,6 +324,8 @@ mutation UpdateComment($id: String!, $input: CommentUpdateInput!) {
             id
             body
             createdAt
+            url
+            resolvedAt
             user { displayName }
         }
     }
@@ -327,6 +350,7 @@ query ListCycles($teamId: String!, $first: Int!) {
                 id
                 number
                 name
+                description
                 startsAt
                 endsAt
                 completedAt
@@ -344,10 +368,17 @@ query GetCycle($id: String!) {
         id
         number
         name
+        description
         startsAt
         endsAt
         completedAt
         progress
+        issues(first: 50) {
+            nodes { id identifier title state { name } }
+        }
+        uncompletedIssuesUponClose(first: 50) {
+            nodes { id identifier title state { name } }
+        }
     }
 }
 "#;
@@ -359,6 +390,9 @@ query ListLabels($first: Int!, $filter: IssueLabelFilter) {
         nodes {
             id
             name
+            color
+            parent { id name }
+            team { id key name }
         }
     }
 }
@@ -372,6 +406,9 @@ mutation CreateLabel($input: IssueLabelCreateInput!) {
         issueLabel {
             id
             name
+            color
+            parent { id name }
+            team { id key name }
         }
     }
 }
@@ -497,6 +534,8 @@ query GetProject($id: String!) {
         description
         state
         progress
+        health
+        url
         targetDate
         startDate
         createdAt
@@ -519,6 +558,8 @@ mutation CreateProject($input: ProjectCreateInput!) {
             description
             state
             progress
+            health
+            url
             targetDate
             startDate
             createdAt
@@ -542,6 +583,8 @@ mutation UpdateProject($id: String!, $input: ProjectUpdateInput!) {
             description
             state
             progress
+            health
+            url
             targetDate
             startDate
             createdAt
@@ -649,6 +692,13 @@ query ListInitiatives($first: Int!) {
             name
             description
             status
+            targetDate
+            completedAt
+            startedAt
+            url
+            slugId
+            owner { displayName email }
+            projects(first: 10) { nodes { id name } }
         }
     }
 }
@@ -1062,6 +1112,13 @@ mutation CreateInitiative($input: InitiativeCreateInput!) {
             name
             description
             status
+            targetDate
+            completedAt
+            startedAt
+            url
+            slugId
+            owner { displayName email }
+            projects(first: 10) { nodes { id name } }
         }
     }
 }
@@ -1077,6 +1134,13 @@ mutation UpdateInitiative($id: String!, $input: InitiativeUpdateInput!) {
             name
             description
             status
+            targetDate
+            completedAt
+            startedAt
+            url
+            slugId
+            owner { displayName email }
+            projects(first: 10) { nodes { id name } }
         }
     }
 }
@@ -1132,6 +1196,717 @@ query ListTriageIssues($first: Int!, $filter: IssueFilter) {
             labels { nodes { id name } }
         }
         pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+// ---- Phase 2: Delete/Archive mutations ----
+
+/// Delete a document.
+pub const DELETE_DOCUMENT: &str = r#"
+mutation DeleteDocument($id: String!) {
+    documentDelete(id: $id) { success }
+}
+"#;
+
+/// Delete a project milestone.
+pub const DELETE_PROJECT_MILESTONE: &str = r#"
+mutation DeleteProjectMilestone($id: String!) {
+    projectMilestoneDelete(id: $id) { success }
+}
+"#;
+
+/// Delete a project update.
+pub const DELETE_PROJECT_UPDATE: &str = r#"
+mutation DeleteProjectUpdate($id: String!) {
+    projectUpdateDelete(id: $id) { success }
+}
+"#;
+
+/// Delete an attachment.
+pub const DELETE_ATTACHMENT: &str = r#"
+mutation DeleteAttachment($id: String!) {
+    attachmentDelete(id: $id) { success }
+}
+"#;
+
+/// Permanently delete an issue.
+pub const DELETE_ISSUE: &str = r#"
+mutation DeleteIssue($id: String!) {
+    issueDelete(id: $id) { success }
+}
+"#;
+
+/// Delete a roadmap.
+pub const DELETE_ROADMAP: &str = r#"
+mutation DeleteRoadmap($id: String!) {
+    roadmapDelete(id: $id) { success }
+}
+"#;
+
+/// Delete a custom view.
+pub const DELETE_VIEW: &str = r#"
+mutation DeleteView($id: String!) {
+    customViewDelete(id: $id) { success }
+}
+"#;
+
+/// Archive a cycle.
+pub const ARCHIVE_CYCLE: &str = r#"
+mutation ArchiveCycle($id: String!) {
+    cycleArchive(id: $id) { success }
+}
+"#;
+
+// ---- Phase 3: Update mutations ----
+
+/// Update a cycle.
+pub const UPDATE_CYCLE: &str = r#"
+mutation UpdateCycle($id: String!, $input: CycleUpdateInput!) {
+    cycleUpdate(id: $id, input: $input) {
+        success
+        cycle {
+            id
+            name
+            number
+            startsAt
+            endsAt
+        }
+    }
+}
+"#;
+
+/// Update a project milestone.
+pub const UPDATE_PROJECT_MILESTONE: &str = r#"
+mutation UpdateProjectMilestone($id: String!, $input: ProjectMilestoneUpdateInput!) {
+    projectMilestoneUpdate(id: $id, input: $input) {
+        success
+        projectMilestone {
+            id
+            name
+            description
+            targetDate
+            sortOrder
+        }
+    }
+}
+"#;
+
+/// Update a project update.
+pub const UPDATE_PROJECT_UPDATE: &str = r#"
+mutation UpdateProjectUpdate($id: String!, $input: ProjectUpdateUpdateInput!) {
+    projectUpdateUpdate(id: $id, input: $input) {
+        success
+        projectUpdate {
+            id
+            body
+            health
+            createdAt
+            user { displayName }
+        }
+    }
+}
+"#;
+
+/// Update a webhook.
+pub const UPDATE_WEBHOOK: &str = r#"
+mutation UpdateWebhook($id: String!, $input: WebhookUpdateInput!) {
+    webhookUpdate(id: $id, input: $input) {
+        success
+        webhook {
+            id
+            url
+            label
+            enabled
+            resourceTypes
+        }
+    }
+}
+"#;
+
+/// Update an attachment.
+pub const UPDATE_ATTACHMENT: &str = r#"
+mutation UpdateAttachment($id: String!, $input: AttachmentUpdateInput!) {
+    attachmentUpdate(id: $id, input: $input) {
+        success
+        attachment {
+            id
+            title
+            url
+            createdAt
+        }
+    }
+}
+"#;
+
+/// Update a roadmap.
+pub const UPDATE_ROADMAP: &str = r#"
+mutation UpdateRoadmap($id: String!, $input: RoadmapUpdateInput!) {
+    roadmapUpdate(id: $id, input: $input) {
+        success
+        roadmap {
+            id
+            name
+            description
+            slugId
+        }
+    }
+}
+"#;
+
+/// Update a custom view.
+pub const UPDATE_VIEW: &str = r#"
+mutation UpdateView($id: String!, $input: CustomViewUpdateInput!) {
+    customViewUpdate(id: $id, input: $input) {
+        success
+        customView {
+            id
+            name
+            description
+            filterData
+        }
+    }
+}
+"#;
+
+// ---- Phase 4: Comment tools ----
+
+/// List comments for an issue.
+pub const LIST_COMMENTS: &str = r#"
+query ListComments($id: String!, $first: Int!) {
+    issue(id: $id) {
+        comments(first: $first) {
+            nodes {
+                id
+                body
+                createdAt
+                url
+                resolvedAt
+                user { displayName }
+                parent { id }
+            }
+        }
+    }
+}
+"#;
+
+/// Resolve a comment thread.
+pub const RESOLVE_COMMENT: &str = r#"
+mutation ResolveComment($id: String!) {
+    commentResolve(id: $id) {
+        success
+        comment {
+            id
+            body
+            createdAt
+            url
+            resolvedAt
+            user { displayName }
+        }
+    }
+}
+"#;
+
+/// Unresolve a comment thread.
+pub const UNRESOLVE_COMMENT: &str = r#"
+mutation UnresolveComment($id: String!) {
+    commentUnresolve(id: $id) {
+        success
+        comment {
+            id
+            body
+            createdAt
+            url
+            resolvedAt
+            user { displayName }
+        }
+    }
+}
+"#;
+
+// ---- Phase 5: Issue subscribe/unsubscribe ----
+
+/// Subscribe to an issue.
+pub const SUBSCRIBE_TO_ISSUE: &str = r#"
+mutation SubscribeToIssue($id: String!, $userId: String) {
+    issueSubscribe(id: $id, userId: $userId) { success }
+}
+"#;
+
+/// Unsubscribe from an issue.
+pub const UNSUBSCRIBE_FROM_ISSUE: &str = r#"
+mutation UnsubscribeFromIssue($id: String!, $userId: String) {
+    issueUnsubscribe(id: $id, userId: $userId) { success }
+}
+"#;
+
+// ---- Phase 6: Roadmap & View creates ----
+
+/// Create a roadmap.
+pub const CREATE_ROADMAP: &str = r#"
+mutation CreateRoadmap($input: RoadmapCreateInput!) {
+    roadmapCreate(input: $input) {
+        success
+        roadmap {
+            id
+            name
+            description
+            slugId
+        }
+    }
+}
+"#;
+
+/// Create a custom view.
+pub const CREATE_VIEW: &str = r#"
+mutation CreateView($input: CustomViewCreateInput!) {
+    customViewCreate(input: $input) {
+        success
+        customView {
+            id
+            name
+            description
+            filterData
+        }
+    }
+}
+"#;
+
+// ---- Phase 7: Search & Query tools ----
+
+/// Full-text search projects.
+pub const SEARCH_PROJECTS: &str = r#"
+query SearchProjects($term: String!, $first: Int) {
+    searchProjects(term: $term, first: $first) {
+        nodes {
+            id
+            name
+            description
+            state
+            progress
+            url
+            startDate
+            targetDate
+            lead { displayName email }
+            teams { nodes { id key name } }
+        }
+        totalCount
+    }
+}
+"#;
+
+/// Find issue by VCS branch name.
+pub const ISSUE_VCS_BRANCH_SEARCH: &str = r#"
+query IssueVcsBranchSearch($branchName: String!) {
+    issueVcsBranchSearch(branchName: $branchName) {
+        id
+        identifier
+        title
+        description
+        priority
+        estimate
+        dueDate
+        branchName
+        createdAt
+        updatedAt
+        url
+        state { id name type color }
+        assignee { id displayName email }
+        team { id key name }
+        project { id name state progress }
+        labels { nodes { id name } }
+    }
+}
+"#;
+
+// ---- Phase 8: Agent Sessions & Activities ----
+
+/// Create an agent session on an issue.
+pub const AGENT_SESSION_CREATE_ON_ISSUE: &str = r#"
+mutation AgentSessionCreateOnIssue($input: AgentSessionCreateOnIssue!) {
+    agentSessionCreateOnIssue(input: $input) {
+        success
+        agentSession {
+            id
+            status
+            createdAt
+            url
+            issue { identifier title }
+        }
+    }
+}
+"#;
+
+/// Create an agent session on a comment.
+pub const AGENT_SESSION_CREATE_ON_COMMENT: &str = r#"
+mutation AgentSessionCreateOnComment($input: AgentSessionCreateOnComment!) {
+    agentSessionCreateOnComment(input: $input) {
+        success
+        agentSession {
+            id
+            status
+            createdAt
+            url
+            comment { id body }
+        }
+    }
+}
+"#;
+
+/// Update an agent session.
+pub const UPDATE_AGENT_SESSION: &str = r#"
+mutation UpdateAgentSession($id: String!, $input: AgentSessionUpdateInput!) {
+    agentSessionUpdate(id: $id, input: $input) {
+        success
+        agentSession {
+            id
+            status
+            url
+            plan
+        }
+    }
+}
+"#;
+
+/// Create an agent activity.
+pub const CREATE_AGENT_ACTIVITY: &str = r#"
+mutation CreateAgentActivity($input: AgentActivityCreateInput!) {
+    agentActivityCreate(input: $input) {
+        success
+        agentActivity {
+            id
+            createdAt
+        }
+    }
+}
+"#;
+
+/// List agent sessions.
+pub const LIST_AGENT_SESSIONS: &str = r#"
+query ListAgentSessions($first: Int!) {
+    agentSessions(first: $first) {
+        nodes {
+            id
+            status
+            createdAt
+            url
+            issue { identifier title }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+/// Get a single agent session.
+pub const GET_AGENT_SESSION: &str = r#"
+query GetAgentSession($id: String!) {
+    agentSession(id: $id) {
+        id
+        status
+        createdAt
+        startedAt
+        endedAt
+        url
+        plan
+        summary
+        issue { identifier title }
+        comment { id body }
+        activities(first: 50) {
+            nodes { id createdAt ephemeral }
+        }
+    }
+}
+"#;
+
+// ---- Phase 9: Customer Management ----
+
+/// List customers.
+pub const LIST_CUSTOMERS: &str = r#"
+query ListCustomers($first: Int!) {
+    customers(first: $first) {
+        nodes {
+            id
+            name
+            domains
+            revenue
+            size
+            slugId
+            status { displayName color }
+            tier { name }
+            owner { displayName email }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+/// Get a single customer.
+pub const GET_CUSTOMER: &str = r#"
+query GetCustomer($id: String!) {
+    customer(id: $id) {
+        id
+        name
+        domains
+        externalIds
+        revenue
+        size
+        slugId
+        logoUrl
+        status { displayName color }
+        tier { name }
+        owner { displayName email }
+        needs { id body priority createdAt issue { identifier title } customer { id name } }
+    }
+}
+"#;
+
+/// Create a customer.
+pub const CREATE_CUSTOMER: &str = r#"
+mutation CreateCustomer($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+        success
+        customer {
+            id
+            name
+            domains
+            revenue
+            size
+            status { displayName }
+            owner { displayName email }
+        }
+    }
+}
+"#;
+
+/// Update a customer.
+pub const UPDATE_CUSTOMER: &str = r#"
+mutation UpdateCustomer($id: String!, $input: CustomerUpdateInput!) {
+    customerUpdate(id: $id, input: $input) {
+        success
+        customer {
+            id
+            name
+            domains
+            revenue
+            size
+            status { displayName }
+            owner { displayName email }
+        }
+    }
+}
+"#;
+
+/// Delete a customer.
+pub const DELETE_CUSTOMER: &str = r#"
+mutation DeleteCustomer($id: String!) {
+    customerDelete(id: $id) { success }
+}
+"#;
+
+/// List customer needs.
+pub const LIST_CUSTOMER_NEEDS: &str = r#"
+query ListCustomerNeeds($first: Int!) {
+    customerNeeds(first: $first) {
+        nodes {
+            id
+            body
+            priority
+            createdAt
+            customer { id name }
+            issue { identifier title }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+/// Create a customer need.
+pub const CREATE_CUSTOMER_NEED: &str = r#"
+mutation CreateCustomerNeed($input: CustomerNeedCreateInput!) {
+    customerNeedCreate(input: $input) {
+        success
+        customerNeed {
+            id
+            body
+            priority
+            createdAt
+            customer { id name }
+            issue { identifier title }
+        }
+    }
+}
+"#;
+
+/// Update a customer need.
+pub const UPDATE_CUSTOMER_NEED: &str = r#"
+mutation UpdateCustomerNeed($id: String!, $input: CustomerNeedUpdateInput!) {
+    customerNeedUpdate(id: $id, input: $input) {
+        success
+        customerNeed {
+            id
+            body
+            priority
+            createdAt
+            customer { id name }
+            issue { identifier title }
+        }
+    }
+}
+"#;
+
+// ---- Phase 10: Initiative Updates + Initiative-to-Project Links ----
+
+/// List initiative updates.
+pub const LIST_INITIATIVE_UPDATES: &str = r#"
+query ListInitiativeUpdates($id: String!, $first: Int!) {
+    initiative(id: $id) {
+        initiativeUpdates(first: $first) {
+            nodes {
+                id
+                body
+                health
+                createdAt
+                url
+                user { displayName }
+            }
+        }
+    }
+}
+"#;
+
+/// Create an initiative update.
+pub const CREATE_INITIATIVE_UPDATE: &str = r#"
+mutation CreateInitiativeUpdate($input: InitiativeUpdateCreateInput!) {
+    initiativeUpdateCreate(input: $input) {
+        success
+        initiativeUpdate {
+            id
+            body
+            health
+            createdAt
+            url
+            user { displayName }
+        }
+    }
+}
+"#;
+
+/// Add a project to an initiative.
+pub const ADD_PROJECT_TO_INITIATIVE: &str = r#"
+mutation AddProjectToInitiative($input: InitiativeToProjectCreateInput!) {
+    initiativeToProjectCreate(input: $input) {
+        success
+        initiativeToProject {
+            id
+            initiative { name }
+            project { name }
+        }
+    }
+}
+"#;
+
+/// Remove a project from an initiative.
+pub const REMOVE_PROJECT_FROM_INITIATIVE: &str = r#"
+mutation RemoveProjectFromInitiative($id: String!) {
+    initiativeToProjectDelete(id: $id) { success }
+}
+"#;
+
+// ---- Phase 11: Project Relations ----
+
+/// Create a project relation.
+pub const CREATE_PROJECT_RELATION: &str = r#"
+mutation CreateProjectRelation($input: ProjectRelationCreateInput!) {
+    projectRelationCreate(input: $input) {
+        success
+        projectRelation {
+            id
+            type
+            project { name }
+            relatedProject { name }
+        }
+    }
+}
+"#;
+
+/// Delete a project relation.
+pub const DELETE_PROJECT_RELATION: &str = r#"
+mutation DeleteProjectRelation($id: String!) {
+    projectRelationDelete(id: $id) { success }
+}
+"#;
+
+/// List project relations.
+pub const LIST_PROJECT_RELATIONS: &str = r#"
+query ListProjectRelations($id: String!) {
+    project(id: $id) {
+        relations(first: 50) {
+            nodes {
+                id
+                type
+                project { name }
+                relatedProject { name }
+            }
+        }
+    }
+}
+"#;
+
+// ---- Phase 12: Releases ----
+
+/// List releases.
+pub const LIST_RELEASES: &str = r#"
+query ListReleases($first: Int!) {
+    releases(first: $first) {
+        nodes {
+            id
+            name
+            version
+            startDate
+            targetDate
+            url
+            stage { name color }
+            pipeline { name }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+/// Create a release.
+pub const CREATE_RELEASE: &str = r#"
+mutation CreateRelease($input: ReleaseCreateInput!) {
+    releaseCreate(input: $input) {
+        success
+        release {
+            id
+            name
+            version
+            url
+            startDate
+            targetDate
+            stage { name }
+            pipeline { name }
+        }
+    }
+}
+"#;
+
+/// Update a release.
+pub const UPDATE_RELEASE: &str = r#"
+mutation UpdateRelease($id: String!, $input: ReleaseUpdateInput!) {
+    releaseUpdate(id: $id, input: $input) {
+        success
+        release {
+            id
+            name
+            version
+            url
+            startDate
+            targetDate
+            stage { name }
+            pipeline { name }
+        }
     }
 }
 "#;
