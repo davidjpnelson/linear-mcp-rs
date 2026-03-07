@@ -5,10 +5,10 @@ use serde::Deserialize;
 pub struct CreateDocumentParams {
     /// Document title
     pub title: String,
+    /// Project name to associate the document with (required by Linear)
+    pub project: String,
     /// Document content (markdown)
     pub content: Option<String>,
-    /// Project name to associate the document with
-    pub project: Option<String>,
     /// Issue identifier (e.g. 'ENG-123') to associate the document with
     pub issue: Option<String>,
 }

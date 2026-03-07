@@ -667,21 +667,7 @@ mutation CreateProjectMilestone($input: ProjectMilestoneCreateInput!) {
 }
 "#;
 
-// ---- #21: Roadmap and Initiative queries ----
-
-/// List roadmaps.
-pub const LIST_ROADMAPS: &str = r#"
-query ListRoadmaps($first: Int!) {
-    roadmaps(first: $first) {
-        nodes {
-            id
-            name
-            description
-            slugId
-        }
-    }
-}
-"#;
+// ---- #21: Initiative queries ----
 
 /// List initiatives.
 pub const LIST_INITIATIVES: &str = r#"
@@ -1237,13 +1223,6 @@ mutation DeleteIssue($id: String!) {
 }
 "#;
 
-/// Delete a roadmap.
-pub const DELETE_ROADMAP: &str = r#"
-mutation DeleteRoadmap($id: String!) {
-    roadmapDelete(id: $id) { success }
-}
-"#;
-
 /// Delete a custom view.
 pub const DELETE_VIEW: &str = r#"
 mutation DeleteView($id: String!) {
@@ -1339,21 +1318,6 @@ mutation UpdateAttachment($id: String!, $input: AttachmentUpdateInput!) {
 }
 "#;
 
-/// Update a roadmap.
-pub const UPDATE_ROADMAP: &str = r#"
-mutation UpdateRoadmap($id: String!, $input: RoadmapUpdateInput!) {
-    roadmapUpdate(id: $id, input: $input) {
-        success
-        roadmap {
-            id
-            name
-            description
-            slugId
-        }
-    }
-}
-"#;
-
 /// Update a custom view.
 pub const UPDATE_VIEW: &str = r#"
 mutation UpdateView($id: String!, $input: CustomViewUpdateInput!) {
@@ -1440,22 +1404,7 @@ mutation UnsubscribeFromIssue($id: String!, $userId: String) {
 }
 "#;
 
-// ---- Phase 6: Roadmap & View creates ----
-
-/// Create a roadmap.
-pub const CREATE_ROADMAP: &str = r#"
-mutation CreateRoadmap($input: RoadmapCreateInput!) {
-    roadmapCreate(input: $input) {
-        success
-        roadmap {
-            id
-            name
-            description
-            slugId
-        }
-    }
-}
-"#;
+// ---- Phase 6: View creates ----
 
 /// Create a custom view.
 pub const CREATE_VIEW: &str = r#"
@@ -1725,7 +1674,7 @@ pub const CREATE_CUSTOMER_NEED: &str = r#"
 mutation CreateCustomerNeed($input: CustomerNeedCreateInput!) {
     customerNeedCreate(input: $input) {
         success
-        customerNeed {
+        need {
             id
             body
             priority
@@ -1742,7 +1691,7 @@ pub const UPDATE_CUSTOMER_NEED: &str = r#"
 mutation UpdateCustomerNeed($id: String!, $input: CustomerNeedUpdateInput!) {
     customerNeedUpdate(id: $id, input: $input) {
         success
-        customerNeed {
+        need {
             id
             body
             priority

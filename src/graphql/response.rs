@@ -284,12 +284,7 @@ pub struct CreateProjectMilestoneData {
     pub project_milestone_create: crate::types::ProjectMilestoneMutationResult,
 }
 
-// ---- #21: Roadmaps and Initiatives ----
-
-#[derive(Debug, Deserialize)]
-pub struct RoadmapsData {
-    pub roadmaps: crate::types::NodeList<crate::types::Roadmap>,
-}
+// ---- #21: Initiatives ----
 
 #[derive(Debug, Deserialize)]
 pub struct InitiativesData {
@@ -549,12 +544,6 @@ pub struct DeleteIssueData {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteRoadmapData {
-    pub roadmap_delete: crate::types::SuccessResult,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DeleteViewData {
     pub custom_view_delete: crate::types::SuccessResult,
 }
@@ -595,12 +584,6 @@ pub struct UpdateWebhookData {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAttachmentData {
     pub attachment_update: crate::types::AttachmentMutationResult,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct UpdateRoadmapData {
-    pub roadmap_update: crate::types::RoadmapMutationResult,
 }
 
 #[derive(Debug, Deserialize)]
@@ -648,12 +631,6 @@ pub struct UnsubscribeFromIssueData {
 }
 
 // ---- Phase 6: Create responses ----
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CreateRoadmapData {
-    pub roadmap_create: crate::types::RoadmapMutationResult,
-}
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

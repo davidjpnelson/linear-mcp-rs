@@ -5,7 +5,7 @@ use serde::Deserialize;
 pub struct CreateAgentActivityParams {
     /// Agent session UUID
     pub session: String,
-    /// Activity type (e.g. 'thinking', 'tool_call', 'code_change', 'error')
+    /// Activity type — stored in content. Values 'stop', 'continue', 'auth', 'select' also set the signal enum.
     #[serde(rename = "activityType")]
     pub activity_type: String,
     /// Activity body/description

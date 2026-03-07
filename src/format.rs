@@ -48,6 +48,7 @@ pub fn format_issue_detail(issue: &Issue) -> String {
 
     lines.push(format!("# {}: {}", issue.identifier, issue.title));
     lines.push(String::new());
+    lines.push(format!("**ID:** {}", issue.id));
 
     if let Some(ref state) = issue.state {
         lines.push(format!("**Status:** {}", state.name));
@@ -249,7 +250,10 @@ pub fn format_comment(comment: &Comment) -> String {
         .as_ref()
         .map(|u| format!(" ({})", u.display_name))
         .unwrap_or_default();
-    format!("**{}{}{}:** {}", date, user, resolved, comment.body)
+    format!(
+        "**{}{}{}:** {}\n[id: {}]",
+        date, user, resolved, comment.body, comment.id
+    )
 }
 
 pub fn format_team(team: &crate::types::Team, member_count: Option<usize>) -> String {
@@ -556,6 +560,7 @@ pub fn format_project_detail(project: &ProjectDetail) -> String {
 
     lines.push(format!("# {}", project.name));
     lines.push(String::new());
+    lines.push(format!("**ID:** {}", project.id));
     lines.push(format!("**State:** {}", project.state.as_deref().unwrap_or("unknown")));
     lines.push(format!("**Progress:** {}%", pct));
     if let Some(ref health) = project.health {
@@ -628,6 +633,7 @@ pub fn format_project_update(update: &ProjectUpdate) -> String {
         parts.push(format!("[{}]", health));
     }
     parts.push(format!("\n{}", update.body));
+    parts.push(format!("[id: {}]", update.id));
 
     parts.join(" ")
 }
@@ -648,20 +654,11 @@ pub fn format_project_milestone(milestone: &ProjectMilestone) -> String {
     if !meta.is_empty() {
         parts.push(format!("({})", meta.join(", ")));
     }
+    parts.push(format!("[id: {}]", milestone.id));
     parts.join(" ")
 }
 
-// ---- #21: Roadmaps and Initiatives ----
-
-pub fn format_roadmap(roadmap: &Roadmap) -> String {
-    let mut parts = vec![roadmap.name.clone()];
-    if let Some(ref desc) = roadmap.description {
-        if !desc.is_empty() {
-            parts.push(format!("- {}", desc));
-        }
-    }
-    parts.join(" ")
-}
+// ---- #21: Initiatives ----
 
 pub fn format_initiative(initiative: &Initiative) -> String {
     let mut parts = vec![format!("{} [{}]", initiative.name, initiative.id)];
@@ -732,6 +729,7 @@ pub fn format_attachment(attachment: &Attachment) -> String {
     if let Some(ref created) = attachment.created_at {
         parts.push(format!("({})", format_date(created)));
     }
+    parts.push(format!("[id: {}]", attachment.id));
     parts.join(" ")
 }
 
@@ -761,6 +759,7 @@ pub fn format_favorite(favorite: &Favorite) -> String {
     if let Some(ref project) = favorite.project {
         parts.push(project.name.clone());
     }
+    parts.push(format!("[id: {}]", favorite.id));
     parts.join(" ")
 }
 
@@ -836,7 +835,10 @@ pub fn format_webhook(webhook: &Webhook) -> String {
         .as_ref()
         .map(|r| r.join(", "))
         .unwrap_or_default();
-    format!("{} | {} | {} [{}]", label, url, enabled, resources)
+    format!(
+        "{} | {} | {} [{}] [id: {}]",
+        label, url, enabled, resources, webhook.id
+    )
 }
 
 // ---- #32: Integrations and Audit Log ----
@@ -1173,6 +1175,7 @@ pub fn format_initiative_update(update: &InitiativeStatusUpdate) -> String {
         parts.push(format!("[{}]", health));
     }
     parts.push(format!("\n{}", update.body));
+    parts.push(format!("[id: {}]", update.id));
     parts.join(" ")
 }
 

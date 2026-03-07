@@ -493,20 +493,6 @@ impl LinearMcp {
     // ---- Planning tools ----
 
     #[tool(
-        name = "list_roadmaps",
-        description = "List all roadmaps in the workspace."
-    )]
-    async fn list_roadmaps(
-        &self,
-        Parameters(params): Parameters<list_roadmaps::ListRoadmapsParams>,
-    ) -> Result<CallToolResult, McpError> {
-        match self.handle_list_roadmaps(params).await {
-            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
-            Err(e) => Ok(error_result(&e)),
-        }
-    }
-
-    #[tool(
         name = "list_initiatives",
         description = "List all initiatives in the workspace."
     )]
@@ -1095,20 +1081,6 @@ impl LinearMcp {
     }
 
     #[tool(
-        name = "delete_roadmap",
-        description = "Delete a roadmap."
-    )]
-    async fn delete_roadmap(
-        &self,
-        Parameters(params): Parameters<delete_roadmap::DeleteRoadmapParams>,
-    ) -> Result<CallToolResult, McpError> {
-        match self.handle_delete_roadmap(params).await {
-            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
-            Err(e) => Ok(error_result(&e)),
-        }
-    }
-
-    #[tool(
         name = "delete_view",
         description = "Delete a custom view."
     )]
@@ -1209,20 +1181,6 @@ impl LinearMcp {
     }
 
     #[tool(
-        name = "update_roadmap",
-        description = "Update a roadmap's name or description."
-    )]
-    async fn update_roadmap(
-        &self,
-        Parameters(params): Parameters<update_roadmap::UpdateRoadmapParams>,
-    ) -> Result<CallToolResult, McpError> {
-        match self.handle_update_roadmap(params).await {
-            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
-            Err(e) => Ok(error_result(&e)),
-        }
-    }
-
-    #[tool(
         name = "update_view",
         description = "Update a custom view's name, description, color, icon, or sharing."
     )]
@@ -1311,20 +1269,6 @@ impl LinearMcp {
     }
 
     // ---- Phase 6: Create tools ----
-
-    #[tool(
-        name = "create_roadmap",
-        description = "Create a new roadmap."
-    )]
-    async fn create_roadmap(
-        &self,
-        Parameters(params): Parameters<create_roadmap::CreateRoadmapParams>,
-    ) -> Result<CallToolResult, McpError> {
-        match self.handle_create_roadmap(params).await {
-            Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
-            Err(e) => Ok(error_result(&e)),
-        }
-    }
 
     #[tool(
         name = "create_view",
@@ -3063,16 +3007,14 @@ impl LinearMcp {
         &self,
         params: create_document::CreateDocumentParams,
     ) -> Result<String, Error> {
+        let project_id = self.resolve_project_id(&params.project).await?;
         let mut input = serde_json::json!({
             "title": params.title,
+            "projectId": project_id,
         });
 
         if let Some(ref content) = params.content {
             input["content"] = serde_json::Value::String(content.clone());
-        }
-        if let Some(ref project_name) = params.project {
-            let project_id = self.resolve_project_id(project_name).await?;
-            input["projectId"] = serde_json::Value::String(project_id);
         }
         if let Some(ref issue_id) = params.issue {
             let issue_uuid = self.resolve_issue_id(issue_id).await?;
@@ -3335,27 +3277,7 @@ impl LinearMcp {
         }
     }
 
-    // ---- Roadmap / Initiative handlers ----
-
-    async fn handle_list_roadmaps(
-        &self,
-        params: list_roadmaps::ListRoadmapsParams,
-    ) -> Result<String, Error> {
-        let limit = params.limit.unwrap_or(50).min(100);
-        let vars = serde_json::json!({ "first": limit });
-        let data: response::RoadmapsData = self
-            .client
-            .execute_json(queries::LIST_ROADMAPS, vars)
-            .await?;
-
-        let roadmaps = &data.roadmaps.nodes;
-        if roadmaps.is_empty() {
-            return Ok("No roadmaps found.".to_string());
-        }
-
-        let lines: Vec<String> = roadmaps.iter().map(format::format_roadmap).collect();
-        Ok(format!("Roadmaps:\n\n{}", lines.join("\n\n")))
-    }
+    // ---- Initiative handlers ----
 
     async fn handle_list_initiatives(
         &self,
@@ -3697,6 +3619,8 @@ impl LinearMcp {
         if let Some(ref team_key) = params.team {
             let team_id = self.resolve_team_id(team_key).await?;
             input["teamId"] = serde_json::Value::String(team_id);
+        } else {
+            input["allPublicTeams"] = serde_json::Value::Bool(true);
         }
 
         let vars = serde_json::json!({ "input": input });
@@ -4560,22 +4484,6 @@ impl LinearMcp {
         }
     }
 
-    async fn handle_delete_roadmap(
-        &self,
-        params: delete_roadmap::DeleteRoadmapParams,
-    ) -> Result<String, Error> {
-        let vars = serde_json::json!({ "id": params.id });
-        let data: response::DeleteRoadmapData = self
-            .client
-            .execute_json(queries::DELETE_ROADMAP, vars)
-            .await?;
-        if data.roadmap_delete.success {
-            Ok(format!("Roadmap {} deleted.", params.id))
-        } else {
-            Err(Error::GraphQL("Roadmap deletion failed".into()))
-        }
-    }
-
     async fn handle_delete_view(
         &self,
         params: delete_view::DeleteViewParams,
@@ -4781,38 +4689,6 @@ impl LinearMcp {
         }
     }
 
-    async fn handle_update_roadmap(
-        &self,
-        params: update_roadmap::UpdateRoadmapParams,
-    ) -> Result<String, Error> {
-        let mut input = serde_json::Map::new();
-        let mut has_fields = false;
-
-        if let Some(ref name) = params.name {
-            input.insert("name".into(), serde_json::Value::String(name.clone()));
-            has_fields = true;
-        }
-        if let Some(ref desc) = params.description {
-            input.insert("description".into(), serde_json::Value::String(desc.clone()));
-            has_fields = true;
-        }
-
-        if !has_fields {
-            return Err(Error::InvalidInput("No fields to update.".into()));
-        }
-
-        let vars = serde_json::json!({ "id": params.id, "input": serde_json::Value::Object(input) });
-        let data: response::UpdateRoadmapData = self
-            .client
-            .execute_json(queries::UPDATE_ROADMAP, vars)
-            .await?;
-
-        match data.roadmap_update.roadmap {
-            Some(roadmap) => Ok(format!("Roadmap updated:\n\n{}", format::format_roadmap(&roadmap))),
-            None => Err(Error::GraphQL("Roadmap update failed".into())),
-        }
-    }
-
     async fn handle_update_view(
         &self,
         params: update_view::UpdateViewParams,
@@ -4963,28 +4839,6 @@ impl LinearMcp {
     }
 
     // ---- Phase 6: Create handlers ----
-
-    async fn handle_create_roadmap(
-        &self,
-        params: create_roadmap::CreateRoadmapParams,
-    ) -> Result<String, Error> {
-        let mut input = serde_json::json!({ "name": params.name });
-
-        if let Some(ref desc) = params.description {
-            input["description"] = serde_json::Value::String(desc.clone());
-        }
-
-        let vars = serde_json::json!({ "input": input });
-        let data: response::CreateRoadmapData = self
-            .client
-            .execute_json(queries::CREATE_ROADMAP, vars)
-            .await?;
-
-        match data.roadmap_create.roadmap {
-            Some(roadmap) => Ok(format!("Roadmap created:\n\n{}", format::format_roadmap(&roadmap))),
-            None => Err(Error::GraphQL("Roadmap creation failed".into())),
-        }
-    }
 
     async fn handle_create_view(
         &self,
@@ -5160,11 +5014,25 @@ impl LinearMcp {
             content.insert("result".into(), serde_json::Value::String(result.clone()));
         }
 
+        // Store activity type in content so it's never lost
+        content.insert(
+            "type".into(),
+            serde_json::Value::String(params.activity_type.clone()),
+        );
+
         let mut input = serde_json::json!({
-            "sessionId": params.session,
-            "activityType": params.activity_type,
+            "agentSessionId": params.session,
             "content": serde_json::Value::Object(content),
         });
+
+        // Map to signal enum when the activity type matches a control signal
+        match params.activity_type.to_lowercase().as_str() {
+            "stop" | "continue" | "auth" | "select" => {
+                input["signal"] =
+                    serde_json::Value::String(params.activity_type.to_lowercase());
+            }
+            _ => {} // Non-signal types are carried in content.type
+        }
 
         if let Some(ephemeral) = params.ephemeral {
             input["ephemeral"] = serde_json::Value::Bool(ephemeral);
@@ -5387,7 +5255,7 @@ impl LinearMcp {
             .execute_json(queries::CREATE_CUSTOMER_NEED, vars)
             .await?;
 
-        match data.customer_need_create.customer_need {
+        match data.customer_need_create.need {
             Some(need) => Ok(format!("Customer need created:\n\n{}", format::format_customer_need(&need))),
             None => Err(Error::GraphQL("Customer need creation failed".into())),
         }
@@ -5428,7 +5296,7 @@ impl LinearMcp {
             .execute_json(queries::UPDATE_CUSTOMER_NEED, vars)
             .await?;
 
-        match data.customer_need_update.customer_need {
+        match data.customer_need_update.need {
             Some(need) => Ok(format!("Customer need updated:\n\n{}", format::format_customer_need(&need))),
             None => Err(Error::GraphQL("Customer need update failed".into())),
         }
@@ -5533,19 +5401,23 @@ impl LinearMcp {
         let project_id = self.resolve_project_id_or_uuid(&params.project).await?;
         let related_id = self.resolve_project_id_or_uuid(&params.related_project).await?;
 
-        let normalized_type = match params.relation_type.to_lowercase().as_str() {
-            "blocks" => "blocks",
-            "dependson" | "depends_on" => "dependsOn",
-            "related" => "related",
+        // Linear project relations use type="dependency" with anchor types:
+        //   "start", "end", or "milestone"
+        // "blocks" means: project's end blocks related project's start
+        // "dependsOn" means: project's start depends on related project's end
+        let (anchor, related_anchor) = match params.relation_type.to_lowercase().as_str() {
+            "blocks" => ("end", "start"),
+            "dependson" | "depends_on" => ("start", "end"),
+            "related" => ("end", "end"),
             _ => return Err(Error::InvalidInput(format!("Unknown relation type: {}. Use 'blocks', 'dependsOn', or 'related'.", params.relation_type))),
         };
 
         let input = serde_json::json!({
             "projectId": project_id,
             "relatedProjectId": related_id,
-            "type": normalized_type,
-            "anchorType": "projectRelation",
-            "relatedAnchorType": "projectRelation",
+            "type": "dependency",
+            "anchorType": anchor,
+            "relatedAnchorType": related_anchor,
         });
 
         let vars = serde_json::json!({ "input": input });

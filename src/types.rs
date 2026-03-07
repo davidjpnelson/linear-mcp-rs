@@ -414,16 +414,7 @@ pub struct ProjectMilestoneMutationResult {
     pub project_milestone: Option<ProjectMilestone>,
 }
 
-// ---- #21: Roadmaps and Initiatives ----
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Roadmap {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub slug_id: Option<String>,
-}
+// ---- #21: Initiatives ----
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -766,13 +757,6 @@ pub struct CustomViewMutationResult {
     pub custom_view: Option<CustomView>,
 }
 
-/// Roadmap mutation result.
-#[derive(Debug, Clone, Deserialize)]
-pub struct RoadmapMutationResult {
-    pub success: bool,
-    pub roadmap: Option<Roadmap>,
-}
-
 // ---- Agent Sessions & Activities ----
 
 /// Agent session entity.
@@ -892,7 +876,7 @@ pub struct CustomerMutationResult {
 #[serde(rename_all = "camelCase")]
 pub struct CustomerNeedMutationResult {
     pub success: bool,
-    pub customer_need: Option<CustomerNeed>,
+    pub need: Option<CustomerNeed>,
 }
 
 // ---- Initiative Updates ----
