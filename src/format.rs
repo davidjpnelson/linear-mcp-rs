@@ -1271,3 +1271,273 @@ pub fn format_project_search_result(project: &ProjectSearchResult) -> String {
     }
     parts.join("\n")
 }
+
+// ---- Phase 2 (Complete Coverage): New Formatters ----
+
+pub fn format_customer_status(s: &CustomerStatusFull) -> String {
+    let name = s.name.as_deref().unwrap_or("Unnamed");
+    let mut parts = vec![format!("**{}** [id: {}]", name, s.id)];
+    if let Some(ref color) = s.color {
+        parts.push(format!("Color: {}", color));
+    }
+    if let Some(ref desc) = s.description {
+        parts.push(format!("Description: {}", desc));
+    }
+    if let Some(ref dn) = s.display_name {
+        parts.push(format!("Display: {}", dn));
+    }
+    if let Some(pos) = s.position {
+        parts.push(format!("Position: {}", pos));
+    }
+    parts.join("\n")
+}
+
+pub fn format_customer_tier(t: &CustomerTierFull) -> String {
+    let name = t.name.as_deref().unwrap_or("Unnamed");
+    let mut parts = vec![format!("**{}** [id: {}]", name, t.id)];
+    if let Some(ref color) = t.color {
+        parts.push(format!("Color: {}", color));
+    }
+    if let Some(ref desc) = t.description {
+        parts.push(format!("Description: {}", desc));
+    }
+    if let Some(ref dn) = t.display_name {
+        parts.push(format!("Display: {}", dn));
+    }
+    if let Some(pos) = t.position {
+        parts.push(format!("Position: {}", pos));
+    }
+    parts.join("\n")
+}
+
+pub fn format_release_pipeline(p: &ReleasePipelineFull) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", p.name, p.id)];
+    if let Some(ref t) = p.type_ {
+        parts.push(format!("Type: {}", t));
+    }
+    if let Some(ref slug) = p.slug_id {
+        parts.push(format!("Slug: {}", slug));
+    }
+    if let Some(ref patterns) = p.include_path_patterns {
+        if !patterns.is_empty() {
+            parts.push(format!("Paths: {}", patterns.join(", ")));
+        }
+    }
+    parts.join("\n")
+}
+
+pub fn format_release_stage(s: &ReleaseStageFull) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", s.name, s.id)];
+    if let Some(ref color) = s.color {
+        parts.push(format!("Color: {}", color));
+    }
+    if let Some(ref t) = s.type_ {
+        parts.push(format!("Type: {}", t));
+    }
+    if let Some(pos) = s.position {
+        parts.push(format!("Position: {}", pos));
+    }
+    if let Some(frozen) = s.frozen {
+        parts.push(format!("Frozen: {}", frozen));
+    }
+    parts.join("\n")
+}
+
+pub fn format_issue_to_release(link: &IssueToRelease) -> String {
+    let issue = link.issue.as_ref().map(|i| i.identifier.as_str()).unwrap_or("?");
+    let release = link.release.as_ref().and_then(|r| r.name.as_deref()).unwrap_or("?");
+    format!("{} → {} [id: {}]", issue, release, link.id)
+}
+
+pub fn format_project_status(s: &ProjectStatusFull) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", s.name, s.id)];
+    if let Some(ref color) = s.color {
+        parts.push(format!("Color: {}", color));
+    }
+    if let Some(ref t) = s.type_ {
+        parts.push(format!("Type: {}", t));
+    }
+    if let Some(ref desc) = s.description {
+        parts.push(format!("Description: {}", desc));
+    }
+    if let Some(pos) = s.position {
+        parts.push(format!("Position: {}", pos));
+    }
+    if let Some(indef) = s.indefinite {
+        parts.push(format!("Indefinite: {}", indef));
+    }
+    parts.join("\n")
+}
+
+pub fn format_project_label(l: &ProjectLabel) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", l.name, l.id)];
+    if let Some(ref color) = l.color {
+        parts.push(format!("Color: {}", color));
+    }
+    if let Some(ref desc) = l.description {
+        parts.push(format!("Description: {}", desc));
+    }
+    if let Some(is_group) = l.is_group {
+        parts.push(format!("Group: {}", is_group));
+    }
+    if let Some(ref parent) = l.parent {
+        parts.push(format!("Parent: {}", parent.name));
+    }
+    parts.join("\n")
+}
+
+pub fn format_team_membership(m: &TeamMembership) -> String {
+    let user = m.user.as_ref().map(|u| u.display_name.as_str()).unwrap_or("?");
+    let team = m.team.as_ref().map(|t| t.key.as_str()).unwrap_or("?");
+    let owner = m.owner.unwrap_or(false);
+    format!("{} → {} (owner: {}) [id: {}]", user, team, owner, m.id)
+}
+
+pub fn format_notification_subscription(s: &NotificationSubscription) -> String {
+    let subscriber = s.subscriber.as_ref().map(|u| u.display_name.as_str()).unwrap_or("?");
+    let active = s.active.unwrap_or(true);
+    let sub_type = s.subscription_type.as_deref().unwrap_or("?");
+    format!("{} - type: {} (active: {}) [id: {}]", subscriber, sub_type, active, s.id)
+}
+
+pub fn format_entity_external_link(l: &EntityExternalLink) -> String {
+    let mut parts = vec![format!("**{}** - {} [id: {}]", l.label, l.url, l.id)];
+    if let Some(ref creator) = l.creator {
+        parts.push(format!("Creator: {}", creator.display_name));
+    }
+    if let Some(order) = l.sort_order {
+        parts.push(format!("Order: {}", order));
+    }
+    parts.join("\n")
+}
+
+pub fn format_emoji(e: &Emoji) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", e.name, e.id)];
+    if let Some(ref url) = e.url {
+        parts.push(format!("URL: {}", url));
+    }
+    if let Some(ref source) = e.source {
+        parts.push(format!("Source: {}", source));
+    }
+    parts.join("\n")
+}
+
+pub fn format_initiative_relation(r: &InitiativeRelation) -> String {
+    let init = r.initiative.as_ref().map(|i| i.name.as_str()).unwrap_or("?");
+    let related = r.related_initiative.as_ref().map(|i| i.name.as_str()).unwrap_or("?");
+    format!("{} ↔ {} [id: {}]", init, related, r.id)
+}
+
+pub fn format_time_schedule(s: &TimeSchedule) -> String {
+    let name = s.name.as_deref().unwrap_or("Unnamed");
+    let mut parts = vec![format!("**{}** [id: {}]", name, s.id)];
+    if let Some(ref ext_id) = s.external_id {
+        parts.push(format!("External ID: {}", ext_id));
+    }
+    if let Some(ref ext_url) = s.external_url {
+        parts.push(format!("External URL: {}", ext_url));
+    }
+    parts.join("\n")
+}
+
+pub fn format_triage_responsibility(r: &TriageResponsibility) -> String {
+    let action = r.action.as_deref().unwrap_or("?");
+    let team = r.team.as_ref().map(|t| t.key.as_str()).unwrap_or("?");
+    format!("Team {} - action: {} [id: {}]", team, action, r.id)
+}
+
+pub fn format_git_automation_state(s: &GitAutomationState) -> String {
+    let event = s.event.as_deref().unwrap_or("?");
+    let team = s.team.as_ref().map(|t| t.key.as_str()).unwrap_or("?");
+    let state = s.state.as_ref().map(|s| s.name.as_str()).unwrap_or("none");
+    format!("Team {} - event: {} → state: {} [id: {}]", team, event, state, s.id)
+}
+
+pub fn format_git_automation_target_branch(b: &GitAutomationTargetBranch) -> String {
+    let pattern = b.branch_pattern.as_deref().unwrap_or("?");
+    let team = b.team.as_ref().map(|t| t.key.as_str()).unwrap_or("?");
+    let regex = b.is_regex.unwrap_or(false);
+    format!("Team {} - pattern: {} (regex: {}) [id: {}]", team, pattern, regex, b.id)
+}
+
+pub fn format_email_intake_address(a: &EmailIntakeAddress) -> String {
+    let addr = a.address.as_deref().unwrap_or("?");
+    let enabled = a.enabled.unwrap_or(false);
+    let mut parts = vec![format!("**{}** (enabled: {}) [id: {}]", addr, enabled, a.id)];
+    if let Some(ref name) = a.sender_name {
+        parts.push(format!("Sender: {}", name));
+    }
+    parts.join("\n")
+}
+
+pub fn format_organization(o: &Organization) -> String {
+    let mut parts = vec![format!("**{}** [id: {}]", o.name, o.id)];
+    if let Some(ref key) = o.url_key {
+        parts.push(format!("URL Key: {}", key));
+    }
+    if let Some(ref logo) = o.logo_url {
+        parts.push(format!("Logo: {}", logo));
+    }
+    if let Some(count) = o.user_count {
+        parts.push(format!("Users: {}", count));
+    }
+    if let Some(ref created) = o.created_at {
+        parts.push(format!("Created: {}", format_date(created)));
+    }
+    parts.join("\n")
+}
+
+pub fn format_rate_limit_status(r: &RateLimitStatus) -> String {
+    let mut parts = Vec::new();
+    if let Some(req) = r.requests_remaining {
+        parts.push(format!("Requests remaining: {}", req));
+    }
+    if let Some(comp) = r.complexity_remaining {
+        parts.push(format!("Complexity remaining: {:.0}", comp));
+    }
+    parts.join("\n")
+}
+
+pub fn format_application_info(a: &ApplicationInfo) -> String {
+    let mut parts = vec![format!("**{}** [client: {}]", a.name, a.client_id)];
+    if let Some(ref desc) = a.description {
+        parts.push(format!("Description: {}", desc));
+    }
+    if let Some(ref dev) = a.developer {
+        parts.push(format!("Developer: {}", dev));
+    }
+    if let Some(ref url) = a.developer_url {
+        parts.push(format!("Developer URL: {}", url));
+    }
+    if let Some(ref img) = a.image_url {
+        parts.push(format!("Image: {}", img));
+    }
+    parts.join("\n")
+}
+
+pub fn format_external_user(u: &ExternalUser) -> String {
+    let name = u.display_name.as_deref().or(u.name.as_deref()).unwrap_or("?");
+    let email = u.email.as_deref().unwrap_or("");
+    if email.is_empty() {
+        format!("{} [id: {}]", name, u.id)
+    } else {
+        format!("{} <{}> [id: {}]", name, email, u.id)
+    }
+}
+
+pub fn format_priority_value(p: &IssuePriorityValue) -> String {
+    format!("{}: {} ({})", p.priority, p.label, match p.priority {
+        0 => "No priority",
+        1 => "Urgent",
+        2 => "High",
+        3 => "Medium",
+        4 => "Low",
+        _ => "Unknown",
+    })
+}
+
+pub fn format_document_content_history_entry(e: &DocumentContentHistoryEntry) -> String {
+    let date = e.created_at.as_deref().map(format_date).unwrap_or("?");
+    let actor = e.actor_id.as_deref().unwrap_or("unknown");
+    format!("{} by {} [id: {}]", date, actor, e.id)
+}

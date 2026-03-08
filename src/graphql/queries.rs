@@ -57,6 +57,15 @@ query SearchIssues($query: String!, $first: Int, $after: String, $filter: IssueF
 }
 "#;
 
+/// Lightweight query to get the team ID for an issue.
+pub const GET_ISSUE_TEAM: &str = r#"
+query GetIssueTeam($id: String!) {
+    issue(id: $id) {
+        team { id key }
+    }
+}
+"#;
+
 /// Get a single issue with full details.
 pub const GET_ISSUE: &str = r#"
 query GetIssue($id: String!) {
@@ -1856,6 +1865,1272 @@ mutation UpdateRelease($id: String!, $input: ReleaseUpdateInput!) {
             stage { name }
             pipeline { name }
         }
+    }
+}
+"#;
+
+// ========================================================================
+// Phase 2 (Complete Coverage): New Queries & Mutations
+// ========================================================================
+
+// ---- 1A: Workflow State CRUD ----
+
+pub const GET_WORKFLOW_STATE: &str = r#"
+query GetWorkflowState($id: String!) {
+    workflowState(id: $id) {
+        id name type color
+    }
+}
+"#;
+
+pub const CREATE_WORKFLOW_STATE: &str = r#"
+mutation CreateWorkflowState($input: WorkflowStateCreateInput!) {
+    workflowStateCreate(input: $input) {
+        success
+        workflowState { id name type color }
+    }
+}
+"#;
+
+pub const UPDATE_WORKFLOW_STATE: &str = r#"
+mutation UpdateWorkflowState($id: String!, $input: WorkflowStateUpdateInput!) {
+    workflowStateUpdate(id: $id, input: $input) {
+        success
+        workflowState { id name type color }
+    }
+}
+"#;
+
+pub const ARCHIVE_WORKFLOW_STATE: &str = r#"
+mutation ArchiveWorkflowState($id: String!) {
+    workflowStateArchive(id: $id) { success }
+}
+"#;
+
+// ---- 1B: Issue Extras ----
+
+pub const ISSUE_ADD_LABEL: &str = r#"
+mutation IssueAddLabel($id: String!, $labelId: String!) {
+    issueAddLabel(id: $id, labelId: $labelId) {
+        success
+        issue { id identifier title priority url labels { nodes { id name } } }
+    }
+}
+"#;
+
+pub const ISSUE_REMOVE_LABEL: &str = r#"
+mutation IssueRemoveLabel($id: String!, $labelId: String!) {
+    issueRemoveLabel(id: $id, labelId: $labelId) {
+        success
+        issue { id identifier title priority url labels { nodes { id name } } }
+    }
+}
+"#;
+
+pub const BATCH_CREATE_ISSUES: &str = r#"
+mutation BatchCreateIssues($input: IssueBatchCreateInput!) {
+    issueBatchCreate(input: $input) {
+        success
+        issues { id identifier title state { name } }
+    }
+}
+"#;
+
+pub const UPDATE_ISSUE_RELATION: &str = r#"
+mutation UpdateIssueRelation($id: String!, $input: IssueRelationUpdateInput!) {
+    issueRelationUpdate(id: $id, input: $input) {
+        success
+        issueRelation {
+            id type
+            issue { identifier title }
+            relatedIssue { identifier title }
+        }
+    }
+}
+"#;
+
+pub const GET_ISSUE_PRIORITY_VALUES: &str = r#"
+query GetIssuePriorityValues {
+    issuePriorityValues {
+        priority
+        label
+    }
+}
+"#;
+
+// ---- 1C: Project Extras ----
+
+pub const DELETE_PROJECT: &str = r#"
+mutation DeleteProject($id: String!) {
+    projectDelete(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_PROJECT: &str = r#"
+mutation UnarchiveProject($id: String!) {
+    projectUnarchive(id: $id) { success }
+}
+"#;
+
+pub const UPDATE_PROJECT_RELATION: &str = r#"
+mutation UpdateProjectRelation($id: String!, $input: ProjectRelationUpdateInput!) {
+    projectRelationUpdate(id: $id, input: $input) {
+        success
+        projectRelation {
+            id type
+            project { name }
+            relatedProject { name }
+        }
+    }
+}
+"#;
+
+pub const GET_PROJECT_MILESTONE: &str = r#"
+query GetProjectMilestone($id: String!) {
+    projectMilestone(id: $id) {
+        id name description targetDate sortOrder
+    }
+}
+"#;
+
+// ---- 1D: Team Extras ----
+
+pub const DELETE_TEAM: &str = r#"
+mutation DeleteTeam($id: String!) {
+    teamDelete(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_TEAM: &str = r#"
+mutation UnarchiveTeam($id: String!) {
+    teamUnarchive(id: $id) { success }
+}
+"#;
+
+pub const GET_TEAM: &str = r#"
+query GetTeam($id: String!) {
+    team(id: $id) {
+        id key name description timezone triageEnabled
+        defaultIssueState { id name }
+    }
+}
+"#;
+
+// ---- 1E: Document Extras ----
+
+pub const UNARCHIVE_DOCUMENT: &str = r#"
+mutation UnarchiveDocument($id: String!) {
+    documentUnarchive(id: $id) { success }
+}
+"#;
+
+pub const GET_DOCUMENT_CONTENT_HISTORY: &str = r#"
+query GetDocumentContentHistory($id: String!, $first: Int!) {
+    document(id: $id) {
+        contentHistory(first: $first) {
+            nodes { id createdAt contentData actorId }
+        }
+    }
+}
+"#;
+
+// ---- 1F: Misc High-Value Queries ----
+
+pub const GET_USER: &str = r#"
+query GetUser($id: String!) {
+    user(id: $id) {
+        id displayName email admin guest active
+    }
+}
+"#;
+
+pub const UPDATE_USER: &str = r#"
+mutation UpdateUser($id: String!, $input: UserUpdateInput!) {
+    userUpdate(id: $id, input: $input) {
+        success
+        user { id displayName email admin guest active }
+    }
+}
+"#;
+
+pub const GET_ATTACHMENT: &str = r#"
+query GetAttachment($id: String!) {
+    attachment(id: $id) {
+        id title url createdAt
+    }
+}
+"#;
+
+pub const GET_COMMENT: &str = r#"
+query GetComment($id: String!) {
+    comment(id: $id) {
+        id body createdAt url resolvedAt
+        user { displayName }
+        parent { id }
+    }
+}
+"#;
+
+pub const GET_FAVORITE: &str = r#"
+query GetFavorite($id: String!) {
+    favorite(id: $id) {
+        id type
+        issue { identifier title }
+        project { name }
+    }
+}
+"#;
+
+pub const UPDATE_FAVORITE: &str = r#"
+mutation UpdateFavorite($id: String!, $input: FavoriteUpdateInput!) {
+    favoriteUpdate(id: $id, input: $input) {
+        success
+        favorite {
+            id type
+            issue { identifier title }
+            project { name }
+        }
+    }
+}
+"#;
+
+pub const GET_NOTIFICATION: &str = r#"
+query GetNotification($id: String!) {
+    notification(id: $id) {
+        id type readAt createdAt
+        ... on IssueNotification {
+            issue { identifier title }
+        }
+    }
+}
+"#;
+
+// ---- 2A: Customer Status CRUD ----
+
+pub const LIST_CUSTOMER_STATUSES: &str = r#"
+query ListCustomerStatuses($first: Int!) {
+    customerStatuses(first: $first) {
+        nodes { id name color description position displayName }
+    }
+}
+"#;
+
+pub const GET_CUSTOMER_STATUS: &str = r#"
+query GetCustomerStatus($id: String!) {
+    customerStatus(id: $id) {
+        id name color description position displayName
+    }
+}
+"#;
+
+pub const CREATE_CUSTOMER_STATUS: &str = r#"
+mutation CreateCustomerStatus($input: CustomerStatusCreateInput!) {
+    customerStatusCreate(input: $input) {
+        success
+        customerStatus { id name color description position displayName }
+    }
+}
+"#;
+
+pub const UPDATE_CUSTOMER_STATUS: &str = r#"
+mutation UpdateCustomerStatus($id: String!, $input: CustomerStatusUpdateInput!) {
+    customerStatusUpdate(id: $id, input: $input) {
+        success
+        customerStatus { id name color description position displayName }
+    }
+}
+"#;
+
+pub const DELETE_CUSTOMER_STATUS: &str = r#"
+mutation DeleteCustomerStatus($id: String!) {
+    customerStatusDelete(id: $id) { success }
+}
+"#;
+
+// ---- 2B: Customer Tier CRUD ----
+
+pub const LIST_CUSTOMER_TIERS: &str = r#"
+query ListCustomerTiers($first: Int!) {
+    customerTiers(first: $first) {
+        nodes { id name color description position displayName }
+    }
+}
+"#;
+
+pub const GET_CUSTOMER_TIER: &str = r#"
+query GetCustomerTier($id: String!) {
+    customerTier(id: $id) {
+        id name color description position displayName
+    }
+}
+"#;
+
+pub const CREATE_CUSTOMER_TIER: &str = r#"
+mutation CreateCustomerTier($input: CustomerTierCreateInput!) {
+    customerTierCreate(input: $input) {
+        success
+        customerTier { id name color description position displayName }
+    }
+}
+"#;
+
+pub const UPDATE_CUSTOMER_TIER: &str = r#"
+mutation UpdateCustomerTier($id: String!, $input: CustomerTierUpdateInput!) {
+    customerTierUpdate(id: $id, input: $input) {
+        success
+        customerTier { id name color description position displayName }
+    }
+}
+"#;
+
+pub const DELETE_CUSTOMER_TIER: &str = r#"
+mutation DeleteCustomerTier($id: String!) {
+    customerTierDelete(id: $id) { success }
+}
+"#;
+
+// ---- 2C: Customer Extras ----
+
+pub const MERGE_CUSTOMERS: &str = r#"
+mutation MergeCustomers($sourceId: String!, $targetId: String!) {
+    customerMerge(sourceId: $sourceId, targetId: $targetId) { success }
+}
+"#;
+
+pub const GET_CUSTOMER_NEED: &str = r#"
+query GetCustomerNeed($id: String!) {
+    customerNeed(id: $id) {
+        id body priority createdAt
+        customer { id name }
+        issue { identifier title }
+    }
+}
+"#;
+
+pub const ARCHIVE_CUSTOMER_NEED: &str = r#"
+mutation ArchiveCustomerNeed($id: String!) {
+    customerNeedArchive(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_CUSTOMER_NEED: &str = r#"
+mutation UnarchiveCustomerNeed($id: String!) {
+    customerNeedUnarchive(id: $id) { success }
+}
+"#;
+
+pub const DELETE_CUSTOMER_NEED: &str = r#"
+mutation DeleteCustomerNeed($id: String!) {
+    customerNeedDelete(id: $id) { success }
+}
+"#;
+
+// ---- 2D: Initiative Extras ----
+
+pub const ARCHIVE_INITIATIVE: &str = r#"
+mutation ArchiveInitiative($id: String!) {
+    initiativeArchive(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_INITIATIVE: &str = r#"
+mutation UnarchiveInitiative($id: String!) {
+    initiativeUnarchive(id: $id) { success }
+}
+"#;
+
+pub const UPDATE_INITIATIVE_TO_PROJECT: &str = r#"
+mutation UpdateInitiativeToProject($id: String!, $input: InitiativeToProjectUpdateInput!) {
+    initiativeToProjectUpdate(id: $id, input: $input) {
+        success
+        initiativeToProject {
+            id
+            initiative { name }
+            project { name }
+        }
+    }
+}
+"#;
+
+pub const ARCHIVE_INITIATIVE_UPDATE: &str = r#"
+mutation ArchiveInitiativeUpdate($id: String!) {
+    initiativeUpdateArchive(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_INITIATIVE_UPDATE: &str = r#"
+mutation UnarchiveInitiativeUpdate($id: String!) {
+    initiativeUpdateUnarchive(id: $id) { success }
+}
+"#;
+
+// ---- 3A: Release Extras ----
+
+pub const GET_RELEASE: &str = r#"
+query GetRelease($id: String!) {
+    release(id: $id) {
+        id name version url startDate targetDate
+        stage { name color }
+        pipeline { name }
+    }
+}
+"#;
+
+pub const ARCHIVE_RELEASE: &str = r#"
+mutation ArchiveRelease($id: String!) {
+    releaseArchive(id: $id) { success }
+}
+"#;
+
+pub const DELETE_RELEASE: &str = r#"
+mutation DeleteRelease($id: String!) {
+    releaseDelete(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_RELEASE: &str = r#"
+mutation UnarchiveRelease($id: String!) {
+    releaseUnarchive(id: $id) { success }
+}
+"#;
+
+pub const SEARCH_RELEASES: &str = r#"
+query SearchReleases($term: String!, $first: Int) {
+    releaseSearch(term: $term, first: $first) {
+        nodes {
+            id name version url startDate targetDate
+            stage { name color }
+            pipeline { name }
+        }
+        totalCount
+    }
+}
+"#;
+
+// ---- 3B: Release Pipeline CRUD ----
+
+pub const LIST_RELEASE_PIPELINES: &str = r#"
+query ListReleasePipelines($first: Int!) {
+    releasePipelines(first: $first) {
+        nodes { id name slugId type includePathPatterns }
+    }
+}
+"#;
+
+pub const GET_RELEASE_PIPELINE: &str = r#"
+query GetReleasePipeline($id: String!) {
+    releasePipeline(id: $id) {
+        id name slugId type includePathPatterns
+    }
+}
+"#;
+
+pub const CREATE_RELEASE_PIPELINE: &str = r#"
+mutation CreateReleasePipeline($input: ReleasePipelineCreateInput!) {
+    releasePipelineCreate(input: $input) {
+        success
+        releasePipeline { id name slugId type includePathPatterns }
+    }
+}
+"#;
+
+pub const UPDATE_RELEASE_PIPELINE: &str = r#"
+mutation UpdateReleasePipeline($id: String!, $input: ReleasePipelineUpdateInput!) {
+    releasePipelineUpdate(id: $id, input: $input) {
+        success
+        releasePipeline { id name slugId type includePathPatterns }
+    }
+}
+"#;
+
+pub const DELETE_RELEASE_PIPELINE: &str = r#"
+mutation DeleteReleasePipeline($id: String!) {
+    releasePipelineDelete(id: $id) { success }
+}
+"#;
+
+// ---- 3C: Release Stage CRUD ----
+
+pub const LIST_RELEASE_STAGES: &str = r#"
+query ListReleaseStages($first: Int!) {
+    releaseStages(first: $first) {
+        nodes { id name color type position frozen }
+    }
+}
+"#;
+
+pub const GET_RELEASE_STAGE: &str = r#"
+query GetReleaseStage($id: String!) {
+    releaseStage(id: $id) {
+        id name color type position frozen
+    }
+}
+"#;
+
+pub const CREATE_RELEASE_STAGE: &str = r#"
+mutation CreateReleaseStage($input: ReleaseStageCreateInput!) {
+    releaseStageCreate(input: $input) {
+        success
+        releaseStage { id name color type position frozen }
+    }
+}
+"#;
+
+pub const UPDATE_RELEASE_STAGE: &str = r#"
+mutation UpdateReleaseStage($id: String!, $input: ReleaseStageUpdateInput!) {
+    releaseStageUpdate(id: $id, input: $input) {
+        success
+        releaseStage { id name color type position frozen }
+    }
+}
+"#;
+
+// ---- 3D: Issue-to-Release Links ----
+
+pub const LIST_ISSUE_TO_RELEASES: &str = r#"
+query ListIssueToReleases($first: Int!) {
+    issueToReleases(first: $first) {
+        nodes {
+            id
+            issue { identifier title }
+            release { id name }
+        }
+    }
+}
+"#;
+
+pub const GET_ISSUE_TO_RELEASE: &str = r#"
+query GetIssueToRelease($id: String!) {
+    issueToRelease(id: $id) {
+        id
+        issue { identifier title }
+        release { id name }
+    }
+}
+"#;
+
+pub const ADD_ISSUE_TO_RELEASE: &str = r#"
+mutation AddIssueToRelease($input: IssueToReleaseCreateInput!) {
+    issueToReleaseCreate(input: $input) {
+        success
+        issueToRelease {
+            id
+            issue { identifier title }
+            release { id name }
+        }
+    }
+}
+"#;
+
+pub const REMOVE_ISSUE_FROM_RELEASE: &str = r#"
+mutation RemoveIssueFromRelease($id: String!) {
+    issueToReleaseDelete(id: $id) { success }
+}
+"#;
+
+// ---- 4A: Project Status CRUD ----
+
+pub const LIST_PROJECT_STATUSES: &str = r#"
+query ListProjectStatuses($first: Int!) {
+    projectStatuses(first: $first) {
+        nodes { id name color description position type indefinite }
+    }
+}
+"#;
+
+pub const GET_PROJECT_STATUS: &str = r#"
+query GetProjectStatus($id: String!) {
+    projectStatus(id: $id) {
+        id name color description position type indefinite
+    }
+}
+"#;
+
+pub const CREATE_PROJECT_STATUS: &str = r#"
+mutation CreateProjectStatus($input: ProjectStatusCreateInput!) {
+    projectStatusCreate(input: $input) {
+        success
+        projectStatus { id name color description position type indefinite }
+    }
+}
+"#;
+
+pub const UPDATE_PROJECT_STATUS: &str = r#"
+mutation UpdateProjectStatus($id: String!, $input: ProjectStatusUpdateInput!) {
+    projectStatusUpdate(id: $id, input: $input) {
+        success
+        projectStatus { id name color description position type indefinite }
+    }
+}
+"#;
+
+pub const ARCHIVE_PROJECT_STATUS: &str = r#"
+mutation ArchiveProjectStatus($id: String!) {
+    projectStatusArchive(id: $id) { success }
+}
+"#;
+
+pub const UNARCHIVE_PROJECT_STATUS: &str = r#"
+mutation UnarchiveProjectStatus($id: String!) {
+    projectStatusUnarchive(id: $id) { success }
+}
+"#;
+
+// ---- 4B: Project Labels CRUD ----
+
+pub const LIST_PROJECT_LABELS: &str = r#"
+query ListProjectLabels($first: Int!) {
+    projectLabels(first: $first) {
+        nodes { id name color description isGroup parent { id name } }
+    }
+}
+"#;
+
+pub const GET_PROJECT_LABEL: &str = r#"
+query GetProjectLabel($id: String!) {
+    projectLabel(id: $id) {
+        id name color description isGroup parent { id name }
+    }
+}
+"#;
+
+pub const CREATE_PROJECT_LABEL: &str = r#"
+mutation CreateProjectLabel($input: ProjectLabelCreateInput!) {
+    projectLabelCreate(input: $input) {
+        success
+        projectLabel { id name color description isGroup parent { id name } }
+    }
+}
+"#;
+
+pub const UPDATE_PROJECT_LABEL: &str = r#"
+mutation UpdateProjectLabel($id: String!, $input: ProjectLabelUpdateInput!) {
+    projectLabelUpdate(id: $id, input: $input) {
+        success
+        projectLabel { id name color description isGroup parent { id name } }
+    }
+}
+"#;
+
+pub const DELETE_PROJECT_LABEL: &str = r#"
+mutation DeleteProjectLabel($id: String!) {
+    projectLabelDelete(id: $id) { success }
+}
+"#;
+
+// ---- 5A: Team Membership CRUD ----
+
+pub const LIST_TEAM_MEMBERSHIPS: &str = r#"
+query ListTeamMemberships($first: Int!) {
+    teamMemberships(first: $first) {
+        nodes {
+            id owner sortOrder
+            user { displayName email }
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const LIST_TEAM_MEMBERSHIPS_BY_TEAM: &str = r#"
+query ListTeamMembershipsByTeam($teamId: String!, $first: Int!) {
+    team(id: $teamId) {
+        memberships(first: $first) {
+            nodes {
+                id owner sortOrder
+                user { displayName email }
+                team { id key name }
+            }
+        }
+    }
+}
+"#;
+
+pub const GET_TEAM_MEMBERSHIP: &str = r#"
+query GetTeamMembership($id: String!) {
+    teamMembership(id: $id) {
+        id owner sortOrder
+        user { displayName email }
+        team { id key name }
+    }
+}
+"#;
+
+pub const CREATE_TEAM_MEMBERSHIP: &str = r#"
+mutation CreateTeamMembership($input: TeamMembershipCreateInput!) {
+    teamMembershipCreate(input: $input) {
+        success
+        teamMembership {
+            id owner sortOrder
+            user { displayName email }
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const UPDATE_TEAM_MEMBERSHIP: &str = r#"
+mutation UpdateTeamMembership($id: String!, $input: TeamMembershipUpdateInput!) {
+    teamMembershipUpdate(id: $id, input: $input) {
+        success
+        teamMembership {
+            id owner sortOrder
+            user { displayName email }
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const DELETE_TEAM_MEMBERSHIP: &str = r#"
+mutation DeleteTeamMembership($id: String!) {
+    teamMembershipDelete(id: $id) { success }
+}
+"#;
+
+// ---- 5B: Notification Subscriptions ----
+
+pub const LIST_NOTIFICATION_SUBSCRIPTIONS: &str = r#"
+query ListNotificationSubscriptions($first: Int!) {
+    notificationSubscriptions(first: $first) {
+        nodes { id type active subscriber { displayName email } }
+    }
+}
+"#;
+
+pub const GET_NOTIFICATION_SUBSCRIPTION: &str = r#"
+query GetNotificationSubscription($id: String!) {
+    notificationSubscription(id: $id) {
+        id type active subscriber { displayName email }
+    }
+}
+"#;
+
+pub const CREATE_NOTIFICATION_SUBSCRIPTION: &str = r#"
+mutation CreateNotificationSubscription($input: NotificationSubscriptionCreateInput!) {
+    notificationSubscriptionCreate(input: $input) {
+        success
+        notificationSubscription { id type active subscriber { displayName email } }
+    }
+}
+"#;
+
+pub const UPDATE_NOTIFICATION_SUBSCRIPTION: &str = r#"
+mutation UpdateNotificationSubscription($id: String!, $input: NotificationSubscriptionUpdateInput!) {
+    notificationSubscriptionUpdate(id: $id, input: $input) {
+        success
+        notificationSubscription { id type active subscriber { displayName email } }
+    }
+}
+"#;
+
+pub const GET_NOTIFICATIONS_UNREAD_COUNT: &str = r#"
+query GetNotificationsUnreadCount {
+    notificationsUnreadCount
+}
+"#;
+
+// ---- 6A: Template CRUD ----
+
+pub const GET_TEMPLATE: &str = r#"
+query GetTemplate($id: String!) {
+    template(id: $id) {
+        id name description templateData
+    }
+}
+"#;
+
+pub const CREATE_TEMPLATE: &str = r#"
+mutation CreateTemplate($input: TemplateCreateInput!) {
+    templateCreate(input: $input) {
+        success
+        template { id name description templateData }
+    }
+}
+"#;
+
+pub const UPDATE_TEMPLATE: &str = r#"
+mutation UpdateTemplate($id: String!, $input: TemplateUpdateInput!) {
+    templateUpdate(id: $id, input: $input) {
+        success
+        template { id name description templateData }
+    }
+}
+"#;
+
+pub const DELETE_TEMPLATE: &str = r#"
+mutation DeleteTemplate($id: String!) {
+    templateDelete(id: $id) { success }
+}
+"#;
+
+// ---- 6B: Entity External Links CRUD ----
+
+pub const GET_ENTITY_EXTERNAL_LINK: &str = r#"
+query GetEntityExternalLink($id: String!) {
+    entityExternalLink(id: $id) {
+        id url label sortOrder creator { displayName email }
+    }
+}
+"#;
+
+pub const CREATE_ENTITY_EXTERNAL_LINK: &str = r#"
+mutation CreateEntityExternalLink($input: EntityExternalLinkCreateInput!) {
+    entityExternalLinkCreate(input: $input) {
+        success
+        entityExternalLink { id url label sortOrder creator { displayName email } }
+    }
+}
+"#;
+
+pub const UPDATE_ENTITY_EXTERNAL_LINK: &str = r#"
+mutation UpdateEntityExternalLink($id: String!, $input: EntityExternalLinkUpdateInput!) {
+    entityExternalLinkUpdate(id: $id, input: $input) {
+        success
+        entityExternalLink { id url label sortOrder creator { displayName email } }
+    }
+}
+"#;
+
+pub const DELETE_ENTITY_EXTERNAL_LINK: &str = r#"
+mutation DeleteEntityExternalLink($id: String!) {
+    entityExternalLinkDelete(id: $id) { success }
+}
+"#;
+
+// ---- 6C: Emoji CRUD ----
+
+pub const LIST_EMOJIS: &str = r#"
+query ListEmojis($first: Int!) {
+    emojis(first: $first) {
+        nodes { id name url source }
+    }
+}
+"#;
+
+pub const GET_EMOJI: &str = r#"
+query GetEmoji($id: String!) {
+    emoji(id: $id) { id name url source }
+}
+"#;
+
+pub const CREATE_EMOJI: &str = r#"
+mutation CreateEmoji($input: EmojiCreateInput!) {
+    emojiCreate(input: $input) {
+        success
+        emoji { id name url source }
+    }
+}
+"#;
+
+pub const DELETE_EMOJI: &str = r#"
+mutation DeleteEmoji($id: String!) {
+    emojiDelete(id: $id) { success }
+}
+"#;
+
+// ---- 6D: Initiative Relations CRUD ----
+
+pub const LIST_INITIATIVE_RELATIONS: &str = r#"
+query ListInitiativeRelations($first: Int!) {
+    initiativeRelations(first: $first) {
+        nodes {
+            id
+            initiative { name }
+            relatedInitiative { name }
+        }
+    }
+}
+"#;
+
+pub const GET_INITIATIVE_RELATION: &str = r#"
+query GetInitiativeRelation($id: String!) {
+    initiativeRelation(id: $id) {
+        id
+        initiative { name }
+        relatedInitiative { name }
+    }
+}
+"#;
+
+pub const CREATE_INITIATIVE_RELATION: &str = r#"
+mutation CreateInitiativeRelation($input: InitiativeRelationCreateInput!) {
+    initiativeRelationCreate(input: $input) {
+        success
+        initiativeRelation {
+            id
+            initiative { name }
+            relatedInitiative { name }
+        }
+    }
+}
+"#;
+
+pub const UPDATE_INITIATIVE_RELATION: &str = r#"
+mutation UpdateInitiativeRelation($id: String!, $input: InitiativeRelationUpdateInput!) {
+    initiativeRelationUpdate(id: $id, input: $input) {
+        success
+        initiativeRelation {
+            id
+            initiative { name }
+            relatedInitiative { name }
+        }
+    }
+}
+"#;
+
+pub const DELETE_INITIATIVE_RELATION: &str = r#"
+mutation DeleteInitiativeRelation($id: String!) {
+    initiativeRelationDelete(id: $id) { success }
+}
+"#;
+
+// ---- 7A: Time Schedule CRUD ----
+
+pub const LIST_TIME_SCHEDULES: &str = r#"
+query ListTimeSchedules($first: Int!) {
+    timeSchedules(first: $first) {
+        nodes { id name externalId externalUrl }
+    }
+}
+"#;
+
+pub const GET_TIME_SCHEDULE: &str = r#"
+query GetTimeSchedule($id: String!) {
+    timeSchedule(id: $id) { id name externalId externalUrl }
+}
+"#;
+
+pub const CREATE_TIME_SCHEDULE: &str = r#"
+mutation CreateTimeSchedule($input: TimeScheduleCreateInput!) {
+    timeScheduleCreate(input: $input) {
+        success
+        timeSchedule { id name externalId externalUrl }
+    }
+}
+"#;
+
+pub const UPDATE_TIME_SCHEDULE: &str = r#"
+mutation UpdateTimeSchedule($id: String!, $input: TimeScheduleUpdateInput!) {
+    timeScheduleUpdate(id: $id, input: $input) {
+        success
+        timeSchedule { id name externalId externalUrl }
+    }
+}
+"#;
+
+pub const DELETE_TIME_SCHEDULE: &str = r#"
+mutation DeleteTimeSchedule($id: String!) {
+    timeScheduleDelete(id: $id) { success }
+}
+"#;
+
+// ---- 7B: Triage Responsibility CRUD ----
+
+pub const LIST_TRIAGE_RESPONSIBILITIES: &str = r#"
+query ListTriageResponsibilities($first: Int!) {
+    triageResponsibilities(first: $first) {
+        nodes { id action team { id key name } }
+    }
+}
+"#;
+
+pub const GET_TRIAGE_RESPONSIBILITY: &str = r#"
+query GetTriageResponsibility($id: String!) {
+    triageResponsibility(id: $id) {
+        id action team { id key name }
+    }
+}
+"#;
+
+pub const CREATE_TRIAGE_RESPONSIBILITY: &str = r#"
+mutation CreateTriageResponsibility($input: TriageResponsibilityCreateInput!) {
+    triageResponsibilityCreate(input: $input) {
+        success
+        triageResponsibility { id action team { id key name } }
+    }
+}
+"#;
+
+pub const UPDATE_TRIAGE_RESPONSIBILITY: &str = r#"
+mutation UpdateTriageResponsibility($id: String!, $input: TriageResponsibilityUpdateInput!) {
+    triageResponsibilityUpdate(id: $id, input: $input) {
+        success
+        triageResponsibility { id action team { id key name } }
+    }
+}
+"#;
+
+pub const DELETE_TRIAGE_RESPONSIBILITY: &str = r#"
+mutation DeleteTriageResponsibility($id: String!) {
+    triageResponsibilityDelete(id: $id) { success }
+}
+"#;
+
+// ---- 7C: Git Automation CRUD ----
+
+pub const CREATE_GIT_AUTOMATION_STATE: &str = r#"
+mutation CreateGitAutomationState($input: GitAutomationStateCreateInput!) {
+    gitAutomationStateCreate(input: $input) {
+        success
+        gitAutomationState {
+            id event
+            state { id name type color }
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const UPDATE_GIT_AUTOMATION_STATE: &str = r#"
+mutation UpdateGitAutomationState($id: String!, $input: GitAutomationStateUpdateInput!) {
+    gitAutomationStateUpdate(id: $id, input: $input) {
+        success
+        gitAutomationState {
+            id event
+            state { id name type color }
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const DELETE_GIT_AUTOMATION_STATE: &str = r#"
+mutation DeleteGitAutomationState($id: String!) {
+    gitAutomationStateDelete(id: $id) { success }
+}
+"#;
+
+pub const CREATE_GIT_AUTOMATION_TARGET_BRANCH: &str = r#"
+mutation CreateGitAutomationTargetBranch($input: GitAutomationTargetBranchCreateInput!) {
+    gitAutomationTargetBranchCreate(input: $input) {
+        success
+        gitAutomationTargetBranch {
+            id branchPattern isRegex
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const UPDATE_GIT_AUTOMATION_TARGET_BRANCH: &str = r#"
+mutation UpdateGitAutomationTargetBranch($id: String!, $input: GitAutomationTargetBranchUpdateInput!) {
+    gitAutomationTargetBranchUpdate(id: $id, input: $input) {
+        success
+        gitAutomationTargetBranch {
+            id branchPattern isRegex
+            team { id key name }
+        }
+    }
+}
+"#;
+
+pub const DELETE_GIT_AUTOMATION_TARGET_BRANCH: &str = r#"
+mutation DeleteGitAutomationTargetBranch($id: String!) {
+    gitAutomationTargetBranchDelete(id: $id) { success }
+}
+"#;
+
+// ---- 8A: Email Intake CRUD ----
+
+pub const GET_EMAIL_INTAKE_ADDRESS: &str = r#"
+query GetEmailIntakeAddress($id: String!) {
+    emailIntakeAddress(id: $id) { id address enabled senderName }
+}
+"#;
+
+pub const CREATE_EMAIL_INTAKE_ADDRESS: &str = r#"
+mutation CreateEmailIntakeAddress($input: EmailIntakeAddressCreateInput!) {
+    emailIntakeAddressCreate(input: $input) {
+        success
+        emailIntakeAddress { id address enabled senderName }
+    }
+}
+"#;
+
+pub const UPDATE_EMAIL_INTAKE_ADDRESS: &str = r#"
+mutation UpdateEmailIntakeAddress($id: String!, $input: EmailIntakeAddressUpdateInput!) {
+    emailIntakeAddressUpdate(id: $id, input: $input) {
+        success
+        emailIntakeAddress { id address enabled senderName }
+    }
+}
+"#;
+
+pub const DELETE_EMAIL_INTAKE_ADDRESS: &str = r#"
+mutation DeleteEmailIntakeAddress($id: String!) {
+    emailIntakeAddressDelete(id: $id) { success }
+}
+"#;
+
+// ---- 8B: Remaining Misc Operations ----
+
+pub const LIST_ARCHIVED_TEAMS: &str = r#"
+query ListArchivedTeams($first: Int!) {
+    archivedTeams(first: $first) {
+        nodes {
+            id key name description timezone
+        }
+    }
+}
+"#;
+
+pub const GET_RATE_LIMIT_STATUS: &str = r#"
+query GetRateLimitStatus {
+    rateLimitStatus { requestsRemaining complexityRemaining }
+}
+"#;
+
+pub const GET_ORGANIZATION: &str = r#"
+query GetOrganization {
+    organization {
+        id name urlKey logoUrl createdAt userCount
+    }
+}
+"#;
+
+pub const GET_APPLICATION_INFO: &str = r#"
+query GetApplicationInfo {
+    applicationInfo { name clientId imageUrl description developer developerUrl }
+}
+"#;
+
+pub const SEMANTIC_SEARCH: &str = r#"
+query SemanticSearch($query: String!, $first: Int) {
+    semanticSearch(query: $query, first: $first) {
+        nodes {
+            id
+            identifier
+            title
+            priority
+            url
+            state { id name type color }
+            assignee { id displayName email }
+            team { id key name }
+            labels { nodes { id name } }
+        }
+        pageInfo { hasNextPage endCursor }
+    }
+}
+"#;
+
+pub const ATTACH_LINK_URL: &str = r#"
+mutation AttachLinkUrl($issueId: String!, $url: String!, $title: String) {
+    attachmentLinkURL(issueId: $issueId, url: $url, title: $title) {
+        success
+        attachment { id title url createdAt }
+    }
+}
+"#;
+
+pub const GET_ATTACHMENTS_FOR_URL: &str = r#"
+query GetAttachmentsForUrl($url: String!) {
+    attachmentsForURL(url: $url) {
+        nodes { id title url createdAt }
+    }
+}
+"#;
+
+pub const GET_ISSUE_FILTER_SUGGESTION: &str = r#"
+query GetIssueFilterSuggestion($prompt: String!) {
+    issueFilterSuggestion(prompt: $prompt) {
+        filter
+    }
+}
+"#;
+
+pub const GET_PROJECT_FILTER_SUGGESTION: &str = r#"
+query GetProjectFilterSuggestion($prompt: String!) {
+    projectFilterSuggestion(prompt: $prompt) {
+        filter
+    }
+}
+"#;
+
+pub const GET_CUSTOM_VIEW_SUGGESTION: &str = r#"
+query GetCustomViewSuggestion($prompt: String!) {
+    customViewDetailsSuggestion(prompt: $prompt) {
+        name
+        description
+        filterData
+    }
+}
+"#;
+
+pub const CHECK_CUSTOM_VIEW_HAS_SUBSCRIBERS: &str = r#"
+query CheckCustomViewHasSubscribers($id: String!) {
+    customViewHasSubscribers(id: $id)
+}
+"#;
+
+pub const SEARCH_ISSUE_FIGMA_FILE_KEY: &str = r#"
+query SearchIssueFigmaFileKey($fileKey: String!) {
+    issueFigmaFileKeySearch(fileKey: $fileKey) {
+        id identifier title priority url
+    }
+}
+"#;
+
+pub const UPDATE_INITIATIVE_UPDATE_MUTATION: &str = r#"
+mutation UpdateInitiativeUpdate($id: String!, $input: InitiativeUpdateUpdateInput!) {
+    initiativeUpdateUpdate(id: $id, input: $input) {
+        success
+        initiativeUpdate {
+            id body health createdAt url
+            user { displayName }
+        }
+    }
+}
+"#;
+
+pub const LIST_COMMENTS_ALL: &str = r#"
+query ListCommentsAll($first: Int!) {
+    comments(first: $first) {
+        nodes {
+            id body createdAt url resolvedAt
+            user { displayName }
+            parent { id }
+        }
+    }
+}
+"#;
+
+pub const GET_ISSUE_LABEL: &str = r#"
+query GetIssueLabel($id: String!) {
+    issueLabel(id: $id) {
+        id name color
+        parent { id name }
+        team { id key name }
+    }
+}
+"#;
+
+pub const GET_ISSUE_RELATION: &str = r#"
+query GetIssueRelation($id: String!) {
+    issueRelation(id: $id) {
+        id type
+        issue { identifier title }
+        relatedIssue { identifier title }
+    }
+}
+"#;
+
+pub const LIST_ISSUE_RELATIONS: &str = r#"
+query ListIssueRelations($first: Int!) {
+    issueRelations(first: $first) {
+        nodes {
+            id type
+            issue { identifier title }
+            relatedIssue { identifier title }
+        }
+    }
+}
+"#;
+
+pub const LIST_EXTERNAL_USERS: &str = r#"
+query ListExternalUsers($first: Int!) {
+    externalUsers(first: $first) {
+        nodes { id name displayName email }
     }
 }
 "#;

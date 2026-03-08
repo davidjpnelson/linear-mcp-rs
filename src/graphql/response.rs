@@ -16,6 +16,16 @@ pub struct GraphQLError {
 // ---- Query response data shapes ----
 
 #[derive(Debug, Deserialize)]
+pub struct IssueTeamData {
+    pub issue: IssueTeamRef,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct IssueTeamRef {
+    pub team: crate::types::TeamRef,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct ViewerData {
     pub viewer: crate::types::Viewer,
 }
@@ -810,4 +820,916 @@ pub struct CreateReleaseData {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateReleaseData {
     pub release_update: crate::types::ReleaseMutationResult,
+}
+
+// ========================================================================
+// Phase 2 (Complete Coverage): New Response Types
+// ========================================================================
+
+// ---- 1A: Workflow State ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkflowStateData {
+    pub workflow_state: crate::types::WorkflowState,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateWorkflowStateData {
+    pub workflow_state_create: crate::types::WorkflowStateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateWorkflowStateData {
+    pub workflow_state_update: crate::types::WorkflowStateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveWorkflowStateData {
+    pub workflow_state_archive: crate::types::SuccessResult,
+}
+
+// ---- 1B: Issue Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueAddLabelData {
+    pub issue_add_label: crate::types::MutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueRemoveLabelData {
+    pub issue_remove_label: crate::types::MutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchCreateIssuesData {
+    pub issue_batch_create: crate::types::BatchCreateResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateIssueRelationData {
+    pub issue_relation_update: crate::types::IssueRelationMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssuePriorityValuesData {
+    pub issue_priority_values: Vec<crate::types::IssuePriorityValue>,
+}
+
+// ---- 1C: Project Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteProjectData {
+    pub project_delete: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveProjectData {
+    pub project_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateProjectRelationData {
+    pub project_relation_update: crate::types::ProjectRelationMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetProjectMilestoneData {
+    pub project_milestone: crate::types::ProjectMilestone,
+}
+
+// ---- 1D: Team Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteTeamData {
+    pub team_delete: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveTeamData {
+    pub team_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetTeamData {
+    pub team: crate::types::Team,
+}
+
+// ---- 1E: Document Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveDocumentData {
+    pub document_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DocumentContentHistoryData {
+    pub document: DocumentWithContentHistory,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentWithContentHistory {
+    pub content_history: crate::types::NodeList<crate::types::DocumentContentHistoryEntry>,
+}
+
+// ---- 1F: Misc ----
+
+#[derive(Debug, Deserialize)]
+pub struct GetUserData {
+    pub user: crate::types::User,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateUserData {
+    pub user_update: crate::types::UserMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetAttachmentData {
+    pub attachment: crate::types::Attachment,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetCommentData {
+    pub comment: crate::types::Comment,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetFavoriteData {
+    pub favorite: crate::types::Favorite,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateFavoriteData {
+    pub favorite_update: crate::types::FavoriteUpdateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetNotificationData {
+    pub notification: crate::types::Notification,
+}
+
+// ---- 2A: Customer Status ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerStatusesData {
+    pub customer_statuses: crate::types::NodeList<crate::types::CustomerStatusFull>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerStatusData {
+    pub customer_status: crate::types::CustomerStatusFull,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateCustomerStatusData {
+    pub customer_status_create: crate::types::CustomerStatusMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateCustomerStatusData {
+    pub customer_status_update: crate::types::CustomerStatusMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteCustomerStatusData {
+    pub customer_status_delete: crate::types::SuccessResult,
+}
+
+// ---- 2B: Customer Tier ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerTiersData {
+    pub customer_tiers: crate::types::NodeList<crate::types::CustomerTierFull>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerTierData {
+    pub customer_tier: crate::types::CustomerTierFull,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateCustomerTierData {
+    pub customer_tier_create: crate::types::CustomerTierMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateCustomerTierData {
+    pub customer_tier_update: crate::types::CustomerTierMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteCustomerTierData {
+    pub customer_tier_delete: crate::types::SuccessResult,
+}
+
+// ---- 2C: Customer Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MergeCustomersData {
+    pub customer_merge: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetCustomerNeedData {
+    pub customer_need: crate::types::CustomerNeed,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveCustomerNeedData {
+    pub customer_need_archive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveCustomerNeedData {
+    pub customer_need_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteCustomerNeedData {
+    pub customer_need_delete: crate::types::SuccessResult,
+}
+
+// ---- 2D: Initiative Extras ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveInitiativeData {
+    pub initiative_archive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveInitiativeData {
+    pub initiative_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateInitiativeToProjectData {
+    pub initiative_to_project_update: crate::types::InitiativeToProjectMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveInitiativeUpdateData {
+    pub initiative_update_archive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveInitiativeUpdateData {
+    pub initiative_update_unarchive: crate::types::SuccessResult,
+}
+
+// ---- 3A: Release Extras ----
+
+#[derive(Debug, Deserialize)]
+pub struct GetReleaseData {
+    pub release: crate::types::Release,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveReleaseData {
+    pub release_archive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteReleaseData {
+    pub release_delete: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveReleaseData {
+    pub release_unarchive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchReleasesData {
+    pub release_search: crate::types::ReleaseSearchConnection,
+}
+
+// ---- 3B: Release Pipeline ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleasePipelinesData {
+    pub release_pipelines: crate::types::NodeList<crate::types::ReleasePipelineFull>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleasePipelineData {
+    pub release_pipeline: crate::types::ReleasePipelineFull,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateReleasePipelineData {
+    pub release_pipeline_create: crate::types::ReleasePipelineMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateReleasePipelineData {
+    pub release_pipeline_update: crate::types::ReleasePipelineMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteReleasePipelineData {
+    pub release_pipeline_delete: crate::types::SuccessResult,
+}
+
+// ---- 3C: Release Stage ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseStagesData {
+    pub release_stages: crate::types::NodeList<crate::types::ReleaseStageFull>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseStageData {
+    pub release_stage: crate::types::ReleaseStageFull,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateReleaseStageData {
+    pub release_stage_create: crate::types::ReleaseStageMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateReleaseStageData {
+    pub release_stage_update: crate::types::ReleaseStageMutationResult,
+}
+
+// ---- 3D: Issue-to-Release ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueToReleasesData {
+    pub issue_to_releases: crate::types::NodeList<crate::types::IssueToRelease>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueToReleaseData {
+    pub issue_to_release: crate::types::IssueToRelease,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AddIssueToReleaseData {
+    pub issue_to_release_create: crate::types::IssueToReleaseMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveIssueFromReleaseData {
+    pub issue_to_release_delete: crate::types::SuccessResult,
+}
+
+// ---- 4A: Project Status ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectStatusesData {
+    pub project_statuses: crate::types::NodeList<crate::types::ProjectStatusFull>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectStatusData {
+    pub project_status: crate::types::ProjectStatusFull,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateProjectStatusData {
+    pub project_status_create: crate::types::ProjectStatusMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateProjectStatusData {
+    pub project_status_update: crate::types::ProjectStatusMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveProjectStatusData {
+    pub project_status_archive: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnarchiveProjectStatusData {
+    pub project_status_unarchive: crate::types::SuccessResult,
+}
+
+// ---- 4B: Project Labels ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectLabelsData {
+    pub project_labels: crate::types::NodeList<crate::types::ProjectLabel>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectLabelData {
+    pub project_label: crate::types::ProjectLabel,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateProjectLabelData {
+    pub project_label_create: crate::types::ProjectLabelMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateProjectLabelData {
+    pub project_label_update: crate::types::ProjectLabelMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteProjectLabelData {
+    pub project_label_delete: crate::types::SuccessResult,
+}
+
+// ---- 5A: Team Membership ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembershipsData {
+    pub team_memberships: crate::types::NodeList<crate::types::TeamMembership>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembershipsByTeamData {
+    pub team: TeamMembershipsWrapper,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembershipsWrapper {
+    pub memberships: crate::types::NodeList<crate::types::TeamMembership>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembershipData {
+    pub team_membership: crate::types::TeamMembership,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTeamMembershipData {
+    pub team_membership_create: crate::types::TeamMembershipMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTeamMembershipData {
+    pub team_membership_update: crate::types::TeamMembershipMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteTeamMembershipData {
+    pub team_membership_delete: crate::types::SuccessResult,
+}
+
+// ---- 5B: Notification Subscriptions ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotificationSubscriptionsData {
+    pub notification_subscriptions: crate::types::NodeList<crate::types::NotificationSubscription>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotificationSubscriptionData {
+    pub notification_subscription: crate::types::NotificationSubscription,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateNotificationSubscriptionData {
+    pub notification_subscription_create: crate::types::NotificationSubscriptionMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateNotificationSubscriptionData {
+    pub notification_subscription_update: crate::types::NotificationSubscriptionMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotificationsUnreadCountData {
+    pub notifications_unread_count: i32,
+}
+
+// ---- 6A: Templates ----
+
+#[derive(Debug, Deserialize)]
+pub struct TemplateData {
+    pub template: crate::types::Template,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTemplateData {
+    pub template_create: crate::types::TemplateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTemplateData {
+    pub template_update: crate::types::TemplateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteTemplateData {
+    pub template_delete: crate::types::SuccessResult,
+}
+
+// ---- 6B: Entity External Links ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EntityExternalLinkData {
+    pub entity_external_link: crate::types::EntityExternalLink,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateEntityExternalLinkData {
+    pub entity_external_link_create: crate::types::EntityExternalLinkMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateEntityExternalLinkData {
+    pub entity_external_link_update: crate::types::EntityExternalLinkMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteEntityExternalLinkData {
+    pub entity_external_link_delete: crate::types::SuccessResult,
+}
+
+// ---- 6C: Emojis ----
+
+#[derive(Debug, Deserialize)]
+pub struct EmojisData {
+    pub emojis: crate::types::NodeList<crate::types::Emoji>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct EmojiData {
+    pub emoji: crate::types::Emoji,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateEmojiData {
+    pub emoji_create: crate::types::EmojiMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteEmojiData {
+    pub emoji_delete: crate::types::SuccessResult,
+}
+
+// ---- 6D: Initiative Relations ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeRelationsData {
+    pub initiative_relations: crate::types::NodeList<crate::types::InitiativeRelation>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeRelationData {
+    pub initiative_relation: crate::types::InitiativeRelation,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateInitiativeRelationData {
+    pub initiative_relation_create: crate::types::InitiativeRelationMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateInitiativeRelationData {
+    pub initiative_relation_update: crate::types::InitiativeRelationMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteInitiativeRelationData {
+    pub initiative_relation_delete: crate::types::SuccessResult,
+}
+
+// ---- 7A: Time Schedules ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeSchedulesData {
+    pub time_schedules: crate::types::NodeList<crate::types::TimeSchedule>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeScheduleData {
+    pub time_schedule: crate::types::TimeSchedule,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTimeScheduleData {
+    pub time_schedule_create: crate::types::TimeScheduleMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTimeScheduleData {
+    pub time_schedule_update: crate::types::TimeScheduleMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteTimeScheduleData {
+    pub time_schedule_delete: crate::types::SuccessResult,
+}
+
+// ---- 7B: Triage Responsibility ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TriageResponsibilitiesData {
+    pub triage_responsibilities: crate::types::NodeList<crate::types::TriageResponsibility>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TriageResponsibilityData {
+    pub triage_responsibility: crate::types::TriageResponsibility,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateTriageResponsibilityData {
+    pub triage_responsibility_create: crate::types::TriageResponsibilityMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateTriageResponsibilityData {
+    pub triage_responsibility_update: crate::types::TriageResponsibilityMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteTriageResponsibilityData {
+    pub triage_responsibility_delete: crate::types::SuccessResult,
+}
+
+// ---- 7C: Git Automation ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateGitAutomationStateData {
+    pub git_automation_state_create: crate::types::GitAutomationStateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateGitAutomationStateData {
+    pub git_automation_state_update: crate::types::GitAutomationStateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteGitAutomationStateData {
+    pub git_automation_state_delete: crate::types::SuccessResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateGitAutomationTargetBranchData {
+    pub git_automation_target_branch_create: crate::types::GitAutomationTargetBranchMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateGitAutomationTargetBranchData {
+    pub git_automation_target_branch_update: crate::types::GitAutomationTargetBranchMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteGitAutomationTargetBranchData {
+    pub git_automation_target_branch_delete: crate::types::SuccessResult,
+}
+
+// ---- 8A: Email Intake ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmailIntakeAddressData {
+    pub email_intake_address: crate::types::EmailIntakeAddress,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateEmailIntakeAddressData {
+    pub email_intake_address_create: crate::types::EmailIntakeAddressMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateEmailIntakeAddressData {
+    pub email_intake_address_update: crate::types::EmailIntakeAddressMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteEmailIntakeAddressData {
+    pub email_intake_address_delete: crate::types::SuccessResult,
+}
+
+// ---- 8B: Misc ----
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArchivedTeamsData {
+    pub archived_teams: crate::types::NodeList<crate::types::TeamDetail>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RateLimitStatusData {
+    pub rate_limit_status: crate::types::RateLimitStatus,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OrganizationData {
+    pub organization: crate::types::Organization,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationInfoData {
+    pub application_info: crate::types::ApplicationInfo,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SemanticSearchData {
+    pub semantic_search: crate::types::Connection<crate::types::Issue>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AttachLinkUrlData {
+    #[serde(rename = "attachmentLinkURL")]
+    pub attachment_link_url: crate::types::AttachmentMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AttachmentsForUrlData {
+    #[serde(rename = "attachmentsForURL")]
+    pub attachments_for_url: crate::types::NodeList<crate::types::Attachment>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueFilterSuggestionData {
+    pub issue_filter_suggestion: FilterSuggestionResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectFilterSuggestionData {
+    pub project_filter_suggestion: FilterSuggestionResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FilterSuggestionResult {
+    pub filter: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomViewSuggestionData {
+    pub custom_view_details_suggestion: CustomViewSuggestionResult,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomViewSuggestionResult {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub filter_data: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomViewHasSubscribersData {
+    pub custom_view_has_subscribers: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchIssueFigmaFileKeyData {
+    pub issue_figma_file_key_search: Option<crate::types::Issue>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateInitiativeUpdateData {
+    pub initiative_update_update: crate::types::InitiativeUpdateMutationResult,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListCommentsAllData {
+    pub comments: crate::types::NodeList<crate::types::Comment>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetIssueLabelData {
+    pub issue_label: crate::types::Label,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetIssueRelationData {
+    pub issue_relation: crate::types::IssueRelation,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListIssueRelationsData {
+    pub issue_relations: crate::types::NodeList<crate::types::IssueRelation>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExternalUsersData {
+    pub external_users: crate::types::NodeList<crate::types::ExternalUser>,
 }

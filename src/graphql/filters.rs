@@ -116,8 +116,11 @@ impl IssueFilter {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct TeamFilter {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<StringFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub key: Option<StringFilter>,
 }
 
@@ -242,6 +245,7 @@ pub fn team_filter(key: &str) -> IssueFilter {
     IssueFilter {
         team: Some(TeamFilter {
             key: Some(StringFilter::eq_ignore_case(key)),
+            ..Default::default()
         }),
         ..Default::default()
     }

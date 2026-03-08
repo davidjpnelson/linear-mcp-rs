@@ -58,6 +58,13 @@ pub struct IssueRef {
     pub title: String,
 }
 
+/// Lightweight team reference (id + key).
+#[derive(Debug, Clone, Deserialize)]
+pub struct TeamRef {
+    pub id: String,
+    pub key: String,
+}
+
 /// Lightweight user reference (for creator, subscribers).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -1019,4 +1026,449 @@ pub struct ProjectSearchResult {
 pub struct ProjectSearchConnection {
     pub nodes: Vec<ProjectSearchResult>,
     pub total_count: Option<i64>,
+}
+
+// ---- Phase 2 (Complete Coverage): New Types ----
+
+/// Workflow state mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkflowStateMutationResult {
+    pub success: bool,
+    pub workflow_state: Option<WorkflowState>,
+}
+
+/// Issue priority value (from issuePriorityValues query).
+#[derive(Debug, Clone, Deserialize)]
+pub struct IssuePriorityValue {
+    pub priority: i32,
+    pub label: String,
+}
+
+/// Document content history entry.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DocumentContentHistoryEntry {
+    pub id: String,
+    pub created_at: Option<String>,
+    pub content_data: Option<serde_json::Value>,
+    pub actor_id: Option<String>,
+}
+
+/// Customer status (full entity).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerStatusFull {
+    pub id: String,
+    pub name: Option<String>,
+    pub color: Option<String>,
+    pub description: Option<String>,
+    pub position: Option<f64>,
+    pub display_name: Option<String>,
+}
+
+/// Customer status mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerStatusMutationResult {
+    pub success: bool,
+    pub customer_status: Option<CustomerStatusFull>,
+}
+
+/// Customer tier (full entity).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerTierFull {
+    pub id: String,
+    pub name: Option<String>,
+    pub color: Option<String>,
+    pub description: Option<String>,
+    pub position: Option<f64>,
+    pub display_name: Option<String>,
+}
+
+/// Customer tier mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomerTierMutationResult {
+    pub success: bool,
+    pub customer_tier: Option<CustomerTierFull>,
+}
+
+/// Release pipeline (full entity).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleasePipelineFull {
+    pub id: String,
+    pub name: String,
+    pub slug_id: Option<String>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
+    pub include_path_patterns: Option<Vec<String>>,
+}
+
+/// Release pipeline mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleasePipelineMutationResult {
+    pub success: bool,
+    pub release_pipeline: Option<ReleasePipelineFull>,
+}
+
+/// Release stage (full entity).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseStageFull {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
+    pub position: Option<f64>,
+    pub frozen: Option<bool>,
+}
+
+/// Release stage mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseStageMutationResult {
+    pub success: bool,
+    pub release_stage: Option<ReleaseStageFull>,
+}
+
+/// Issue-to-release link.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueToRelease {
+    pub id: String,
+    pub issue: Option<IssueRef>,
+    pub release: Option<ReleaseNameRef>,
+}
+
+/// Lightweight release name reference.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseNameRef {
+    pub id: String,
+    pub name: Option<String>,
+}
+
+/// Issue-to-release mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueToReleaseMutationResult {
+    pub success: bool,
+    pub issue_to_release: Option<IssueToRelease>,
+}
+
+/// Project status (full entity).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectStatusFull {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    pub description: Option<String>,
+    pub position: Option<f64>,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
+    pub indefinite: Option<bool>,
+}
+
+/// Project status mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectStatusMutationResult {
+    pub success: bool,
+    pub project_status: Option<ProjectStatusFull>,
+}
+
+/// Project label entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectLabel {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    pub description: Option<String>,
+    pub is_group: Option<bool>,
+    pub parent: Option<LabelRef>,
+}
+
+/// Project label mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectLabelMutationResult {
+    pub success: bool,
+    pub project_label: Option<ProjectLabel>,
+}
+
+/// Team membership entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembership {
+    pub id: String,
+    pub owner: Option<bool>,
+    pub sort_order: Option<f64>,
+    pub user: Option<UserRef>,
+    pub team: Option<Team>,
+}
+
+/// Team membership mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamMembershipMutationResult {
+    pub success: bool,
+    pub team_membership: Option<TeamMembership>,
+}
+
+/// Notification subscription entity.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotificationSubscription {
+    pub id: String,
+    pub active: Option<bool>,
+    pub subscriber: Option<UserRef>,
+    #[serde(rename = "type")]
+    pub subscription_type: Option<String>,
+}
+
+/// Notification subscription mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NotificationSubscriptionMutationResult {
+    pub success: bool,
+    pub notification_subscription: Option<NotificationSubscription>,
+}
+
+/// Template mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TemplateMutationResult {
+    pub success: bool,
+    pub template: Option<Template>,
+}
+
+/// Entity external link.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EntityExternalLink {
+    pub id: String,
+    pub url: String,
+    pub label: String,
+    pub sort_order: Option<f64>,
+    pub creator: Option<UserRef>,
+}
+
+/// Entity external link mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EntityExternalLinkMutationResult {
+    pub success: bool,
+    pub entity_external_link: Option<EntityExternalLink>,
+}
+
+/// Custom emoji.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Emoji {
+    pub id: String,
+    pub name: String,
+    pub url: Option<String>,
+    pub source: Option<String>,
+}
+
+/// Emoji mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmojiMutationResult {
+    pub success: bool,
+    pub emoji: Option<Emoji>,
+}
+
+/// Initiative relation.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeRelation {
+    pub id: String,
+    pub initiative: Option<InitiativeNameRef>,
+    pub related_initiative: Option<InitiativeNameRef>,
+}
+
+/// Initiative relation mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InitiativeRelationMutationResult {
+    pub success: bool,
+    pub initiative_relation: Option<InitiativeRelation>,
+}
+
+/// Time schedule.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeSchedule {
+    pub id: String,
+    pub name: Option<String>,
+    pub external_id: Option<String>,
+    pub external_url: Option<String>,
+}
+
+/// Time schedule mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeScheduleMutationResult {
+    pub success: bool,
+    pub time_schedule: Option<TimeSchedule>,
+}
+
+/// Triage responsibility.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TriageResponsibility {
+    pub id: String,
+    pub action: Option<String>,
+    pub team: Option<Team>,
+}
+
+/// Triage responsibility mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TriageResponsibilityMutationResult {
+    pub success: bool,
+    pub triage_responsibility: Option<TriageResponsibility>,
+}
+
+/// Git automation state.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitAutomationState {
+    pub id: String,
+    pub event: Option<String>,
+    pub state: Option<WorkflowState>,
+    pub team: Option<Team>,
+}
+
+/// Git automation state mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitAutomationStateMutationResult {
+    pub success: bool,
+    pub git_automation_state: Option<GitAutomationState>,
+}
+
+/// Git automation target branch.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitAutomationTargetBranch {
+    pub id: String,
+    pub branch_pattern: Option<String>,
+    pub is_regex: Option<bool>,
+    pub team: Option<Team>,
+}
+
+/// Git automation target branch mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitAutomationTargetBranchMutationResult {
+    pub success: bool,
+    pub git_automation_target_branch: Option<GitAutomationTargetBranch>,
+}
+
+/// Email intake address.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmailIntakeAddress {
+    pub id: String,
+    pub address: Option<String>,
+    pub enabled: Option<bool>,
+    pub sender_name: Option<String>,
+}
+
+/// Email intake address mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmailIntakeAddressMutationResult {
+    pub success: bool,
+    pub email_intake_address: Option<EmailIntakeAddress>,
+}
+
+/// Rate limit status.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RateLimitStatus {
+    pub requests_remaining: Option<i32>,
+    pub complexity_remaining: Option<f64>,
+}
+
+/// Organization.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Organization {
+    pub id: String,
+    pub name: String,
+    pub url_key: Option<String>,
+    pub logo_url: Option<String>,
+    pub created_at: Option<String>,
+    pub user_count: Option<i32>,
+}
+
+/// Application info.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationInfo {
+    pub name: String,
+    pub client_id: String,
+    pub image_url: Option<String>,
+    pub description: Option<String>,
+    pub developer: Option<String>,
+    pub developer_url: Option<String>,
+}
+
+/// External user.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExternalUser {
+    pub id: String,
+    pub name: Option<String>,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+/// User mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserMutationResult {
+    pub success: bool,
+    pub user: Option<User>,
+}
+
+/// Favorite update mutation result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FavoriteUpdateMutationResult {
+    pub success: bool,
+    pub favorite: Option<Favorite>,
+}
+
+/// Issue label (single get result).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueLabelData {
+    pub issue_label: Label,
+}
+
+/// Release search connection.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReleaseSearchConnection {
+    pub nodes: Vec<Release>,
+    pub total_count: Option<i64>,
+}
+
+/// Batch issue create result.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchCreateResult {
+    pub success: bool,
+    pub issues: Vec<BatchUpdatedIssue>,
 }
