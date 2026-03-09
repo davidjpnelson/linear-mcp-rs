@@ -4293,7 +4293,7 @@ impl LinearMcp {
             input["labelIds"] = serde_json::json!(label_ids);
         }
         if let Some(ref project_name) = params.project {
-            let project_id = self.resolve_project_id(project_name).await?;
+            let project_id = self.resolve_project_id_or_uuid(project_name).await?;
             input["projectId"] = serde_json::Value::String(project_id);
         }
         if let Some(ref parent_identifier) = params.parent {
@@ -4313,7 +4313,7 @@ impl LinearMcp {
         }
         if let Some(ref milestone_name) = params.project_milestone {
             if let Some(ref project_name) = params.project {
-                let project_id = self.resolve_project_id(project_name).await?;
+                let project_id = self.resolve_project_id_or_uuid(project_name).await?;
                 let milestone_id = self.resolve_project_milestone_id(milestone_name, &project_id).await?;
                 input["projectMilestoneId"] = serde_json::Value::String(milestone_id);
             } else {
@@ -4435,7 +4435,7 @@ impl LinearMcp {
             if project_name.eq_ignore_ascii_case("none") {
                 input.insert("projectId".into(), serde_json::Value::Null);
             } else {
-                let project_id = self.resolve_project_id(project_name).await?;
+                let project_id = self.resolve_project_id_or_uuid(project_name).await?;
                 input.insert("projectId".into(), serde_json::Value::String(project_id));
             }
             has_fields = true;
@@ -5035,7 +5035,7 @@ impl LinearMcp {
         &self,
         params: create_document::CreateDocumentParams,
     ) -> Result<String, Error> {
-        let project_id = self.resolve_project_id(&params.project).await?;
+        let project_id = self.resolve_project_id_or_uuid(&params.project).await?;
         let mut input = serde_json::json!({
             "title": params.title,
             "projectId": project_id,
@@ -10030,7 +10030,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::CREATE_GIT_AUTOMATION_TARGET_BRANCH, vars)
             .await?;
-        match data.git_automation_target_branch_create.git_automation_target_branch {
+        match data.git_automation_target_branch_create.target_branch {
             Some(b) => Ok(format!("Git automation target branch created:\n\n{}", format::format_git_automation_target_branch(&b))),
             None => Err(Error::GraphQL("Git automation target branch creation failed".into())),
         }
@@ -10058,7 +10058,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::UPDATE_GIT_AUTOMATION_TARGET_BRANCH, vars)
             .await?;
-        match data.git_automation_target_branch_update.git_automation_target_branch {
+        match data.git_automation_target_branch_update.target_branch {
             Some(b) => Ok(format!("Git automation target branch updated:\n\n{}", format::format_git_automation_target_branch(&b))),
             None => Err(Error::GraphQL("Git automation target branch update failed".into())),
         }

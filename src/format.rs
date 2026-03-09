@@ -884,6 +884,7 @@ pub fn format_team_detail(team: &TeamDetail) -> String {
     if !meta.is_empty() {
         parts.push(format!("({})", meta.join(", ")));
     }
+    parts.push(format!("[id: {}]", team.id));
     parts.join(" ")
 }
 

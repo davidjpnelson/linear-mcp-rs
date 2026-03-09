@@ -2904,7 +2904,7 @@ pub const CREATE_GIT_AUTOMATION_TARGET_BRANCH: &str = r#"
 mutation CreateGitAutomationTargetBranch($input: GitAutomationTargetBranchCreateInput!) {
     gitAutomationTargetBranchCreate(input: $input) {
         success
-        gitAutomationTargetBranch {
+        targetBranch {
             id branchPattern isRegex
             team { id key name }
         }
@@ -2916,7 +2916,7 @@ pub const UPDATE_GIT_AUTOMATION_TARGET_BRANCH: &str = r#"
 mutation UpdateGitAutomationTargetBranch($id: String!, $input: GitAutomationTargetBranchUpdateInput!) {
     gitAutomationTargetBranchUpdate(id: $id, input: $input) {
         success
-        gitAutomationTargetBranch {
+        targetBranch {
             id branchPattern isRegex
             team { id key name }
         }

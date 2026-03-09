@@ -1370,7 +1370,8 @@ pub struct GitAutomationTargetBranch {
 #[serde(rename_all = "camelCase")]
 pub struct GitAutomationTargetBranchMutationResult {
     pub success: bool,
-    pub git_automation_target_branch: Option<GitAutomationTargetBranch>,
+    #[serde(rename = "targetBranch")]
+    pub target_branch: Option<GitAutomationTargetBranch>,
 }
 
 /// Email intake address.
