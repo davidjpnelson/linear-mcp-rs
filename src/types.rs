@@ -1051,8 +1051,8 @@ pub struct IssuePriorityValue {
 pub struct DocumentContentHistoryEntry {
     pub id: String,
     pub created_at: Option<String>,
-    pub content_data: Option<serde_json::Value>,
-    pub actor_id: Option<String>,
+    pub content_data_snapshot_at: Option<String>,
+    pub actor_ids: Option<Vec<String>>,
 }
 
 /// Customer status (full entity).
@@ -1072,7 +1072,7 @@ pub struct CustomerStatusFull {
 #[serde(rename_all = "camelCase")]
 pub struct CustomerStatusMutationResult {
     pub success: bool,
-    pub customer_status: Option<CustomerStatusFull>,
+    pub status: Option<CustomerStatusFull>,
 }
 
 /// Customer tier (full entity).
@@ -1092,7 +1092,7 @@ pub struct CustomerTierFull {
 #[serde(rename_all = "camelCase")]
 pub struct CustomerTierMutationResult {
     pub success: bool,
-    pub customer_tier: Option<CustomerTierFull>,
+    pub tier: Option<CustomerTierFull>,
 }
 
 /// Release pipeline (full entity).
@@ -1180,7 +1180,7 @@ pub struct ProjectStatusFull {
 #[serde(rename_all = "camelCase")]
 pub struct ProjectStatusMutationResult {
     pub success: bool,
-    pub project_status: Option<ProjectStatusFull>,
+    pub status: Option<ProjectStatusFull>,
 }
 
 /// Project label entity.
@@ -1229,8 +1229,7 @@ pub struct NotificationSubscription {
     pub id: String,
     pub active: Option<bool>,
     pub subscriber: Option<UserRef>,
-    #[serde(rename = "type")]
-    pub subscription_type: Option<String>,
+    pub context_view_type: Option<String>,
 }
 
 /// Notification subscription mutation result.
@@ -1396,8 +1395,21 @@ pub struct EmailIntakeAddressMutationResult {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RateLimitStatus {
-    pub requests_remaining: Option<i32>,
-    pub complexity_remaining: Option<f64>,
+    pub kind: String,
+    pub limits: Vec<RateLimitResultPayload>,
+}
+
+/// Rate limit result entry.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RateLimitResultPayload {
+    #[serde(rename = "type")]
+    pub limit_type: String,
+    pub requested_amount: Option<f64>,
+    pub allowed_amount: Option<f64>,
+    pub period: Option<i32>,
+    pub remaining_amount: Option<f64>,
+    pub reset: Option<serde_json::Value>,
 }
 
 /// Organization.

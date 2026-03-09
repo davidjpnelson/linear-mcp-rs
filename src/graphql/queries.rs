@@ -2025,11 +2025,10 @@ mutation UnarchiveDocument($id: String!) {
 "#;
 
 pub const GET_DOCUMENT_CONTENT_HISTORY: &str = r#"
-query GetDocumentContentHistory($id: String!, $first: Int!) {
-    document(id: $id) {
-        contentHistory(first: $first) {
-            nodes { id createdAt contentData actorId }
-        }
+query GetDocumentContentHistory($id: String!) {
+    documentContentHistory(id: $id) {
+        success
+        history { id createdAt contentDataSnapshotAt actorIds }
     }
 }
 "#;
@@ -2127,7 +2126,7 @@ pub const CREATE_CUSTOMER_STATUS: &str = r#"
 mutation CreateCustomerStatus($input: CustomerStatusCreateInput!) {
     customerStatusCreate(input: $input) {
         success
-        customerStatus { id name color description position displayName }
+        status { id name color description position displayName }
     }
 }
 "#;
@@ -2136,7 +2135,7 @@ pub const UPDATE_CUSTOMER_STATUS: &str = r#"
 mutation UpdateCustomerStatus($id: String!, $input: CustomerStatusUpdateInput!) {
     customerStatusUpdate(id: $id, input: $input) {
         success
-        customerStatus { id name color description position displayName }
+        status { id name color description position displayName }
     }
 }
 "#;
@@ -2169,7 +2168,7 @@ pub const CREATE_CUSTOMER_TIER: &str = r#"
 mutation CreateCustomerTier($input: CustomerTierCreateInput!) {
     customerTierCreate(input: $input) {
         success
-        customerTier { id name color description position displayName }
+        tier { id name color description position displayName }
     }
 }
 "#;
@@ -2178,7 +2177,7 @@ pub const UPDATE_CUSTOMER_TIER: &str = r#"
 mutation UpdateCustomerTier($id: String!, $input: CustomerTierUpdateInput!) {
     customerTierUpdate(id: $id, input: $input) {
         success
-        customerTier { id name color description position displayName }
+        tier { id name color description position displayName }
     }
 }
 "#;
@@ -2192,8 +2191,8 @@ mutation DeleteCustomerTier($id: String!) {
 // ---- 2C: Customer Extras ----
 
 pub const MERGE_CUSTOMERS: &str = r#"
-mutation MergeCustomers($sourceId: String!, $targetId: String!) {
-    customerMerge(sourceId: $sourceId, targetId: $targetId) { success }
+mutation MergeCustomers($sourceCustomerId: String!, $targetCustomerId: String!) {
+    customerMerge(sourceCustomerId: $sourceCustomerId, targetCustomerId: $targetCustomerId) { success }
 }
 "#;
 
@@ -2450,7 +2449,7 @@ pub const CREATE_PROJECT_STATUS: &str = r#"
 mutation CreateProjectStatus($input: ProjectStatusCreateInput!) {
     projectStatusCreate(input: $input) {
         success
-        projectStatus { id name color description position type indefinite }
+        status { id name color description position type indefinite }
     }
 }
 "#;
@@ -2459,7 +2458,7 @@ pub const UPDATE_PROJECT_STATUS: &str = r#"
 mutation UpdateProjectStatus($id: String!, $input: ProjectStatusUpdateInput!) {
     projectStatusUpdate(id: $id, input: $input) {
         success
-        projectStatus { id name color description position type indefinite }
+        status { id name color description position type indefinite }
     }
 }
 "#;
@@ -2593,7 +2592,7 @@ mutation DeleteTeamMembership($id: String!) {
 pub const LIST_NOTIFICATION_SUBSCRIPTIONS: &str = r#"
 query ListNotificationSubscriptions($first: Int!) {
     notificationSubscriptions(first: $first) {
-        nodes { id type active subscriber { displayName email } }
+        nodes { id active contextViewType subscriber { displayName email } }
     }
 }
 "#;
@@ -2601,7 +2600,7 @@ query ListNotificationSubscriptions($first: Int!) {
 pub const GET_NOTIFICATION_SUBSCRIPTION: &str = r#"
 query GetNotificationSubscription($id: String!) {
     notificationSubscription(id: $id) {
-        id type active subscriber { displayName email }
+        id active contextViewType subscriber { displayName email }
     }
 }
 "#;
@@ -2610,7 +2609,7 @@ pub const CREATE_NOTIFICATION_SUBSCRIPTION: &str = r#"
 mutation CreateNotificationSubscription($input: NotificationSubscriptionCreateInput!) {
     notificationSubscriptionCreate(input: $input) {
         success
-        notificationSubscription { id type active subscriber { displayName email } }
+        notificationSubscription { id active contextViewType subscriber { displayName email } }
     }
 }
 "#;
@@ -2619,7 +2618,7 @@ pub const UPDATE_NOTIFICATION_SUBSCRIPTION: &str = r#"
 mutation UpdateNotificationSubscription($id: String!, $input: NotificationSubscriptionUpdateInput!) {
     notificationSubscriptionUpdate(id: $id, input: $input) {
         success
-        notificationSubscription { id type active subscriber { displayName email } }
+        notificationSubscription { id contextViewType active subscriber { displayName email } }
     }
 }
 "#;
@@ -2966,18 +2965,19 @@ mutation DeleteEmailIntakeAddress($id: String!) {
 // ---- 8B: Remaining Misc Operations ----
 
 pub const LIST_ARCHIVED_TEAMS: &str = r#"
-query ListArchivedTeams($first: Int!) {
-    archivedTeams(first: $first) {
-        nodes {
-            id key name description timezone
-        }
+query ListArchivedTeams {
+    archivedTeams {
+        id key name description timezone
     }
 }
 "#;
 
 pub const GET_RATE_LIMIT_STATUS: &str = r#"
 query GetRateLimitStatus {
-    rateLimitStatus { requestsRemaining complexityRemaining }
+    rateLimitStatus {
+        kind
+        limits { type requestedAmount allowedAmount period remainingAmount reset }
+    }
 }
 "#;
 
@@ -2990,26 +2990,20 @@ query GetOrganization {
 "#;
 
 pub const GET_APPLICATION_INFO: &str = r#"
-query GetApplicationInfo {
-    applicationInfo { name clientId imageUrl description developer developerUrl }
+query GetApplicationInfo($clientId: String!) {
+    applicationInfo(clientId: $clientId) { name clientId imageUrl description developer developerUrl }
 }
 "#;
 
 pub const SEMANTIC_SEARCH: &str = r#"
-query SemanticSearch($query: String!, $first: Int) {
-    semanticSearch(query: $query, first: $first) {
-        nodes {
-            id
-            identifier
-            title
-            priority
-            url
-            state { id name type color }
-            assignee { id displayName email }
-            team { id key name }
-            labels { nodes { id name } }
+query SemanticSearch($query: String!, $maxResults: Int) {
+    semanticSearch(query: $query, maxResults: $maxResults) {
+        results {
+            type id
+            issue { id identifier title priority url state { id name type color } assignee { id displayName } team { id key name } }
+            project { id name }
+            document { id title }
         }
-        pageInfo { hasNextPage endCursor }
     }
 }
 "#;
@@ -3048,18 +3042,18 @@ query GetProjectFilterSuggestion($prompt: String!) {
 "#;
 
 pub const GET_CUSTOM_VIEW_SUGGESTION: &str = r#"
-query GetCustomViewSuggestion($prompt: String!) {
-    customViewDetailsSuggestion(prompt: $prompt) {
+query GetCustomViewSuggestion($modelName: String!, $filter: JSONObject!) {
+    customViewDetailsSuggestion(modelName: $modelName, filter: $filter) {
         name
         description
-        filterData
+        icon
     }
 }
 "#;
 
 pub const CHECK_CUSTOM_VIEW_HAS_SUBSCRIBERS: &str = r#"
 query CheckCustomViewHasSubscribers($id: String!) {
-    customViewHasSubscribers(id: $id)
+    customViewHasSubscribers(id: $id) { hasSubscribers }
 }
 "#;
 

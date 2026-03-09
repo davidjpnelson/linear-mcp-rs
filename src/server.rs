@@ -3456,9 +3456,9 @@ impl LinearMcp {
     )]
     async fn get_application_info(
         &self,
-        Parameters(_params): Parameters<get_application_info::GetApplicationInfoParams>,
+        Parameters(params): Parameters<get_application_info::GetApplicationInfoParams>,
     ) -> Result<CallToolResult, McpError> {
-        match self.handle_get_application_info().await {
+        match self.handle_get_application_info(params).await {
             Ok(text) => Ok(CallToolResult::success(vec![Content::text(text)])),
             Err(e) => Ok(error_result(&e)),
         }
@@ -7984,16 +7984,21 @@ impl LinearMcp {
         &self,
         params: get_document_content_history::GetDocumentContentHistoryParams,
     ) -> Result<String, Error> {
-        let first = params.limit.unwrap_or(20);
-        let vars = serde_json::json!({ "id": params.id, "first": first });
+        let vars = serde_json::json!({ "id": params.id });
         let data: response::DocumentContentHistoryData = self
             .client
             .execute_json(queries::GET_DOCUMENT_CONTENT_HISTORY, vars)
             .await?;
-        if data.document.content_history.nodes.is_empty() {
+        if !data.document_content_history.success {
+            return Err(Error::GraphQL("Failed to retrieve document content history.".into()));
+        }
+        let history = &data.document_content_history.history;
+        if history.is_empty() {
             return Ok("No content history found.".into());
         }
-        let lines: Vec<String> = data.document.content_history.nodes.iter()
+        let limit = params.limit.unwrap_or(50).max(1) as usize;
+        let lines: Vec<String> = history.iter()
+            .take(limit)
             .map(|e| format::format_document_content_history_entry(e))
             .collect();
         Ok(lines.join("\n"))
@@ -8207,7 +8212,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::CREATE_CUSTOMER_STATUS, vars)
             .await?;
-        match data.customer_status_create.customer_status {
+        match data.customer_status_create.status {
             Some(s) => Ok(format!("Customer status created:\n\n{}", format::format_customer_status(&s))),
             None => Err(Error::GraphQL("Customer status creation failed".into())),
         }
@@ -8247,7 +8252,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::UPDATE_CUSTOMER_STATUS, vars)
             .await?;
-        match data.customer_status_update.customer_status {
+        match data.customer_status_update.status {
             Some(s) => Ok(format!("Customer status updated:\n\n{}", format::format_customer_status(&s))),
             None => Err(Error::GraphQL("Customer status update failed".into())),
         }
@@ -8324,7 +8329,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::CREATE_CUSTOMER_TIER, vars)
             .await?;
-        match data.customer_tier_create.customer_tier {
+        match data.customer_tier_create.tier {
             Some(t) => Ok(format!("Customer tier created:\n\n{}", format::format_customer_tier(&t))),
             None => Err(Error::GraphQL("Customer tier creation failed".into())),
         }
@@ -8364,7 +8369,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::UPDATE_CUSTOMER_TIER, vars)
             .await?;
-        match data.customer_tier_update.customer_tier {
+        match data.customer_tier_update.tier {
             Some(t) => Ok(format!("Customer tier updated:\n\n{}", format::format_customer_tier(&t))),
             None => Err(Error::GraphQL("Customer tier update failed".into())),
         }
@@ -8392,7 +8397,7 @@ impl LinearMcp {
         &self,
         params: merge_customers::MergeCustomersParams,
     ) -> Result<String, Error> {
-        let vars = serde_json::json!({ "sourceId": params.source_id, "targetId": params.target_id });
+        let vars = serde_json::json!({ "sourceCustomerId": params.source_id, "targetCustomerId": params.target_id });
         let data: response::MergeCustomersData = self
             .client
             .execute_json(queries::MERGE_CUSTOMERS, vars)
@@ -8953,7 +8958,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::CREATE_PROJECT_STATUS, vars)
             .await?;
-        match data.project_status_create.project_status {
+        match data.project_status_create.status {
             Some(s) => Ok(format!("Project status created:\n\n{}", format::format_project_status(&s))),
             None => Err(Error::GraphQL("Project status creation failed".into())),
         }
@@ -8997,7 +9002,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::UPDATE_PROJECT_STATUS, vars)
             .await?;
-        match data.project_status_update.project_status {
+        match data.project_status_update.status {
             Some(s) => Ok(format!("Project status updated:\n\n{}", format::format_project_status(&s))),
             None => Err(Error::GraphQL("Project status update failed".into())),
         }
@@ -10188,16 +10193,16 @@ impl LinearMcp {
         &self,
         params: list_archived_teams::ListArchivedTeamsParams,
     ) -> Result<String, Error> {
-        let first = params.limit.unwrap_or(50);
-        let vars = serde_json::json!({ "first": first });
         let data: response::ArchivedTeamsData = self
             .client
-            .execute_json(queries::LIST_ARCHIVED_TEAMS, vars)
+            .execute::<(), _>(queries::LIST_ARCHIVED_TEAMS, None)
             .await?;
-        if data.archived_teams.nodes.is_empty() {
+        if data.archived_teams.is_empty() {
             return Ok("No archived teams found.".into());
         }
-        let lines: Vec<String> = data.archived_teams.nodes.iter()
+        let limit = params.limit.unwrap_or(50).max(1) as usize;
+        let lines: Vec<String> = data.archived_teams.iter()
+            .take(limit)
             .map(|t| format::format_team_detail(t))
             .collect();
         Ok(lines.join("\n"))
@@ -10219,10 +10224,14 @@ impl LinearMcp {
         Ok(format::format_organization(&data.organization))
     }
 
-    async fn handle_get_application_info(&self) -> Result<String, Error> {
+    async fn handle_get_application_info(
+        &self,
+        params: get_application_info::GetApplicationInfoParams,
+    ) -> Result<String, Error> {
+        let vars = serde_json::json!({ "clientId": params.client_id });
         let data: response::ApplicationInfoData = self
             .client
-            .execute::<(), _>(queries::GET_APPLICATION_INFO, None)
+            .execute_json(queries::GET_APPLICATION_INFO, vars)
             .await?;
         Ok(format::format_application_info(&data.application_info))
     }
@@ -10231,17 +10240,27 @@ impl LinearMcp {
         &self,
         params: semantic_search::SemanticSearchParams,
     ) -> Result<String, Error> {
-        let first = params.limit.unwrap_or(25);
-        let vars = serde_json::json!({ "query": params.query, "first": first });
+        let max_results = params.limit.unwrap_or(25);
+        let vars = serde_json::json!({ "query": params.query, "maxResults": max_results });
         let data: response::SemanticSearchData = self
             .client
             .execute_json(queries::SEMANTIC_SEARCH, vars)
             .await?;
-        if data.semantic_search.nodes.is_empty() {
+        if data.semantic_search.results.is_empty() {
             return Ok("No results found.".into());
         }
-        let lines: Vec<String> = data.semantic_search.nodes.iter()
-            .map(|n| format!("[{}] {} [id: {}]", n.identifier, n.title, n.id))
+        let lines: Vec<String> = data.semantic_search.results.iter()
+            .map(|r| {
+                if let Some(ref issue) = r.issue {
+                    format!("[{}] {} {} [id: {}]", r.result_type, issue.identifier, issue.title, issue.id)
+                } else if let Some(ref project) = r.project {
+                    format!("[{}] {} [id: {}]", r.result_type, project.name, project.id)
+                } else if let Some(ref doc) = r.document {
+                    format!("[{}] {} [id: {}]", r.result_type, doc.title, doc.id)
+                } else {
+                    format!("[{}] [id: {}]", r.result_type, r.id)
+                }
+            })
             .collect();
         Ok(lines.join("\n"))
     }
@@ -10315,7 +10334,11 @@ impl LinearMcp {
         &self,
         params: get_custom_view_suggestion::GetCustomViewSuggestionParams,
     ) -> Result<String, Error> {
-        let vars = serde_json::json!({ "prompt": params.prompt });
+        let filter = params.filter.unwrap_or(serde_json::json!({}));
+        if !filter.is_object() {
+            return Err(Error::InvalidInput("filter must be a JSON object".into()));
+        }
+        let vars = serde_json::json!({ "modelName": params.model_name, "filter": filter });
         let data: response::CustomViewSuggestionData = self
             .client
             .execute_json(queries::GET_CUSTOM_VIEW_SUGGESTION, vars)
@@ -10328,8 +10351,8 @@ impl LinearMcp {
         if let Some(ref desc) = s.description {
             lines.push(format!("Description: {}", desc));
         }
-        if let Some(ref filter) = s.filter_data {
-            lines.push(format!("Filter: {}", serde_json::to_string_pretty(filter).unwrap_or_default()));
+        if let Some(ref icon) = s.icon {
+            lines.push(format!("Icon: {}", icon));
         }
         Ok(lines.join("\n"))
     }
@@ -10343,7 +10366,7 @@ impl LinearMcp {
             .client
             .execute_json(queries::CHECK_CUSTOM_VIEW_HAS_SUBSCRIBERS, vars)
             .await?;
-        Ok(format!("Has subscribers: {}", data.custom_view_has_subscribers))
+        Ok(format!("Has subscribers: {}", data.custom_view_has_subscribers.has_subscribers))
     }
 
     async fn handle_search_issue_figma_file_key(

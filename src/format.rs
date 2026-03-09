@@ -1396,8 +1396,8 @@ pub fn format_team_membership(m: &TeamMembership) -> String {
 pub fn format_notification_subscription(s: &NotificationSubscription) -> String {
     let subscriber = s.subscriber.as_ref().map(|u| u.display_name.as_str()).unwrap_or("?");
     let active = s.active.unwrap_or(true);
-    let sub_type = s.subscription_type.as_deref().unwrap_or("?");
-    format!("{} - type: {} (active: {}) [id: {}]", subscriber, sub_type, active, s.id)
+    let view_type = s.context_view_type.as_deref().unwrap_or("?");
+    format!("{} - context: {} (active: {}) [id: {}]", subscriber, view_type, active, s.id)
 }
 
 pub fn format_entity_external_link(l: &EntityExternalLink) -> String {
@@ -1488,12 +1488,19 @@ pub fn format_organization(o: &Organization) -> String {
 }
 
 pub fn format_rate_limit_status(r: &RateLimitStatus) -> String {
-    let mut parts = Vec::new();
-    if let Some(req) = r.requests_remaining {
-        parts.push(format!("Requests remaining: {}", req));
-    }
-    if let Some(comp) = r.complexity_remaining {
-        parts.push(format!("Complexity remaining: {:.0}", comp));
+    let mut parts = vec![format!("Rate limit kind: {}", r.kind)];
+    for limit in &r.limits {
+        let mut line = format!("  {} —", limit.limit_type);
+        if let Some(remaining) = limit.remaining_amount {
+            line.push_str(&format!(" remaining: {:.0}", remaining));
+        }
+        if let Some(allowed) = limit.allowed_amount {
+            line.push_str(&format!(" / {:.0}", allowed));
+        }
+        if let Some(ref reset) = limit.reset {
+            line.push_str(&format!(" (resets: {})", reset));
+        }
+        parts.push(line);
     }
     parts.join("\n")
 }
@@ -1538,6 +1545,8 @@ pub fn format_priority_value(p: &IssuePriorityValue) -> String {
 
 pub fn format_document_content_history_entry(e: &DocumentContentHistoryEntry) -> String {
     let date = e.created_at.as_deref().map(format_date).unwrap_or("?");
-    let actor = e.actor_id.as_deref().unwrap_or("unknown");
-    format!("{} by {} [id: {}]", date, actor, e.id)
+    let actors = e.actor_ids.as_ref()
+        .map(|ids| ids.join(", "))
+        .unwrap_or_else(|| "unknown".into());
+    format!("{} by {} [id: {}]", date, actors, e.id)
 }

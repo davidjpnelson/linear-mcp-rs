@@ -939,13 +939,14 @@ pub struct UnarchiveDocumentData {
 
 #[derive(Debug, Deserialize)]
 pub struct DocumentContentHistoryData {
-    pub document: DocumentWithContentHistory,
+    pub document_content_history: DocumentContentHistoryPayload,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentWithContentHistory {
-    pub content_history: crate::types::NodeList<crate::types::DocumentContentHistoryEntry>,
+pub struct DocumentContentHistoryPayload {
+    pub success: bool,
+    pub history: Vec<crate::types::DocumentContentHistoryEntry>,
 }
 
 // ---- 1F: Misc ----
@@ -1616,7 +1617,7 @@ pub struct DeleteEmailIntakeAddressData {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArchivedTeamsData {
-    pub archived_teams: crate::types::NodeList<crate::types::TeamDetail>,
+    pub archived_teams: Vec<crate::types::TeamDetail>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1639,7 +1640,35 @@ pub struct ApplicationInfoData {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticSearchData {
-    pub semantic_search: crate::types::Connection<crate::types::Issue>,
+    pub semantic_search: SemanticSearchPayload,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SemanticSearchPayload {
+    pub results: Vec<SemanticSearchResult>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SemanticSearchResult {
+    #[serde(rename = "type")]
+    pub result_type: String,
+    pub id: String,
+    pub issue: Option<crate::types::Issue>,
+    pub project: Option<ProjectBasic>,
+    pub document: Option<DocumentBasic>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProjectBasic {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DocumentBasic {
+    pub id: String,
+    pub title: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1684,13 +1713,19 @@ pub struct CustomViewSuggestionData {
 pub struct CustomViewSuggestionResult {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub filter_data: Option<serde_json::Value>,
+    pub icon: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CustomViewHasSubscribersData {
-    pub custom_view_has_subscribers: bool,
+    pub custom_view_has_subscribers: CustomViewHasSubscribersPayload,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomViewHasSubscribersPayload {
+    pub has_subscribers: bool,
 }
 
 #[derive(Debug, Deserialize)]
