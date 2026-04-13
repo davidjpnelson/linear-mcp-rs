@@ -182,8 +182,7 @@ query ListProjects($first: Int!, $filter: ProjectFilter) {
             startDate
             targetDate
             lead { displayName email }
-            teams { nodes { id key name } }
-            members { nodes { displayName } }
+            teams { nodes { key name } }
         }
     }
 }
