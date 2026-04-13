@@ -208,7 +208,16 @@ pub struct ProjectFilter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lead: Option<ProjectLeadFilter>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub accessible_teams: Option<TeamCollectionFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub and: Option<Vec<ProjectFilter>>,
+}
+
+/// Collection filter for teams (used in project filtering).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TeamCollectionFilter {
+    pub some: TeamFilter,
 }
 
 impl ProjectFilter {

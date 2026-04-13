@@ -4036,9 +4036,6 @@ impl LinearMcp {
         params: list_projects::ListProjectsParams,
     ) -> Result<String, Error> {
         let desired_limit = params.limit.unwrap_or(50).min(100) as usize;
-        // When team filtering is active, fetch more projects server-side since
-        // Linear's ProjectFilter doesn't support team key filtering.
-        let fetch_limit = if params.team.is_some() { 250 } else { desired_limit };
 
         let mut project_filters = Vec::new();
 
@@ -4065,10 +4062,21 @@ impl LinearMcp {
                 ..Default::default()
             });
         }
+        if let Some(ref team_key) = params.team {
+            project_filters.push(filters::ProjectFilter {
+                accessible_teams: Some(filters::TeamCollectionFilter {
+                    some: filters::TeamFilter {
+                        key: Some(filters::StringFilter::eq_ignore_case(team_key)),
+                        ..Default::default()
+                    },
+                }),
+                ..Default::default()
+            });
+        }
 
         let filter = filters::ProjectFilter::combine(project_filters);
 
-        let mut vars = serde_json::json!({ "first": fetch_limit });
+        let mut vars = serde_json::json!({ "first": desired_limit });
         if let Some(f) = filter {
             vars["filter"] = serde_json::to_value(f).unwrap();
         }
@@ -4078,23 +4086,7 @@ impl LinearMcp {
             .execute_json(queries::LIST_PROJECTS, vars)
             .await?;
 
-        // If team filter is specified, filter client-side (Linear's ProjectFilter
-        // doesn't have a direct team key filter) and cap at desired limit.
-        let projects: Vec<&types::Project> = if let Some(ref team_key) = params.team {
-            let key_upper = team_key.to_uppercase();
-            data.projects
-                .nodes
-                .iter()
-                .filter(|p| {
-                    p.teams.as_ref().map_or(false, |teams| {
-                        teams.nodes.iter().any(|t| t.key.eq_ignore_ascii_case(&key_upper))
-                    })
-                })
-                .take(desired_limit)
-                .collect()
-        } else {
-            data.projects.nodes.iter().collect()
-        };
+        let projects: Vec<&types::Project> = data.projects.nodes.iter().collect();
 
         if projects.is_empty() {
             return Ok("No projects found matching the filters.".to_string());
