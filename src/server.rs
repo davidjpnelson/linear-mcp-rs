@@ -36,7 +36,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_issues",
-        description = "List Linear issues with flexible filtering. Filter by team, assignee, status, project, label, and priority."
+        description = "List Linear issues with flexible filtering. Filter by team, assignee, status, project, label, and priority.",
+        annotations(read_only_hint = true)
     )]
     async fn list_issues(
         &self,
@@ -50,7 +51,8 @@ impl LinearMcp {
 
     #[tool(
         name = "search_issues",
-        description = "Full-text search across Linear issues. Searches titles, descriptions, and comments."
+        description = "Full-text search across Linear issues. Searches titles, descriptions, and comments.",
+        annotations(read_only_hint = true)
     )]
     async fn search_issues(
         &self,
@@ -64,7 +66,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue",
-        description = "Get full details of a single Linear issue by identifier (e.g. 'ENG-123'). Includes description, comments, labels, and relations."
+        description = "Get full details of a single Linear issue by identifier (e.g. 'ENG-123'). Includes description, comments, labels, and relations.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue(
         &self,
@@ -78,7 +81,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_teams",
-        description = "List all teams in the Linear workspace with their keys and names. Optionally include member counts."
+        description = "List all teams in the Linear workspace with their keys and names. Optionally include member counts.",
+        annotations(read_only_hint = true)
     )]
     async fn list_teams(
         &self,
@@ -92,7 +96,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_projects",
-        description = "List all projects in the Linear workspace with status and progress."
+        description = "List all projects in the Linear workspace with status and progress.",
+        annotations(read_only_hint = true)
     )]
     async fn list_projects(
         &self,
@@ -106,7 +111,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_users",
-        description = "List all members of the Linear workspace."
+        description = "List all members of the Linear workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_users(
         &self,
@@ -120,7 +126,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_states",
-        description = "List workflow states (statuses) available in the workspace. Optionally filter by team."
+        description = "List workflow states (statuses) available in the workspace. Optionally filter by team.",
+        annotations(read_only_hint = true)
     )]
     async fn list_states(
         &self,
@@ -134,7 +141,8 @@ impl LinearMcp {
 
     #[tool(
         name = "my_issues",
-        description = "Get issues assigned to the authenticated user, grouped by status. A quick overview of your current workload."
+        description = "Get issues assigned to the authenticated user, grouped by status. A quick overview of your current workload.",
+        annotations(read_only_hint = true)
     )]
     async fn my_issues(
         &self,
@@ -148,7 +156,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_issue",
-        description = "Create a new Linear issue. Accepts human-friendly inputs (team key, assignee email, state name) and resolves them automatically."
+        description = "Create a new Linear issue. Accepts human-friendly inputs (team key, assignee email, state name) and resolves them automatically.",
+        annotations(destructive_hint = false)
     )]
     async fn create_issue(
         &self,
@@ -162,7 +171,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_issue",
-        description = "Update an existing Linear issue. Accepts human-friendly inputs (state name, assignee email) and resolves them automatically."
+        description = "Update an existing Linear issue. Accepts human-friendly inputs (state name, assignee email) and resolves them automatically.",
+        annotations(destructive_hint = false)
     )]
     async fn update_issue(
         &self,
@@ -176,7 +186,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_comment",
-        description = "Add a comment to a Linear issue. Supports markdown and threaded replies via parentId."
+        description = "Add a comment to a Linear issue. Supports markdown and threaded replies via parentId.",
+        annotations(destructive_hint = false)
     )]
     async fn add_comment(
         &self,
@@ -190,7 +201,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_comment",
-        description = "Update an existing comment on a Linear issue."
+        description = "Update an existing comment on a Linear issue.",
+        annotations(destructive_hint = false)
     )]
     async fn update_comment(
         &self,
@@ -204,7 +216,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_comment",
-        description = "Delete a comment from a Linear issue."
+        description = "Delete a comment from a Linear issue.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_comment(
         &self,
@@ -218,7 +231,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_cycles",
-        description = "List cycles for a team. Returns cycle names, dates, and progress."
+        description = "List cycles for a team. Returns cycle names, dates, and progress.",
+        annotations(read_only_hint = true)
     )]
     async fn list_cycles(
         &self,
@@ -232,7 +246,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_cycle",
-        description = "Get full details of a single cycle by UUID."
+        description = "Get full details of a single cycle by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_cycle(
         &self,
@@ -246,7 +261,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_issue_to_cycle",
-        description = "Add an issue to a cycle by setting its cycleId."
+        description = "Add an issue to a cycle by setting its cycleId.",
+        annotations(destructive_hint = false)
     )]
     async fn add_issue_to_cycle(
         &self,
@@ -260,7 +276,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_issue_from_cycle",
-        description = "Remove an issue from its current cycle."
+        description = "Remove an issue from its current cycle.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_issue_from_cycle(
         &self,
@@ -274,7 +291,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_labels",
-        description = "List issue labels in the workspace. Optionally filter by team."
+        description = "List issue labels in the workspace. Optionally filter by team.",
+        annotations(read_only_hint = true)
     )]
     async fn list_labels(
         &self,
@@ -288,7 +306,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_label",
-        description = "Create a new issue label. Optionally scope to a team and set a color."
+        description = "Create a new issue label. Optionally scope to a team and set a color.",
+        annotations(destructive_hint = false)
     )]
     async fn create_label(
         &self,
@@ -302,7 +321,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_issue_relation",
-        description = "Create a relation between two issues (blocks, blocked_by, related, duplicate)."
+        description = "Create a relation between two issues (blocks, blocked_by, related, duplicate).",
+        annotations(destructive_hint = false)
     )]
     async fn create_issue_relation(
         &self,
@@ -316,7 +336,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_issue_relation",
-        description = "Delete an issue relation by its UUID."
+        description = "Delete an issue relation by its UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_issue_relation(
         &self,
@@ -330,7 +351,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_issue",
-        description = "Archive a Linear issue."
+        description = "Archive a Linear issue.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_issue(
         &self,
@@ -346,7 +368,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_documents",
-        description = "List all documents in the workspace with project and creator info."
+        description = "List all documents in the workspace with project and creator info.",
+        annotations(read_only_hint = true)
     )]
     async fn list_documents(
         &self,
@@ -360,7 +383,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_document",
-        description = "Get full details of a document including its content."
+        description = "Get full details of a document including its content.",
+        annotations(read_only_hint = true)
     )]
     async fn get_document(
         &self,
@@ -374,7 +398,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_document",
-        description = "Create a new document. Optionally associate it with a project."
+        description = "Create a new document. Optionally associate it with a project.",
+        annotations(destructive_hint = false)
     )]
     async fn create_document(
         &self,
@@ -390,7 +415,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_project",
-        description = "Get full details of a project including teams, members, lead, and dates."
+        description = "Get full details of a project including teams, members, lead, and dates.",
+        annotations(read_only_hint = true)
     )]
     async fn get_project(
         &self,
@@ -404,7 +430,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project",
-        description = "Create a new project with team associations, lead, and dates."
+        description = "Create a new project with team associations, lead, and dates.",
+        annotations(destructive_hint = false)
     )]
     async fn create_project(
         &self,
@@ -418,7 +445,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project",
-        description = "Update an existing project's name, description, state, lead, or dates."
+        description = "Update an existing project's name, description, state, lead, or dates.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project(
         &self,
@@ -434,7 +462,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_project_updates",
-        description = "List status updates for a project."
+        description = "List status updates for a project.",
+        annotations(read_only_hint = true)
     )]
     async fn list_project_updates(
         &self,
@@ -448,7 +477,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project_update",
-        description = "Post a status update to a project with optional health indicator."
+        description = "Post a status update to a project with optional health indicator.",
+        annotations(destructive_hint = false)
     )]
     async fn create_project_update(
         &self,
@@ -464,7 +494,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_project_milestones",
-        description = "List milestones for a project."
+        description = "List milestones for a project.",
+        annotations(read_only_hint = true)
     )]
     async fn list_project_milestones(
         &self,
@@ -478,7 +509,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project_milestone",
-        description = "Create a milestone for a project with name, description, and target date."
+        description = "Create a milestone for a project with name, description, and target date.",
+        annotations(destructive_hint = false)
     )]
     async fn create_project_milestone(
         &self,
@@ -494,7 +526,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_initiatives",
-        description = "List all initiatives in the workspace."
+        description = "List all initiatives in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_initiatives(
         &self,
@@ -510,7 +543,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_notifications",
-        description = "List inbox notifications for the authenticated user."
+        description = "List inbox notifications for the authenticated user.",
+        annotations(read_only_hint = true)
     )]
     async fn list_notifications(
         &self,
@@ -524,7 +558,8 @@ impl LinearMcp {
 
     #[tool(
         name = "mark_notification_read",
-        description = "Mark a notification as read."
+        description = "Mark a notification as read.",
+        annotations(destructive_hint = false)
     )]
     async fn mark_notification_read(
         &self,
@@ -540,7 +575,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_views",
-        description = "List custom saved views in the workspace."
+        description = "List custom saved views in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_views(
         &self,
@@ -556,7 +592,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_attachments",
-        description = "List attachments on an issue."
+        description = "List attachments on an issue.",
+        annotations(read_only_hint = true)
     )]
     async fn list_attachments(
         &self,
@@ -570,7 +607,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_attachment",
-        description = "Add a URL attachment to an issue."
+        description = "Add a URL attachment to an issue.",
+        annotations(destructive_hint = false)
     )]
     async fn add_attachment(
         &self,
@@ -586,7 +624,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_reaction",
-        description = "Add an emoji reaction to a comment."
+        description = "Add an emoji reaction to a comment.",
+        annotations(destructive_hint = false)
     )]
     async fn add_reaction(
         &self,
@@ -600,7 +639,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_reaction",
-        description = "Remove an emoji reaction by its UUID."
+        description = "Remove an emoji reaction by its UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_reaction(
         &self,
@@ -616,7 +656,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_favorites",
-        description = "List the authenticated user's favorites."
+        description = "List the authenticated user's favorites.",
+        annotations(read_only_hint = true)
     )]
     async fn list_favorites(
         &self,
@@ -630,7 +671,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_favorite",
-        description = "Favorite an issue or project."
+        description = "Favorite an issue or project.",
+        annotations(destructive_hint = false)
     )]
     async fn add_favorite(
         &self,
@@ -644,7 +686,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_favorite",
-        description = "Remove a favorite by its UUID."
+        description = "Remove a favorite by its UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_favorite(
         &self,
@@ -660,7 +703,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_templates",
-        description = "List available issue templates in the workspace."
+        description = "List available issue templates in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_templates(
         &self,
@@ -676,7 +720,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_history",
-        description = "Get the audit trail of changes for an issue."
+        description = "Get the audit trail of changes for an issue.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_history(
         &self,
@@ -692,7 +737,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_webhooks",
-        description = "List active webhooks in the workspace."
+        description = "List active webhooks in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_webhooks(
         &self,
@@ -706,7 +752,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_webhook",
-        description = "Create a webhook endpoint for receiving Linear events."
+        description = "Create a webhook endpoint for receiving Linear events.",
+        annotations(destructive_hint = false, open_world_hint = true)
     )]
     async fn create_webhook(
         &self,
@@ -720,7 +767,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_webhook",
-        description = "Delete a webhook by its UUID."
+        description = "Delete a webhook by its UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_webhook(
         &self,
@@ -736,7 +784,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_integrations",
-        description = "List active integrations in the workspace."
+        description = "List active integrations in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_integrations(
         &self,
@@ -752,7 +801,8 @@ impl LinearMcp {
 
     #[tool(
         name = "query_audit_log",
-        description = "Query audit log entries for the workspace."
+        description = "Query audit log entries for the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn query_audit_log(
         &self,
@@ -768,7 +818,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_team",
-        description = "Create a new team in the workspace."
+        description = "Create a new team in the workspace.",
+        annotations(destructive_hint = false)
     )]
     async fn create_team(
         &self,
@@ -782,7 +833,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_team",
-        description = "Update an existing team's name, description, or timezone."
+        description = "Update an existing team's name, description, or timezone.",
+        annotations(destructive_hint = false)
     )]
     async fn update_team(
         &self,
@@ -798,7 +850,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_project",
-        description = "Archive a project by name or UUID."
+        description = "Archive a project by name or UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_project(
         &self,
@@ -812,7 +865,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_document",
-        description = "Update an existing document's title or content."
+        description = "Update an existing document's title or content.",
+        annotations(destructive_hint = false)
     )]
     async fn update_document(
         &self,
@@ -826,7 +880,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_cycle",
-        description = "Create a new cycle for a team with start and end dates."
+        description = "Create a new cycle for a team with start and end dates.",
+        annotations(destructive_hint = false)
     )]
     async fn create_cycle(
         &self,
@@ -840,7 +895,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_label",
-        description = "Update a label's name or color."
+        description = "Update a label's name or color.",
+        annotations(destructive_hint = false)
     )]
     async fn update_label(
         &self,
@@ -854,7 +910,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_label",
-        description = "Archive (delete) a label by its UUID."
+        description = "Archive (delete) a label by its UUID.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_label(
         &self,
@@ -868,7 +925,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_issue",
-        description = "Restore an archived issue."
+        description = "Restore an archived issue.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_issue(
         &self,
@@ -884,7 +942,8 @@ impl LinearMcp {
 
     #[tool(
         name = "bulk_update_issues",
-        description = "Batch update multiple issues at once. All specified issues get the same update. Max 50 issues per call."
+        description = "Batch update multiple issues at once. All specified issues get the same update. Max 50 issues per call.",
+        annotations(destructive_hint = true)
     )]
     async fn bulk_update_issues(
         &self,
@@ -898,7 +957,8 @@ impl LinearMcp {
 
     #[tool(
         name = "search_documents",
-        description = "Full-text search across all documents in the workspace."
+        description = "Full-text search across all documents in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn search_documents(
         &self,
@@ -912,7 +972,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_initiative",
-        description = "Create a new initiative for tracking high-level goals."
+        description = "Create a new initiative for tracking high-level goals.",
+        annotations(destructive_hint = false)
     )]
     async fn create_initiative(
         &self,
@@ -926,7 +987,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_initiative",
-        description = "Update an existing initiative's name, description, status, owner, or target date."
+        description = "Update an existing initiative's name, description, status, owner, or target date.",
+        annotations(destructive_hint = false)
     )]
     async fn update_initiative(
         &self,
@@ -940,7 +1002,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_initiative",
-        description = "Permanently delete an initiative."
+        description = "Permanently delete an initiative.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_initiative(
         &self,
@@ -954,7 +1017,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_view_issues",
-        description = "Get issues matching a custom view's saved filters."
+        description = "Get issues matching a custom view's saved filters.",
+        annotations(read_only_hint = true)
     )]
     async fn get_view_issues(
         &self,
@@ -968,7 +1032,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_triage_issues",
-        description = "List issues in the triage state for a team. Triage must be enabled for the team."
+        description = "List issues in the triage state for a team. Triage must be enabled for the team.",
+        annotations(read_only_hint = true)
     )]
     async fn list_triage_issues(
         &self,
@@ -982,7 +1047,8 @@ impl LinearMcp {
 
     #[tool(
         name = "triage_issue",
-        description = "Move an issue out of triage by changing its state. Optionally set assignee and priority."
+        description = "Move an issue out of triage by changing its state. Optionally set assignee and priority.",
+        annotations(destructive_hint = false)
     )]
     async fn triage_issue(
         &self,
@@ -996,7 +1062,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_issue_from_template",
-        description = "Create a new issue using a template. Use list_templates to find template IDs. Any provided fields override template defaults."
+        description = "Create a new issue using a template. Use list_templates to find template IDs. Any provided fields override template defaults.",
+        annotations(destructive_hint = false)
     )]
     async fn create_issue_from_template(
         &self,
@@ -1012,7 +1079,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_document",
-        description = "Permanently delete a document."
+        description = "Permanently delete a document.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_document(
         &self,
@@ -1026,7 +1094,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_project_milestone",
-        description = "Delete a project milestone."
+        description = "Delete a project milestone.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_project_milestone(
         &self,
@@ -1040,7 +1109,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_project_update",
-        description = "Delete a project status update."
+        description = "Delete a project status update.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_project_update(
         &self,
@@ -1054,7 +1124,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_attachment",
-        description = "Delete an attachment."
+        description = "Delete an attachment.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_attachment(
         &self,
@@ -1068,7 +1139,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_issue",
-        description = "PERMANENTLY delete an issue. This cannot be undone. Use archive_issue for reversible removal."
+        description = "PERMANENTLY delete an issue. This cannot be undone. Use archive_issue for reversible removal.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_issue(
         &self,
@@ -1082,7 +1154,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_view",
-        description = "Delete a custom view."
+        description = "Delete a custom view.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_view(
         &self,
@@ -1096,7 +1169,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_cycle",
-        description = "Archive a cycle."
+        description = "Archive a cycle.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_cycle(
         &self,
@@ -1112,7 +1186,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_cycle",
-        description = "Update an existing cycle's name, description, or dates."
+        description = "Update an existing cycle's name, description, or dates.",
+        annotations(destructive_hint = false)
     )]
     async fn update_cycle(
         &self,
@@ -1126,7 +1201,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project_milestone",
-        description = "Update a project milestone's name, description, or target date."
+        description = "Update a project milestone's name, description, or target date.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project_milestone(
         &self,
@@ -1140,7 +1216,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project_update",
-        description = "Update a project status update's body or health."
+        description = "Update a project status update's body or health.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project_update(
         &self,
@@ -1154,7 +1231,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_webhook",
-        description = "Update an existing webhook's URL, label, enabled status, or resource types."
+        description = "Update an existing webhook's URL, label, enabled status, or resource types.",
+        annotations(destructive_hint = false)
     )]
     async fn update_webhook(
         &self,
@@ -1168,7 +1246,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_attachment",
-        description = "Update an attachment's title or subtitle."
+        description = "Update an attachment's title or subtitle.",
+        annotations(destructive_hint = false)
     )]
     async fn update_attachment(
         &self,
@@ -1182,7 +1261,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_view",
-        description = "Update a custom view's name, description, color, icon, or sharing."
+        description = "Update a custom view's name, description, color, icon, or sharing.",
+        annotations(destructive_hint = false)
     )]
     async fn update_view(
         &self,
@@ -1198,7 +1278,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_comments",
-        description = "List comments on an issue, including reply threads and resolution status."
+        description = "List comments on an issue, including reply threads and resolution status.",
+        annotations(read_only_hint = true)
     )]
     async fn list_comments(
         &self,
@@ -1212,7 +1293,8 @@ impl LinearMcp {
 
     #[tool(
         name = "resolve_comment",
-        description = "Mark a comment thread as resolved."
+        description = "Mark a comment thread as resolved.",
+        annotations(destructive_hint = false)
     )]
     async fn resolve_comment(
         &self,
@@ -1226,7 +1308,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unresolve_comment",
-        description = "Reopen a resolved comment thread."
+        description = "Reopen a resolved comment thread.",
+        annotations(destructive_hint = false)
     )]
     async fn unresolve_comment(
         &self,
@@ -1242,7 +1325,8 @@ impl LinearMcp {
 
     #[tool(
         name = "subscribe_to_issue",
-        description = "Subscribe to an issue to receive notifications about it."
+        description = "Subscribe to an issue to receive notifications about it.",
+        annotations(destructive_hint = false)
     )]
     async fn subscribe_to_issue(
         &self,
@@ -1256,7 +1340,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unsubscribe_from_issue",
-        description = "Unsubscribe from an issue to stop receiving notifications."
+        description = "Unsubscribe from an issue to stop receiving notifications.",
+        annotations(destructive_hint = false)
     )]
     async fn unsubscribe_from_issue(
         &self,
@@ -1272,7 +1357,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_view",
-        description = "Create a new custom view with optional team scope and sharing."
+        description = "Create a new custom view with optional team scope and sharing.",
+        annotations(destructive_hint = false)
     )]
     async fn create_view(
         &self,
@@ -1288,7 +1374,8 @@ impl LinearMcp {
 
     #[tool(
         name = "search_projects",
-        description = "Search for projects by name or description."
+        description = "Search for projects by name or description.",
+        annotations(read_only_hint = true)
     )]
     async fn search_projects(
         &self,
@@ -1302,7 +1389,8 @@ impl LinearMcp {
 
     #[tool(
         name = "issue_vcs_branch_search",
-        description = "Find the Linear issue associated with a git branch name."
+        description = "Find the Linear issue associated with a git branch name.",
+        annotations(read_only_hint = true)
     )]
     async fn issue_vcs_branch_search(
         &self,
@@ -1318,7 +1406,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_agent_session",
-        description = "Create a new agent session on an issue or comment for AI-assisted work tracking."
+        description = "Create a new agent session on an issue or comment for AI-assisted work tracking.",
+        annotations(destructive_hint = false)
     )]
     async fn create_agent_session(
         &self,
@@ -1332,7 +1421,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_agent_session",
-        description = "Update an agent session's plan or external link."
+        description = "Update an agent session's plan or external link.",
+        annotations(destructive_hint = false)
     )]
     async fn update_agent_session(
         &self,
@@ -1346,7 +1436,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_agent_activity",
-        description = "Log an activity (thinking, tool call, code change, error) within an agent session."
+        description = "Log an activity (thinking, tool call, code change, error) within an agent session.",
+        annotations(destructive_hint = false)
     )]
     async fn create_agent_activity(
         &self,
@@ -1360,7 +1451,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_agent_sessions",
-        description = "List agent sessions in the workspace."
+        description = "List agent sessions in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_agent_sessions(
         &self,
@@ -1374,7 +1466,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_agent_session",
-        description = "Get full details of an agent session including activities."
+        description = "Get full details of an agent session including activities.",
+        annotations(read_only_hint = true)
     )]
     async fn get_agent_session(
         &self,
@@ -1390,7 +1483,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_customers",
-        description = "List customers in the workspace."
+        description = "List customers in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_customers(
         &self,
@@ -1404,7 +1498,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_customer",
-        description = "Get full details of a customer."
+        description = "Get full details of a customer.",
+        annotations(read_only_hint = true)
     )]
     async fn get_customer(
         &self,
@@ -1418,7 +1513,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_customer",
-        description = "Create a new customer with name, domains, owner, revenue, and size."
+        description = "Create a new customer with name, domains, owner, revenue, and size.",
+        annotations(destructive_hint = false)
     )]
     async fn create_customer(
         &self,
@@ -1432,7 +1528,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_customer",
-        description = "Update a customer's name, domains, owner, revenue, or size."
+        description = "Update a customer's name, domains, owner, revenue, or size.",
+        annotations(destructive_hint = false)
     )]
     async fn update_customer(
         &self,
@@ -1446,7 +1543,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_customer",
-        description = "Delete a customer."
+        description = "Delete a customer.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_customer(
         &self,
@@ -1460,7 +1558,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_customer_needs",
-        description = "List customer needs in the workspace."
+        description = "List customer needs in the workspace.",
+        annotations(read_only_hint = true)
     )]
     async fn list_customer_needs(
         &self,
@@ -1474,7 +1573,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_customer_need",
-        description = "Create a customer need linking a customer to an issue."
+        description = "Create a customer need linking a customer to an issue.",
+        annotations(destructive_hint = false)
     )]
     async fn create_customer_need(
         &self,
@@ -1488,7 +1588,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_customer_need",
-        description = "Update a customer need."
+        description = "Update a customer need.",
+        annotations(destructive_hint = false)
     )]
     async fn update_customer_need(
         &self,
@@ -1504,7 +1605,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_initiative_updates",
-        description = "List status updates for an initiative."
+        description = "List status updates for an initiative.",
+        annotations(read_only_hint = true)
     )]
     async fn list_initiative_updates(
         &self,
@@ -1518,7 +1620,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_initiative_update",
-        description = "Post a status update to an initiative with optional health indicator."
+        description = "Post a status update to an initiative with optional health indicator.",
+        annotations(destructive_hint = false)
     )]
     async fn create_initiative_update(
         &self,
@@ -1532,7 +1635,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_project_to_initiative",
-        description = "Link a project to an initiative."
+        description = "Link a project to an initiative.",
+        annotations(destructive_hint = false)
     )]
     async fn add_project_to_initiative(
         &self,
@@ -1546,7 +1650,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_project_from_initiative",
-        description = "Remove a project-to-initiative link."
+        description = "Remove a project-to-initiative link.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_project_from_initiative(
         &self,
@@ -1562,7 +1667,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project_relation",
-        description = "Create a relation between two projects (blocks, dependsOn, related)."
+        description = "Create a relation between two projects (blocks, dependsOn, related).",
+        annotations(destructive_hint = false)
     )]
     async fn create_project_relation(
         &self,
@@ -1576,7 +1682,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_project_relation",
-        description = "Delete a project relation."
+        description = "Delete a project relation.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_project_relation(
         &self,
@@ -1590,7 +1697,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_project_relations",
-        description = "List relations for a project."
+        description = "List relations for a project.",
+        annotations(read_only_hint = true)
     )]
     async fn list_project_relations(
         &self,
@@ -1606,7 +1714,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_releases",
-        description = "List releases in the workspace (alpha feature)."
+        description = "List releases in the workspace (alpha feature).",
+        annotations(read_only_hint = true)
     )]
     async fn list_releases(
         &self,
@@ -1620,7 +1729,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_release",
-        description = "Create a new release in a pipeline (alpha feature)."
+        description = "Create a new release in a pipeline (alpha feature).",
+        annotations(destructive_hint = false)
     )]
     async fn create_release(
         &self,
@@ -1634,7 +1744,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_release",
-        description = "Update a release's name, description, version, commit SHA, or stage (alpha feature)."
+        description = "Update a release's name, description, version, commit SHA, or stage (alpha feature).",
+        annotations(destructive_hint = false)
     )]
     async fn update_release(
         &self,
@@ -1650,7 +1761,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_workflow_state",
-        description = "Get a workflow state by UUID."
+        description = "Get a workflow state by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_workflow_state(
         &self,
@@ -1664,7 +1776,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_workflow_state",
-        description = "Create a new workflow state for a team."
+        description = "Create a new workflow state for a team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_workflow_state(
         &self,
@@ -1678,7 +1791,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_workflow_state",
-        description = "Update a workflow state's name, color, description, or position."
+        description = "Update a workflow state's name, color, description, or position.",
+        annotations(destructive_hint = false)
     )]
     async fn update_workflow_state(
         &self,
@@ -1692,7 +1806,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_workflow_state",
-        description = "Archive a workflow state."
+        description = "Archive a workflow state.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_workflow_state(
         &self,
@@ -1708,7 +1823,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_issue_label",
-        description = "Add a label to an issue."
+        description = "Add a label to an issue.",
+        annotations(destructive_hint = false)
     )]
     async fn add_issue_label(
         &self,
@@ -1722,7 +1838,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_issue_label",
-        description = "Remove a label from an issue."
+        description = "Remove a label from an issue.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_issue_label(
         &self,
@@ -1736,7 +1853,8 @@ impl LinearMcp {
 
     #[tool(
         name = "batch_create_issues",
-        description = "Batch-create multiple issues at once from a JSON array."
+        description = "Batch-create multiple issues at once from a JSON array.",
+        annotations(destructive_hint = false)
     )]
     async fn batch_create_issues(
         &self,
@@ -1750,7 +1868,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_issue_relation",
-        description = "Update an issue relation's type."
+        description = "Update an issue relation's type.",
+        annotations(destructive_hint = false)
     )]
     async fn update_issue_relation(
         &self,
@@ -1764,7 +1883,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_priority_values",
-        description = "Get the priority scale configuration (labels and values)."
+        description = "Get the priority scale configuration (labels and values).",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_priority_values(
         &self,
@@ -1780,7 +1900,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_project",
-        description = "Permanently delete a project. Warning: this is irreversible."
+        description = "Permanently delete a project. Warning: this is irreversible.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_project(
         &self,
@@ -1794,7 +1915,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_project",
-        description = "Unarchive a previously archived project."
+        description = "Unarchive a previously archived project.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_project(
         &self,
@@ -1808,7 +1930,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project_relation",
-        description = "Update a project relation's anchor types."
+        description = "Update a project relation's anchor types.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project_relation(
         &self,
@@ -1822,7 +1945,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_project_milestone",
-        description = "Get a project milestone by UUID."
+        description = "Get a project milestone by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_project_milestone(
         &self,
@@ -1838,7 +1962,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_team",
-        description = "Permanently delete a team. Warning: this is irreversible."
+        description = "Permanently delete a team. Warning: this is irreversible.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_team(
         &self,
@@ -1852,7 +1977,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_team",
-        description = "Unarchive a previously archived team."
+        description = "Unarchive a previously archived team.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_team(
         &self,
@@ -1866,7 +1992,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_team",
-        description = "Get detailed info about a team by key or UUID."
+        description = "Get detailed info about a team by key or UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_team(
         &self,
@@ -1882,7 +2009,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_document",
-        description = "Unarchive a previously archived document."
+        description = "Unarchive a previously archived document.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_document(
         &self,
@@ -1896,7 +2024,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_document_content_history",
-        description = "Get the content version history for a document."
+        description = "Get the content version history for a document.",
+        annotations(read_only_hint = true)
     )]
     async fn get_document_content_history(
         &self,
@@ -1912,7 +2041,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_viewer",
-        description = "Get the currently authenticated user's info."
+        description = "Get the currently authenticated user's info.",
+        annotations(read_only_hint = true)
     )]
     async fn get_viewer_tool(
         &self,
@@ -1926,7 +2056,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_user",
-        description = "Get a user by email or UUID."
+        description = "Get a user by email or UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_user(
         &self,
@@ -1940,7 +2071,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_user",
-        description = "Update a user's display name, description, or status."
+        description = "Update a user's display name, description, or status.",
+        annotations(destructive_hint = false)
     )]
     async fn update_user(
         &self,
@@ -1954,7 +2086,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_attachment",
-        description = "Get an attachment by UUID."
+        description = "Get an attachment by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_attachment(
         &self,
@@ -1968,7 +2101,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_comment",
-        description = "Get a comment by UUID."
+        description = "Get a comment by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_comment(
         &self,
@@ -1982,7 +2116,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_favorite",
-        description = "Get a favorite by UUID."
+        description = "Get a favorite by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_favorite(
         &self,
@@ -1996,7 +2131,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_favorite",
-        description = "Update a favorite's sort order, parent, or folder name."
+        description = "Update a favorite's sort order, parent, or folder name.",
+        annotations(destructive_hint = false)
     )]
     async fn update_favorite(
         &self,
@@ -2010,7 +2146,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_notification",
-        description = "Get a notification by UUID."
+        description = "Get a notification by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_notification(
         &self,
@@ -2026,7 +2163,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_customer_statuses",
-        description = "List all customer statuses."
+        description = "List all customer statuses.",
+        annotations(read_only_hint = true)
     )]
     async fn list_customer_statuses(
         &self,
@@ -2040,7 +2178,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_customer_status",
-        description = "Get a customer status by UUID."
+        description = "Get a customer status by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_customer_status(
         &self,
@@ -2054,7 +2193,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_customer_status",
-        description = "Create a new customer status."
+        description = "Create a new customer status.",
+        annotations(destructive_hint = false)
     )]
     async fn create_customer_status(
         &self,
@@ -2068,7 +2208,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_customer_status",
-        description = "Update a customer status."
+        description = "Update a customer status.",
+        annotations(destructive_hint = false)
     )]
     async fn update_customer_status(
         &self,
@@ -2082,7 +2223,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_customer_status",
-        description = "Delete a customer status."
+        description = "Delete a customer status.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_customer_status(
         &self,
@@ -2098,7 +2240,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_customer_tiers",
-        description = "List all customer tiers."
+        description = "List all customer tiers.",
+        annotations(read_only_hint = true)
     )]
     async fn list_customer_tiers(
         &self,
@@ -2112,7 +2255,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_customer_tier",
-        description = "Get a customer tier by UUID."
+        description = "Get a customer tier by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_customer_tier(
         &self,
@@ -2126,7 +2270,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_customer_tier",
-        description = "Create a new customer tier."
+        description = "Create a new customer tier.",
+        annotations(destructive_hint = false)
     )]
     async fn create_customer_tier(
         &self,
@@ -2140,7 +2285,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_customer_tier",
-        description = "Update a customer tier."
+        description = "Update a customer tier.",
+        annotations(destructive_hint = false)
     )]
     async fn update_customer_tier(
         &self,
@@ -2154,7 +2300,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_customer_tier",
-        description = "Delete a customer tier."
+        description = "Delete a customer tier.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_customer_tier(
         &self,
@@ -2170,7 +2317,8 @@ impl LinearMcp {
 
     #[tool(
         name = "merge_customers",
-        description = "Merge two customers (source into target)."
+        description = "Merge two customers (source into target).",
+        annotations(destructive_hint = false)
     )]
     async fn merge_customers(
         &self,
@@ -2184,7 +2332,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_customer_need",
-        description = "Get a customer need by UUID."
+        description = "Get a customer need by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_customer_need(
         &self,
@@ -2198,7 +2347,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_customer_need",
-        description = "Archive a customer need."
+        description = "Archive a customer need.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_customer_need(
         &self,
@@ -2212,7 +2362,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_customer_need",
-        description = "Unarchive a customer need."
+        description = "Unarchive a customer need.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_customer_need(
         &self,
@@ -2226,7 +2377,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_customer_need",
-        description = "Delete a customer need."
+        description = "Delete a customer need.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_customer_need(
         &self,
@@ -2242,7 +2394,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_initiative",
-        description = "Archive an initiative."
+        description = "Archive an initiative.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_initiative(
         &self,
@@ -2256,7 +2409,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_initiative",
-        description = "Unarchive an initiative."
+        description = "Unarchive an initiative.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_initiative(
         &self,
@@ -2270,7 +2424,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_initiative_to_project",
-        description = "Update an initiative-to-project link's sort order."
+        description = "Update an initiative-to-project link's sort order.",
+        annotations(destructive_hint = false)
     )]
     async fn update_initiative_to_project(
         &self,
@@ -2284,7 +2439,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_initiative_update",
-        description = "Archive an initiative update."
+        description = "Archive an initiative update.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_initiative_update(
         &self,
@@ -2298,7 +2454,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_initiative_update",
-        description = "Unarchive an initiative update."
+        description = "Unarchive an initiative update.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_initiative_update(
         &self,
@@ -2314,7 +2471,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_release",
-        description = "Get a release by UUID."
+        description = "Get a release by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_release(
         &self,
@@ -2328,7 +2486,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_release",
-        description = "Archive a release."
+        description = "Archive a release.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_release(
         &self,
@@ -2342,7 +2501,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_release",
-        description = "Permanently delete a release."
+        description = "Permanently delete a release.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_release(
         &self,
@@ -2356,7 +2516,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_release",
-        description = "Unarchive a release."
+        description = "Unarchive a release.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_release(
         &self,
@@ -2370,7 +2531,8 @@ impl LinearMcp {
 
     #[tool(
         name = "search_releases",
-        description = "Search releases by name or version."
+        description = "Search releases by name or version.",
+        annotations(read_only_hint = true)
     )]
     async fn search_releases(
         &self,
@@ -2386,7 +2548,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_release_pipelines",
-        description = "List all release pipelines."
+        description = "List all release pipelines.",
+        annotations(read_only_hint = true)
     )]
     async fn list_release_pipelines(
         &self,
@@ -2400,7 +2563,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_release_pipeline",
-        description = "Get a release pipeline by UUID."
+        description = "Get a release pipeline by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_release_pipeline(
         &self,
@@ -2414,7 +2578,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_release_pipeline",
-        description = "Create a new release pipeline."
+        description = "Create a new release pipeline.",
+        annotations(destructive_hint = false)
     )]
     async fn create_release_pipeline(
         &self,
@@ -2428,7 +2593,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_release_pipeline",
-        description = "Update a release pipeline."
+        description = "Update a release pipeline.",
+        annotations(destructive_hint = false)
     )]
     async fn update_release_pipeline(
         &self,
@@ -2442,7 +2608,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_release_pipeline",
-        description = "Delete a release pipeline."
+        description = "Delete a release pipeline.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_release_pipeline(
         &self,
@@ -2458,7 +2625,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_release_stages",
-        description = "List all release stages."
+        description = "List all release stages.",
+        annotations(read_only_hint = true)
     )]
     async fn list_release_stages(
         &self,
@@ -2472,7 +2640,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_release_stage",
-        description = "Get a release stage by UUID."
+        description = "Get a release stage by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_release_stage(
         &self,
@@ -2486,7 +2655,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_release_stage",
-        description = "Create a new release stage in a pipeline."
+        description = "Create a new release stage in a pipeline.",
+        annotations(destructive_hint = false)
     )]
     async fn create_release_stage(
         &self,
@@ -2500,7 +2670,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_release_stage",
-        description = "Update a release stage."
+        description = "Update a release stage.",
+        annotations(destructive_hint = false)
     )]
     async fn update_release_stage(
         &self,
@@ -2516,7 +2687,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_issue_to_releases",
-        description = "List issue-to-release links."
+        description = "List issue-to-release links.",
+        annotations(read_only_hint = true)
     )]
     async fn list_issue_to_releases(
         &self,
@@ -2530,7 +2702,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_to_release",
-        description = "Get an issue-to-release link by UUID."
+        description = "Get an issue-to-release link by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_to_release(
         &self,
@@ -2544,7 +2717,8 @@ impl LinearMcp {
 
     #[tool(
         name = "add_issue_to_release",
-        description = "Add an issue to a release."
+        description = "Add an issue to a release.",
+        annotations(destructive_hint = false)
     )]
     async fn add_issue_to_release(
         &self,
@@ -2558,7 +2732,8 @@ impl LinearMcp {
 
     #[tool(
         name = "remove_issue_from_release",
-        description = "Remove an issue from a release."
+        description = "Remove an issue from a release.",
+        annotations(destructive_hint = true)
     )]
     async fn remove_issue_from_release(
         &self,
@@ -2574,7 +2749,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_project_statuses",
-        description = "List all project statuses."
+        description = "List all project statuses.",
+        annotations(read_only_hint = true)
     )]
     async fn list_project_statuses(
         &self,
@@ -2588,7 +2764,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_project_status",
-        description = "Get a project status by UUID."
+        description = "Get a project status by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_project_status(
         &self,
@@ -2602,7 +2779,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project_status",
-        description = "Create a new project status."
+        description = "Create a new project status.",
+        annotations(destructive_hint = false)
     )]
     async fn create_project_status(
         &self,
@@ -2616,7 +2794,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project_status",
-        description = "Update a project status."
+        description = "Update a project status.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project_status(
         &self,
@@ -2630,7 +2809,8 @@ impl LinearMcp {
 
     #[tool(
         name = "archive_project_status",
-        description = "Archive a project status."
+        description = "Archive a project status.",
+        annotations(destructive_hint = true)
     )]
     async fn archive_project_status(
         &self,
@@ -2644,7 +2824,8 @@ impl LinearMcp {
 
     #[tool(
         name = "unarchive_project_status",
-        description = "Unarchive a project status."
+        description = "Unarchive a project status.",
+        annotations(destructive_hint = false)
     )]
     async fn unarchive_project_status(
         &self,
@@ -2660,7 +2841,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_project_labels",
-        description = "List all project labels."
+        description = "List all project labels.",
+        annotations(read_only_hint = true)
     )]
     async fn list_project_labels(
         &self,
@@ -2674,7 +2856,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_project_label",
-        description = "Get a project label by UUID."
+        description = "Get a project label by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_project_label(
         &self,
@@ -2688,7 +2871,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_project_label",
-        description = "Create a new project label."
+        description = "Create a new project label.",
+        annotations(destructive_hint = false)
     )]
     async fn create_project_label(
         &self,
@@ -2702,7 +2886,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_project_label",
-        description = "Update a project label."
+        description = "Update a project label.",
+        annotations(destructive_hint = false)
     )]
     async fn update_project_label(
         &self,
@@ -2716,7 +2901,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_project_label",
-        description = "Delete a project label."
+        description = "Delete a project label.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_project_label(
         &self,
@@ -2732,7 +2918,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_team_memberships",
-        description = "List team memberships."
+        description = "List team memberships.",
+        annotations(read_only_hint = true)
     )]
     async fn list_team_memberships(
         &self,
@@ -2746,7 +2933,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_team_membership",
-        description = "Get a team membership by UUID."
+        description = "Get a team membership by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_team_membership(
         &self,
@@ -2760,7 +2948,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_team_membership",
-        description = "Add a user to a team."
+        description = "Add a user to a team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_team_membership(
         &self,
@@ -2774,7 +2963,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_team_membership",
-        description = "Update a team membership (e.g. toggle owner)."
+        description = "Update a team membership (e.g. toggle owner).",
+        annotations(destructive_hint = false)
     )]
     async fn update_team_membership(
         &self,
@@ -2788,7 +2978,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_team_membership",
-        description = "Remove a user from a team."
+        description = "Remove a user from a team.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_team_membership(
         &self,
@@ -2804,7 +2995,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_notification_subscriptions",
-        description = "List notification subscriptions."
+        description = "List notification subscriptions.",
+        annotations(read_only_hint = true)
     )]
     async fn list_notification_subscriptions(
         &self,
@@ -2818,7 +3010,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_notification_subscription",
-        description = "Get a notification subscription by UUID."
+        description = "Get a notification subscription by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_notification_subscription(
         &self,
@@ -2832,7 +3025,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_notification_subscription",
-        description = "Create a notification subscription for a team, project, or label."
+        description = "Create a notification subscription for a team, project, or label.",
+        annotations(destructive_hint = false)
     )]
     async fn create_notification_subscription(
         &self,
@@ -2846,7 +3040,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_notification_subscription",
-        description = "Update a notification subscription."
+        description = "Update a notification subscription.",
+        annotations(destructive_hint = false)
     )]
     async fn update_notification_subscription(
         &self,
@@ -2860,7 +3055,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_notifications_unread_count",
-        description = "Get the count of unread notifications."
+        description = "Get the count of unread notifications.",
+        annotations(read_only_hint = true)
     )]
     async fn get_notifications_unread_count(
         &self,
@@ -2876,7 +3072,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_template",
-        description = "Get a template by UUID."
+        description = "Get a template by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_template(
         &self,
@@ -2890,7 +3087,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_template",
-        description = "Create a new template (issue, project, or document)."
+        description = "Create a new template (issue, project, or document).",
+        annotations(destructive_hint = false)
     )]
     async fn create_template(
         &self,
@@ -2904,7 +3102,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_template",
-        description = "Update an existing template."
+        description = "Update an existing template.",
+        annotations(destructive_hint = false)
     )]
     async fn update_template(
         &self,
@@ -2918,7 +3117,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_template",
-        description = "Delete a template."
+        description = "Delete a template.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_template(
         &self,
@@ -2934,7 +3134,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_entity_external_link",
-        description = "Get an entity external link by UUID."
+        description = "Get an entity external link by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_entity_external_link(
         &self,
@@ -2948,7 +3149,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_entity_external_link",
-        description = "Create an external link on an initiative, project, or team."
+        description = "Create an external link on an initiative, project, or team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_entity_external_link(
         &self,
@@ -2962,7 +3164,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_entity_external_link",
-        description = "Update an entity external link."
+        description = "Update an entity external link.",
+        annotations(destructive_hint = false)
     )]
     async fn update_entity_external_link(
         &self,
@@ -2976,7 +3179,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_entity_external_link",
-        description = "Delete an entity external link."
+        description = "Delete an entity external link.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_entity_external_link(
         &self,
@@ -2992,7 +3196,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_emojis",
-        description = "List custom emojis."
+        description = "List custom emojis.",
+        annotations(read_only_hint = true)
     )]
     async fn list_emojis(
         &self,
@@ -3006,7 +3211,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_emoji",
-        description = "Get a custom emoji by UUID."
+        description = "Get a custom emoji by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_emoji(
         &self,
@@ -3020,7 +3226,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_emoji",
-        description = "Create a custom emoji."
+        description = "Create a custom emoji.",
+        annotations(destructive_hint = false)
     )]
     async fn create_emoji(
         &self,
@@ -3034,7 +3241,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_emoji",
-        description = "Delete a custom emoji."
+        description = "Delete a custom emoji.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_emoji(
         &self,
@@ -3050,7 +3258,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_initiative_relations",
-        description = "List initiative relations."
+        description = "List initiative relations.",
+        annotations(read_only_hint = true)
     )]
     async fn list_initiative_relations(
         &self,
@@ -3064,7 +3273,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_initiative_relation",
-        description = "Get an initiative relation by UUID."
+        description = "Get an initiative relation by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_initiative_relation(
         &self,
@@ -3078,7 +3288,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_initiative_relation",
-        description = "Create a relation between two initiatives."
+        description = "Create a relation between two initiatives.",
+        annotations(destructive_hint = false)
     )]
     async fn create_initiative_relation(
         &self,
@@ -3092,7 +3303,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_initiative_relation",
-        description = "Update an initiative relation's sort order."
+        description = "Update an initiative relation's sort order.",
+        annotations(destructive_hint = false)
     )]
     async fn update_initiative_relation(
         &self,
@@ -3106,7 +3318,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_initiative_relation",
-        description = "Delete an initiative relation."
+        description = "Delete an initiative relation.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_initiative_relation(
         &self,
@@ -3122,7 +3335,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_time_schedules",
-        description = "List time schedules."
+        description = "List time schedules.",
+        annotations(read_only_hint = true)
     )]
     async fn list_time_schedules(
         &self,
@@ -3136,7 +3350,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_time_schedule",
-        description = "Get a time schedule by UUID."
+        description = "Get a time schedule by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_time_schedule(
         &self,
@@ -3150,7 +3365,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_time_schedule",
-        description = "Create a new time schedule."
+        description = "Create a new time schedule.",
+        annotations(destructive_hint = false)
     )]
     async fn create_time_schedule(
         &self,
@@ -3164,7 +3380,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_time_schedule",
-        description = "Update a time schedule."
+        description = "Update a time schedule.",
+        annotations(destructive_hint = false)
     )]
     async fn update_time_schedule(
         &self,
@@ -3178,7 +3395,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_time_schedule",
-        description = "Delete a time schedule."
+        description = "Delete a time schedule.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_time_schedule(
         &self,
@@ -3194,7 +3412,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_triage_responsibilities",
-        description = "List triage responsibilities."
+        description = "List triage responsibilities.",
+        annotations(read_only_hint = true)
     )]
     async fn list_triage_responsibilities(
         &self,
@@ -3208,7 +3427,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_triage_responsibility",
-        description = "Get a triage responsibility by UUID."
+        description = "Get a triage responsibility by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_triage_responsibility(
         &self,
@@ -3222,7 +3442,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_triage_responsibility",
-        description = "Create a triage responsibility for a team."
+        description = "Create a triage responsibility for a team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_triage_responsibility(
         &self,
@@ -3236,7 +3457,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_triage_responsibility",
-        description = "Update a triage responsibility."
+        description = "Update a triage responsibility.",
+        annotations(destructive_hint = false)
     )]
     async fn update_triage_responsibility(
         &self,
@@ -3250,7 +3472,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_triage_responsibility",
-        description = "Delete a triage responsibility."
+        description = "Delete a triage responsibility.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_triage_responsibility(
         &self,
@@ -3266,7 +3489,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_git_automation_state",
-        description = "Create a git automation state mapping for a team."
+        description = "Create a git automation state mapping for a team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_git_automation_state(
         &self,
@@ -3280,7 +3504,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_git_automation_state",
-        description = "Update a git automation state mapping."
+        description = "Update a git automation state mapping.",
+        annotations(destructive_hint = false)
     )]
     async fn update_git_automation_state(
         &self,
@@ -3294,7 +3519,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_git_automation_state",
-        description = "Delete a git automation state mapping."
+        description = "Delete a git automation state mapping.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_git_automation_state(
         &self,
@@ -3308,7 +3534,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_git_automation_target_branch",
-        description = "Create a git automation target branch pattern for a team."
+        description = "Create a git automation target branch pattern for a team.",
+        annotations(destructive_hint = false)
     )]
     async fn create_git_automation_target_branch(
         &self,
@@ -3322,7 +3549,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_git_automation_target_branch",
-        description = "Update a git automation target branch pattern."
+        description = "Update a git automation target branch pattern.",
+        annotations(destructive_hint = false)
     )]
     async fn update_git_automation_target_branch(
         &self,
@@ -3336,7 +3564,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_git_automation_target_branch",
-        description = "Delete a git automation target branch pattern."
+        description = "Delete a git automation target branch pattern.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_git_automation_target_branch(
         &self,
@@ -3352,7 +3581,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_email_intake_address",
-        description = "Get an email intake address by UUID."
+        description = "Get an email intake address by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_email_intake_address(
         &self,
@@ -3366,7 +3596,8 @@ impl LinearMcp {
 
     #[tool(
         name = "create_email_intake_address",
-        description = "Create an email intake address."
+        description = "Create an email intake address.",
+        annotations(destructive_hint = false)
     )]
     async fn create_email_intake_address(
         &self,
@@ -3380,7 +3611,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_email_intake_address",
-        description = "Update an email intake address."
+        description = "Update an email intake address.",
+        annotations(destructive_hint = false)
     )]
     async fn update_email_intake_address(
         &self,
@@ -3394,7 +3626,8 @@ impl LinearMcp {
 
     #[tool(
         name = "delete_email_intake_address",
-        description = "Delete an email intake address."
+        description = "Delete an email intake address.",
+        annotations(destructive_hint = true)
     )]
     async fn delete_email_intake_address(
         &self,
@@ -3410,7 +3643,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_archived_teams",
-        description = "List archived teams."
+        description = "List archived teams.",
+        annotations(read_only_hint = true)
     )]
     async fn list_archived_teams(
         &self,
@@ -3424,7 +3658,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_rate_limit_status",
-        description = "Get current API rate limit status."
+        description = "Get current API rate limit status.",
+        annotations(read_only_hint = true)
     )]
     async fn get_rate_limit_status(
         &self,
@@ -3438,7 +3673,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_organization",
-        description = "Get the current organization's info."
+        description = "Get the current organization's info.",
+        annotations(read_only_hint = true)
     )]
     async fn get_organization(
         &self,
@@ -3452,7 +3688,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_application_info",
-        description = "Get the current API application's info."
+        description = "Get the current API application's info.",
+        annotations(read_only_hint = true)
     )]
     async fn get_application_info(
         &self,
@@ -3466,7 +3703,8 @@ impl LinearMcp {
 
     #[tool(
         name = "semantic_search",
-        description = "Semantic search across Linear entities."
+        description = "Semantic search across Linear entities.",
+        annotations(read_only_hint = true)
     )]
     async fn semantic_search(
         &self,
@@ -3480,7 +3718,8 @@ impl LinearMcp {
 
     #[tool(
         name = "attach_link_url",
-        description = "Attach a URL to an issue."
+        description = "Attach a URL to an issue.",
+        annotations(destructive_hint = false)
     )]
     async fn attach_link_url(
         &self,
@@ -3494,7 +3733,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_attachments_for_url",
-        description = "Get all attachments matching a URL."
+        description = "Get all attachments matching a URL.",
+        annotations(read_only_hint = true)
     )]
     async fn get_attachments_for_url(
         &self,
@@ -3508,7 +3748,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_filter_suggestion",
-        description = "Get AI-powered issue filter suggestion from a natural language prompt."
+        description = "Get AI-powered issue filter suggestion from a natural language prompt.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_filter_suggestion(
         &self,
@@ -3522,7 +3763,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_project_filter_suggestion",
-        description = "Get AI-powered project filter suggestion from a natural language prompt."
+        description = "Get AI-powered project filter suggestion from a natural language prompt.",
+        annotations(read_only_hint = true)
     )]
     async fn get_project_filter_suggestion(
         &self,
@@ -3536,7 +3778,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_custom_view_suggestion",
-        description = "Get AI-powered custom view suggestion from a natural language prompt."
+        description = "Get AI-powered custom view suggestion from a natural language prompt.",
+        annotations(read_only_hint = true)
     )]
     async fn get_custom_view_suggestion(
         &self,
@@ -3550,7 +3793,8 @@ impl LinearMcp {
 
     #[tool(
         name = "check_custom_view_has_subscribers",
-        description = "Check if a custom view has subscribers."
+        description = "Check if a custom view has subscribers.",
+        annotations(read_only_hint = true)
     )]
     async fn check_custom_view_has_subscribers(
         &self,
@@ -3564,7 +3808,8 @@ impl LinearMcp {
 
     #[tool(
         name = "search_issue_figma_file_key",
-        description = "Search for issues linked to a Figma file key."
+        description = "Search for issues linked to a Figma file key.",
+        annotations(read_only_hint = true)
     )]
     async fn search_issue_figma_file_key(
         &self,
@@ -3578,7 +3823,8 @@ impl LinearMcp {
 
     #[tool(
         name = "update_initiative_update",
-        description = "Update an initiative update's body or health."
+        description = "Update an initiative update's body or health.",
+        annotations(destructive_hint = false)
     )]
     async fn update_initiative_update(
         &self,
@@ -3592,7 +3838,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_comments_all",
-        description = "List all comments globally (not per-issue)."
+        description = "List all comments globally (not per-issue).",
+        annotations(read_only_hint = true)
     )]
     async fn list_comments_all(
         &self,
@@ -3606,7 +3853,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_label",
-        description = "Get an issue label by UUID."
+        description = "Get an issue label by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_label(
         &self,
@@ -3620,7 +3868,8 @@ impl LinearMcp {
 
     #[tool(
         name = "get_issue_relation",
-        description = "Get an issue relation by UUID."
+        description = "Get an issue relation by UUID.",
+        annotations(read_only_hint = true)
     )]
     async fn get_issue_relation(
         &self,
@@ -3634,7 +3883,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_issue_relations",
-        description = "List all issue relations."
+        description = "List all issue relations.",
+        annotations(read_only_hint = true)
     )]
     async fn list_issue_relations(
         &self,
@@ -3648,7 +3898,8 @@ impl LinearMcp {
 
     #[tool(
         name = "list_external_users",
-        description = "List external users."
+        description = "List external users.",
+        annotations(read_only_hint = true)
     )]
     async fn list_external_users(
         &self,

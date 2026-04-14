@@ -3,8 +3,13 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// Simple in-memory cache for entity lookups.
+/// Maximum number of entries before the oldest entries are evicted.
+const MAX_CACHE_ENTRIES: usize = 10_000;
+
+/// Simple in-memory cache for entity lookups with a max-entry cap.
 /// Session-scoped (lives as long as the MCP server process).
+/// When the cache exceeds MAX_CACHE_ENTRIES, it is cleared to prevent
+/// unbounded memory growth in long-lived sessions.
 #[derive(Clone)]
 pub struct EntityCache<T: Clone> {
     inner: Arc<RwLock<HashMap<String, T>>>,
@@ -41,6 +46,9 @@ impl<T: Clone> EntityCache<T> {
         let val = fetch().await?;
         {
             let mut cache = self.inner.write().await;
+            if cache.len() >= MAX_CACHE_ENTRIES {
+                cache.clear();
+            }
             cache.insert(key.to_string(), val.clone());
         }
         Ok(val)

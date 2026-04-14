@@ -24,12 +24,16 @@ case "$OS" in
   *) echo "Unsupported OS: $OS"; exit 1 ;;
 esac
 
+TMPDIR_INSTALL="$(mktemp -d)"
+trap 'rm -rf "$TMPDIR_INSTALL"' EXIT
+
 echo "Downloading $ARTIFACT..."
 
 mkdir -p "$INSTALL_DIR"
 
 if command -v gh &>/dev/null; then
-  gh release download --repo "$REPO" -p "$ARTIFACT" -O "$INSTALL_DIR/linear-mcp" --clobber
+  gh release download --repo "$REPO" -p "$ARTIFACT" -O "$TMPDIR_INSTALL/$ARTIFACT" --clobber
+  gh release download --repo "$REPO" -p "checksums.txt" -O "$TMPDIR_INSTALL/checksums.txt" --clobber
 elif [ -n "${GITHUB_TOKEN:-}" ]; then
   if ! command -v jq &>/dev/null; then
     echo "Error: 'jq' is required for GITHUB_TOKEN-based downloads."
@@ -38,14 +42,17 @@ elif [ -n "${GITHUB_TOKEN:-}" ]; then
   fi
   RELEASE_JSON="$(curl -fsL -H "Authorization: token $GITHUB_TOKEN" \
     "https://api.github.com/repos/$REPO/releases/latest")"
-  ASSET_URL="$(echo "$RELEASE_JSON" | jq -r --arg name "$ARTIFACT" \
-    '.assets[] | select(.name == $name) | .url')"
-  if [ -z "$ASSET_URL" ]; then
-    echo "Error: Asset '$ARTIFACT' not found in latest release."
-    exit 1
-  fi
-  curl -fsL -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/octet-stream" \
-    "$ASSET_URL" -o "$INSTALL_DIR/linear-mcp"
+
+  for ASSET_NAME in "$ARTIFACT" "checksums.txt"; do
+    ASSET_URL="$(echo "$RELEASE_JSON" | jq -r --arg name "$ASSET_NAME" \
+      '.assets[] | select(.name == $name) | .url')"
+    if [ -z "$ASSET_URL" ]; then
+      echo "Error: Asset '$ASSET_NAME' not found in latest release."
+      exit 1
+    fi
+    curl -fsL -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/octet-stream" \
+      "$ASSET_URL" -o "$TMPDIR_INSTALL/$ASSET_NAME"
+  done
 else
   echo "Error: 'gh' CLI not found and GITHUB_TOKEN not set."
   echo "Install gh: https://cli.github.com"
@@ -53,6 +60,33 @@ else
   exit 1
 fi
 
+# Verify SHA256 checksum
+echo "Verifying checksum..."
+EXPECTED="$(grep "$ARTIFACT" "$TMPDIR_INSTALL/checksums.txt" | awk '{print $1}')"
+if [ -z "$EXPECTED" ]; then
+  echo "Error: No checksum found for $ARTIFACT in checksums.txt"
+  exit 1
+fi
+
+if command -v sha256sum &>/dev/null; then
+  ACTUAL="$(sha256sum "$TMPDIR_INSTALL/$ARTIFACT" | awk '{print $1}')"
+elif command -v shasum &>/dev/null; then
+  ACTUAL="$(shasum -a 256 "$TMPDIR_INSTALL/$ARTIFACT" | awk '{print $1}')"
+else
+  echo "Error: No sha256sum or shasum found. Cannot verify binary integrity."
+  exit 1
+fi
+
+if [ "$EXPECTED" != "$ACTUAL" ]; then
+  echo "Error: Checksum mismatch!"
+  echo "  Expected: $EXPECTED"
+  echo "  Actual:   $ACTUAL"
+  echo "The downloaded binary may have been tampered with."
+  exit 1
+fi
+
+echo "Checksum verified."
+cp "$TMPDIR_INSTALL/$ARTIFACT" "$INSTALL_DIR/linear-mcp"
 chmod +x "$INSTALL_DIR/linear-mcp"
 
 echo ""
