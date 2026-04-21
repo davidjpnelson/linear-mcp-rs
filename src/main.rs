@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Starting linear-mcp server");
 
-    let client = client::LinearClient::new(api_key);
+    let client = client::LinearClient::new(api_key)?;
     let server = server::LinearMcp::new(client);
 
     let service = server.serve(rmcp::transport::io::stdio()).await?;
