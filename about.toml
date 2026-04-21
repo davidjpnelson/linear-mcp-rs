@@ -1,0 +1,26 @@
+# cargo-about configuration — generates THIRD_PARTY_LICENSES.html.
+#
+# Keep the `accepted` list in lock-step with `deny.toml`'s
+# `[licenses].allow`. cargo-about resolves SPDX `OR` expressions to the
+# first license in `accepted` that satisfies them, so order matters only
+# in that preferred licenses should come first.
+
+accepted = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "BSL-1.0",
+    "CDLA-Permissive-2.0",
+    "Unlicense",
+]
+
+# Clarifications for crates whose SPDX metadata does not match the
+# SPDX license-expression database cleanly. `ring` is a conjunctive
+# `ISC AND MIT AND OpenSSL`; we accept the OpenSSL grant only for this
+# specific crate so it does not bleed into the global policy.
+[ring]
+accepted = ["ISC", "MIT", "OpenSSL"]
