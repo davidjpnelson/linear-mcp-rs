@@ -2,6 +2,7 @@
 name = "linear-mcp"
 version = "0.3.3"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 rmcp = { version = "0.15", features = ["server", "transport-io", "macros"] }
