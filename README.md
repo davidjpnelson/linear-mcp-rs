@@ -5,7 +5,7 @@ Rust MCP server for Linear. Single ~4MB binary, no runtime dependencies.
 ## Install
 
 ```bash
-gh release download --repo davidjpnelson/linear-mcp-rs -p install.sh -O- | bash
+gh release download --repo Integral-Healthcare/linear-mcp-rs -p install.sh -O- | bash
 ```
 
 Requires [GitHub CLI](https://cli.github.com). Downloads the right binary for your OS/arch to `~/.local/bin/linear-mcp`.
@@ -14,7 +14,7 @@ Requires [GitHub CLI](https://cli.github.com). Downloads the right binary for yo
 
 ### 1. Linear API key
 
-Create a personal API key at [https://linear.app](https://linear.app) → **Settings** → **Security & access** → Personal API Keys
+Create an API key at [https://linear.app](https://linear.app) → **Settings** → **Security & access** → Personal API Keys
 
 The server checks these in order:
 
@@ -528,7 +528,7 @@ Jules has built-in Linear MCP support — no binary needed. Go to **Jules Settin
 Requires [Rust toolchain](https://rustup.rs).
 
 ```bash
-git clone git@github.com:davidjpnelson/linear-mcp-rs.git
+git clone git@github.com:Integral-Healthcare/linear-mcp-rs.git
 cd linear-mcp-rs
 cargo build --release
 # Binary: target/release/linear-mcp
