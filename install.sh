@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="davidjpnelson/linear-mcp-rs"
+REPO="Integral-Healthcare/linear-mcp-rs"
 INSTALL_DIR="$HOME/.local/bin"
 
 OS="$(uname -s)"
@@ -104,6 +104,6 @@ echo "   security add-generic-password -s linear-api-key -a \"\$USER\" -w \"lin_
 echo ""
 echo "2. Add to Claude Code:"
 echo ""
-echo "   claude mcp add linear-mcp-rs $INSTALL_DIR/linear-mcp"
+echo "   claude mcp add linear-mcp $INSTALL_DIR/linear-mcp"
 echo ""
 echo "3. Restart Claude Code"

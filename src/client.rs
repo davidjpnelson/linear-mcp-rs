@@ -2,6 +2,7 @@ use crate::error::Error;
 use crate::graphql::response::{GraphQLError, GraphQLResponse};
 use reqwest::Client;
 use serde::{de::DeserializeOwned, Serialize};
+use std::time::Duration;
 
 const LINEAR_API_URL: &str = "https://api.linear.app/graphql";
 
@@ -19,11 +20,13 @@ struct GraphQLRequest<V: Serialize> {
 }
 
 impl LinearClient {
-    pub fn new(api_key: String) -> Self {
-        Self {
-            http: Client::new(),
-            api_key,
-        }
+    pub fn new(api_key: String) -> Result<Self, Error> {
+        let http = Client::builder()
+            .connect_timeout(Duration::from_secs(10))
+            .timeout(Duration::from_secs(30))
+            .redirect(reqwest::redirect::Policy::none())
+            .build()?;
+        Ok(Self { http, api_key })
     }
 
     /// Execute a GraphQL query/mutation and deserialize the response data.
