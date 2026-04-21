@@ -1,0 +1,93 @@
+name: Audit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-audit:
+    name: cargo audit (RustSec)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write  # rustsec/audit-check posts findings as issues on main
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  osv-scanner:
+    name: osv-scanner (OSV/GHSA)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: google/osv-scanner-action/osv-scanner-action@c51854704019a247608d928f370c98740469d4b5 # v2.3.5
+        with:
+          scan-args: |-
+            --lockfile=Cargo.lock
+
+  cargo-deny:
+    name: cargo deny check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: EmbarkStudios/cargo-deny-action@91bf2b620e09e18d6eb78b92e7861937469acedb # v2.0.17
+        with:
+          command: check
+          log-level: warn
+
+  cargo-vet:
+    name: cargo vet check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+      - name: Cache cargo-vet
+        id: cache-vet
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cargo/bin/cargo-vet
+          key: cargo-vet-0.10.0-${{ runner.os }}
+      - name: Install cargo-vet
+        if: steps.cache-vet.outputs.cache-hit != 'true'
+        run: cargo install cargo-vet --locked --version 0.10.0
+      - name: cargo vet
+        run: cargo vet --locked
+
+  license-bundle-drift:
+    name: THIRD_PARTY_LICENSES.yaml drift check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+      - name: Cache cargo-bundle-licenses
+        id: cache-bundle
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cargo/bin/cargo-bundle-licenses
+          key: cargo-bundle-licenses-4.2.0-${{ runner.os }}
+      - name: Install cargo-bundle-licenses
+        if: steps.cache-bundle.outputs.cache-hit != 'true'
+        run: cargo install cargo-bundle-licenses --locked --version 4.2.0
+      - name: Regenerate bundle
+        run: cargo bundle-licenses --format yaml --output /tmp/regen.yaml
+      - name: Diff against committed THIRD_PARTY_LICENSES.yaml
+        run: |
+          if ! diff -u THIRD_PARTY_LICENSES.yaml /tmp/regen.yaml; then
+            echo "::error::THIRD_PARTY_LICENSES.yaml is out of sync with Cargo.lock."
+            echo "Regenerate with: cargo bundle-licenses --format yaml --output THIRD_PARTY_LICENSES.yaml"
+            exit 1
+          fi
