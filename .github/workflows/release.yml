@@ -23,6 +23,7 @@ jobs:
     needs: audit
     permissions:
       contents: read
+      id-token: write  # required for cosign keyless OIDC signing
 
     strategy:
       matrix:
@@ -30,12 +31,23 @@ jobs:
           - target: aarch64-apple-darwin
             runner: macos-14
             artifact: linear-mcp-darwin-arm64
+            bin_suffix: ""
           - target: x86_64-apple-darwin
             runner: macos-14
             artifact: linear-mcp-darwin-x64
+            bin_suffix: ""
           - target: x86_64-unknown-linux-musl
             runner: ubuntu-latest
             artifact: linear-mcp-linux-x64
+            bin_suffix: ""
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+            artifact: linear-mcp-linux-arm64
+            bin_suffix: ""
+          - target: x86_64-pc-windows-msvc
+            runner: windows-latest
+            artifact: linear-mcp-windows-x64.exe
+            bin_suffix: ".exe"
 
     runs-on: ${{ matrix.runner }}
 
@@ -47,20 +59,66 @@ jobs:
       - name: Add target
         run: rustup target add ${{ matrix.target }}
 
-      - name: Install musl-tools
-        if: contains(matrix.target, 'musl')
-        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - name: Install zig + cargo-zigbuild (linux musl cross-compile)
+        if: contains(matrix.target, 'linux-musl')
+        shell: bash
+        run: |
+          pip3 install --user ziglang==0.13.0
+          cargo install cargo-zigbuild --locked --version 0.22.2
 
-      - name: Build
+      - name: Build (linux musl via zigbuild)
+        if: contains(matrix.target, 'linux-musl')
+        shell: bash
+        run: cargo zigbuild --release --target ${{ matrix.target }}
+
+      - name: Build (native)
+        if: "!contains(matrix.target, 'linux-musl')"
+        shell: bash
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Rename binary
-        run: cp target/${{ matrix.target }}/release/linear-mcp ${{ matrix.artifact }}
+        shell: bash
+        run: cp target/${{ matrix.target }}/release/linear-mcp${{ matrix.bin_suffix }} ${{ matrix.artifact }}
+
+      - name: Install cargo-cyclonedx (SBOM)
+        shell: bash
+        run: cargo install cargo-cyclonedx --locked --version 0.5.9
+
+      - name: Generate CycloneDX SBOM
+        shell: bash
+        run: |
+          cargo cyclonedx --format json --target ${{ matrix.target }} --override-filename ${{ matrix.artifact }}.sbom
+          # cargo-cyclonedx writes `<override-filename>.json` into the package directory.
+          # Locate and copy to workspace root with the expected release asset name.
+          SBOM_SRC="$(find . -name '${{ matrix.artifact }}.sbom.json' -print -quit)"
+          if [ -z "$SBOM_SRC" ]; then
+            echo "::error::SBOM file not produced by cargo-cyclonedx"
+            exit 1
+          fi
+          cp "$SBOM_SRC" ./${{ matrix.artifact }}.sbom.json
+          ls -la ${{ matrix.artifact }}.sbom.json
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003 # v4.1.1
+
+      - name: Sign binary with cosign (keyless)
+        shell: bash
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign-blob --yes \
+            --output-signature ${{ matrix.artifact }}.sig \
+            --output-certificate ${{ matrix.artifact }}.pem \
+            ${{ matrix.artifact }}
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.artifact }}
+          name: ${{ matrix.artifact }}-bundle
+          path: |
+            ${{ matrix.artifact }}
+            ${{ matrix.artifact }}.sig
+            ${{ matrix.artifact }}.pem
+            ${{ matrix.artifact }}.sbom.json
 
   release:
     needs: build
@@ -75,15 +133,32 @@ jobs:
         with:
           path: artifacts
 
-      - name: Collect binaries and generate checksums
+      - name: Collect release assets
         run: |
           mkdir release
           for dir in artifacts/*/; do
             cp "$dir"* release/
           done
           cp install.sh release/
+          cp THIRD_PARTY_LICENSES.yaml release/
+          # THIRD_PARTY_LICENSES.html is produced by a parallel agent; ship it if present.
+          if [ -f THIRD_PARTY_LICENSES.html ]; then
+            cp THIRD_PARTY_LICENSES.html release/
+          else
+            echo "::warning::THIRD_PARTY_LICENSES.html not found — skipping"
+          fi
           cd release
-          sha256sum linear-mcp-* > checksums.txt
+          # Checksums over binaries only (not sigs/certs/SBOMs).
+          # `SHA256SUMS` is the canonical name required by the release contract;
+          # `checksums.txt` is retained for backwards compatibility with install.sh.
+          BINARIES=$(ls linear-mcp-* | grep -Ev '\.(sig|pem|sbom\.json)$' | sort)
+          if [ -z "$BINARIES" ]; then
+            echo "::error::no binaries found for checksum generation"
+            exit 1
+          fi
+          sha256sum $BINARIES > SHA256SUMS
+          cp SHA256SUMS checksums.txt
+          ls -la
 
       - uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
