@@ -400,8 +400,8 @@ user-login = "djc"
 user-name = "Dirkjan Ochtman"
 
 [[publisher.rustls-webpki]]
-version = "0.103.12"
-when = "2026-04-14"
+version = "0.103.13"
+when = "2026-04-21"
 user-id = 2751
 user-login = "ctz"
 user-name = "Joe Birr-Pixton"
