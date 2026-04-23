@@ -106,6 +106,7 @@ jobs:
           # ships detached `.sig` and `.pem` assets per binary.
           cosign sign-blob --yes \
             --new-bundle-format=false \
+            --use-signing-config=false \
             --output-signature ${{ matrix.artifact }}.sig \
             --output-certificate ${{ matrix.artifact }}.pem \
             ${{ matrix.artifact }}
