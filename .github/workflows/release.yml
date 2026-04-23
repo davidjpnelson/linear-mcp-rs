@@ -102,7 +102,10 @@ jobs:
         env:
           COSIGN_YES: "true"
         run: |
+          # cosign v3 defaults to bundle output, but this release contract
+          # ships detached `.sig` and `.pem` assets per binary.
           cosign sign-blob --yes \
+            --new-bundle-format=false \
             --output-signature ${{ matrix.artifact }}.sig \
             --output-certificate ${{ matrix.artifact }}.pem \
             ${{ matrix.artifact }}
