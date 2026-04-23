@@ -88,14 +88,10 @@ jobs:
         shell: bash
         run: |
           cargo cyclonedx --format json --target ${{ matrix.target }} --override-filename ${{ matrix.artifact }}.sbom
-          # cargo-cyclonedx writes `<override-filename>.json` into the package directory.
-          # Locate and copy to workspace root with the expected release asset name.
-          SBOM_SRC="$(find . -name '${{ matrix.artifact }}.sbom.json' -print -quit)"
-          if [ -z "$SBOM_SRC" ]; then
+          if [ ! -f ${{ matrix.artifact }}.sbom.json ]; then
             echo "::error::SBOM file not produced by cargo-cyclonedx"
             exit 1
           fi
-          cp "$SBOM_SRC" ./${{ matrix.artifact }}.sbom.json
           ls -la ${{ matrix.artifact }}.sbom.json
 
       - name: Install cosign

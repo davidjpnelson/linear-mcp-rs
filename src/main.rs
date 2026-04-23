@@ -9,6 +9,7 @@ mod tools;
 mod types;
 
 use rmcp::ServiceExt;
+use std::io::{self, Write};
 use tracing_subscriber::EnvFilter;
 
 const THIRD_PARTY_LICENSES: &str = include_str!("../THIRD_PARTY_LICENSES.yaml");
@@ -31,6 +32,11 @@ const HELP_TEXT: &str = concat!(
     "  --help, -h    Print this help message and exit\n",
 );
 
+fn write_stdout(contents: &str) -> io::Result<()> {
+    let mut stdout = io::stdout().lock();
+    stdout.write_all(contents.as_bytes())
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Handle CLI flags before any async work, logging, or auth initialization.
@@ -39,19 +45,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(arg) = args.next() {
         match arg.as_str() {
             "--licenses" => {
-                print!("{}", THIRD_PARTY_LICENSES);
+                if let Err(err) = write_stdout(THIRD_PARTY_LICENSES) {
+                    if err.kind() != io::ErrorKind::BrokenPipe {
+                        return Err(err.into());
+                    }
+                }
                 return Ok(());
             }
             "--version" => {
-                println!(
-                    "{} {}",
-                    env!("CARGO_PKG_NAME"),
-                    env!("CARGO_PKG_VERSION")
-                );
+                let version = format!("{} {}\n", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+                if let Err(err) = write_stdout(&version) {
+                    if err.kind() != io::ErrorKind::BrokenPipe {
+                        return Err(err.into());
+                    }
+                }
                 return Ok(());
             }
             "--help" | "-h" => {
-                print!("{}", HELP_TEXT);
+                if let Err(err) = write_stdout(HELP_TEXT) {
+                    if err.kind() != io::ErrorKind::BrokenPipe {
+                        return Err(err.into());
+                    }
+                }
                 return Ok(());
             }
             other => {
